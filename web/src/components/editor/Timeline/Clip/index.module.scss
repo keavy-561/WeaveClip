@@ -1,0 +1,83 @@
+.clip {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+
+  // 轨道类型配色
+  &.video {
+    background: var(--color-timeline-clip-bg);
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+
+  &.caption {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+
+  &.audio {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+  }
+
+  &.effect {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  &.selected {
+    border-color: var(--semi-color-primary);
+    background: var(--color-timeline-clip-selected);
+    box-shadow: 0 0 0 1px var(--semi-color-primary);
+  }
+
+  &:hover .handle {
+    opacity: 1;
+  }
+}
+
+.clipIcon {
+  display: flex;
+  align-items: center;
+  color: var(--semi-color-text-1);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.clipLabel {
+  font-size: 11px;
+  color: var(--semi-color-text-0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Trim 手柄
+.handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--semi-color-primary);
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: ew-resize;
+
+  &.left {
+    left: 0;
+    border-radius: 6px 0 0 6px;
+  }
+
+  &.right {
+    right: 0;
+    border-radius: 0 6px 6px 0;
+  }
+}

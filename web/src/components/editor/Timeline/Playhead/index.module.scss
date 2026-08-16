@@ -1,0 +1,28 @@
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  z-index: 10;
+  cursor: ew-resize;
+  user-select: none;
+}
+
+.head {
+  position: absolute;
+  top: 0;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--color-timeline-playhead);
+}
+
+.line {
+  position: absolute;
+  top: 10px;
+  bottom: 0;
+  left: -0.5px;
+  width: 1px;
+  background: var(--color-timeline-playhead);
+}

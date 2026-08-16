@@ -1,0 +1,36 @@
+server:
+  port: 8080
+  mode: release
+
+database:
+  host: ${DB_HOST}
+  port: 5432
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  dbname: weaveclip
+  sslmode: require
+
+redis:
+  addr: ${REDIS_ADDR}
+  db: 0
+  password: ${REDIS_PASSWORD}
+
+storage:
+  provider: ${STORAGE_PROVIDER}
+  endpoint: ${STORAGE_ENDPOINT}
+  access_key: ${STORAGE_ACCESS_KEY}
+  secret_key: ${STORAGE_SECRET_KEY}
+  bucket: weaveclip
+  region: ${STORAGE_REGION}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiry: 72h
+
+ai:
+  openai_api_key: ${OPENAI_API_KEY}
+  anthropic_api_key: ${ANTHROPIC_API_KEY}
+
+ffmpeg:
+  binary_path: ffmpeg
+  ffprobe_path: ffprobe

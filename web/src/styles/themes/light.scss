@@ -1,0 +1,42 @@
+// 浅色主题
+[data-theme='light'] {
+  --semi-color-bg-0: #f5f5f7;
+  --semi-color-bg-1: #ffffff;
+  --semi-color-bg-2: #f0f0f2;
+  --semi-color-bg-3: #e4e4e7;
+  --semi-color-bg-4: #d4d4d8;
+
+  --semi-color-border: #e4e4e7;
+  --semi-color-border-1: #d4d4d8;
+  --semi-color-border-2: #a1a1aa;
+
+  --semi-color-primary: #7c3aed;
+  --semi-color-primary-hover: #6d28d9;
+  --semi-color-primary-active: #5b21b6;
+  --semi-color-primary-light-default: rgba(124, 58, 237, 0.1);
+
+  --semi-color-text-0: #18181b;
+  --semi-color-text-1: #52525b;
+  --semi-color-text-2: #a1a1aa;
+  --semi-color-text-3: #d4d4d8;
+
+  --semi-color-success: #16a34a;
+  --semi-color-warning: #d97706;
+  --semi-color-danger: #dc2626;
+
+  --semi-color-shadow: rgba(0, 0, 0, 0.08);
+
+  --color-ai-accent: #7c3aed;
+  --color-ai-glow: rgba(124, 58, 237, 0.2);
+
+  --color-timeline-bg: #ffffff;
+  --color-timeline-clip-bg: #e4e4e7;
+  --color-timeline-clip-selected: rgba(124, 58, 237, 0.3);
+  --color-timeline-playhead: #18181b;
+  --color-timeline-ruler: #d4d4d8;
+  --color-timeline-track: #f5f5f7;
+
+  --color-editor-bg: #f5f5f7;
+  --color-editor-surface: #ffffff;
+  --color-editor-border: #e4e4e7;
+}

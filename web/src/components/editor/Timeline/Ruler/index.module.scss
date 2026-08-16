@@ -1,0 +1,32 @@
+.ruler {
+  position: relative;
+  height: 28px;
+  border-bottom: 1px solid var(--semi-color-border);
+  background: var(--color-timeline-track);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tickLabel {
+  font-size: 10px;
+  color: var(--semi-color-text-2);
+  padding: 2px 0 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tickLine {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 6px;
+  background: var(--color-timeline-ruler);
+}

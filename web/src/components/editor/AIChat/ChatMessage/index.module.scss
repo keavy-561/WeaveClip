@@ -1,0 +1,65 @@
+.message {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+
+  &.user {
+    justify-content: flex-end;
+
+    .bubble {
+      background: var(--semi-color-primary);
+      color: #fff;
+      border-radius: 12px 12px 2px 12px;
+    }
+  }
+
+  &.assistant {
+    justify-content: flex-start;
+
+    .bubble {
+      background: var(--semi-color-bg-2);
+      color: var(--semi-color-text-0);
+      border-radius: 12px 12px 12px 2px;
+      border: 1px solid var(--semi-color-border);
+    }
+  }
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: var(--semi-color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.bubble {
+  max-width: 85%;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.content {
+  word-break: break-word;
+}
+
+.operations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.opTag {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--semi-color-primary-light-default);
+  color: var(--semi-color-primary);
+  font-family: 'JetBrains Mono', monospace;
+}

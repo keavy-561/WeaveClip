@@ -1,0 +1,6 @@
+.toggle {
+  color: var(--semi-color-text-1);
+  &:hover {
+    color: var(--semi-color-text-0);
+  }
+}

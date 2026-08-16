@@ -1,0 +1,36 @@
+server:
+  port: 8080
+  mode: debug # debug | release
+
+database:
+  host: localhost
+  port: 5432
+  user: weaveclip
+  password: weaveclip_dev
+  dbname: weaveclip
+  sslmode: disable
+
+redis:
+  addr: localhost:6379
+  db: 0
+  password: ""
+
+storage:
+  provider: minio # minio | aliyun_oss | aws_s3
+  endpoint: localhost:9000
+  access_key: minioadmin
+  secret_key: minioadmin
+  bucket: weaveclip
+  region: ""
+
+jwt:
+  secret: dev_jwt_secret_change_me
+  expiry: 72h
+
+ai:
+  openai_api_key: ""
+  anthropic_api_key: ""
+
+ffmpeg:
+  binary_path: ffmpeg
+  ffprobe_path: ffprobe

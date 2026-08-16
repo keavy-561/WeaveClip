@@ -1,0 +1,127 @@
+.page {
+  min-height: 100vh;
+  background: var(--semi-color-bg-0);
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  border-bottom: 1px solid var(--semi-color-border);
+  background: var(--semi-color-bg-1);
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step {
+  font-size: 14px;
+  color: var(--semi-color-text-2);
+
+  &.active {
+    color: var(--semi-color-primary);
+    font-weight: 600;
+  }
+}
+
+.stepDivider {
+  color: var(--semi-color-text-2);
+  font-size: 12px;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+}
+
+.main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--semi-color-text-0);
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--semi-color-text-0);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.textarea {
+  border-radius: 10px;
+}
+
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.examplesLabel {
+  font-size: 13px;
+  color: var(--semi-color-text-2);
+}
+
+.exampleItem {
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--semi-color-border);
+  background: var(--semi-color-bg-1);
+  color: var(--semi-color-text-1);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: var(--semi-color-primary);
+    color: var(--semi-color-text-0);
+  }
+}
+
+.optionRow {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.optionGroup {
+  :global(.semi-radio-group-button) {
+    background: var(--semi-color-bg-1);
+  }
+}
+
+.generateBtn {
+  align-self: flex-end;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 32px;
+  border-radius: 10px;
+  margin-top: 8px;
+}

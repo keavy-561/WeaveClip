@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+bin/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Go
+server/tmp/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Editor/agent internals
+.zcode/
+temp_*.png
+

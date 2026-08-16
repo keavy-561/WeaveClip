@@ -1,0 +1,22 @@
+// SCSS 公共变量
+// 路径别名变量（Vite additionalData 会自动注入）
+
+$radius-card: 12px;
+$radius-button: 8px;
+$radius-input: 10px;
+$radius-dialog: 16px;
+
+$font-sans: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+$font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+// Editor layout
+$editor-assets-width: 240px;
+$editor-chat-width: 320px;
+$editor-timeline-height: 200px;
+
+// z-index layers
+$z-timeline-clip: 1;
+$z-timeline-playhead: 10;
+$z-dropdown: 100;
+$z-dialog: 1000;
+$z-toast: 2000;

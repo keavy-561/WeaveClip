@@ -1,0 +1,44 @@
+// 深色主题（默认）—— 覆盖 Semi Design CSS Variables
+:root,
+[data-theme='dark'] {
+  --semi-color-bg-0: #09090b;
+  --semi-color-bg-1: #111113;
+  --semi-color-bg-2: #18181b;
+  --semi-color-bg-3: #27272a;
+  --semi-color-bg-4: #3f3f46;
+
+  --semi-color-border: #27272a;
+  --semi-color-border-1: #3f3f46;
+  --semi-color-border-2: #52525b;
+
+  --semi-color-primary: #8b5cf6;
+  --semi-color-primary-hover: #7c3aed;
+  --semi-color-primary-active: #6d28d9;
+  --semi-color-primary-light-default: rgba(139, 92, 246, 0.15);
+
+  --semi-color-text-0: #f4f4f5;
+  --semi-color-text-1: #a1a1aa;
+  --semi-color-text-2: #71717a;
+  --semi-color-text-3: #52525b;
+
+  --semi-color-success: #22c55e;
+  --semi-color-warning: #f59e0b;
+  --semi-color-danger: #ef4444;
+
+  --semi-color-shadow: rgba(0, 0, 0, 0.5);
+
+  // Custom tokens
+  --color-ai-accent: #8b5cf6;
+  --color-ai-glow: rgba(139, 92, 246, 0.3);
+
+  --color-timeline-bg: #111113;
+  --color-timeline-clip-bg: #27272a;
+  --color-timeline-clip-selected: rgba(139, 92, 246, 0.4);
+  --color-timeline-playhead: #f4f4f5;
+  --color-timeline-ruler: #3f3f46;
+  --color-timeline-track: #18181b;
+
+  --color-editor-bg: #09090b;
+  --color-editor-surface: #111113;
+  --color-editor-border: #27272a;
+}

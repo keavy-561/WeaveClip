@@ -1,0 +1,35 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+
+  &.normal {
+    .icon {
+      width: 28px;
+      height: 28px;
+    }
+    .name {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+  }
+
+  &.small {
+    .icon {
+      width: 22px;
+      height: 22px;
+    }
+    .name {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+  }
+
+  .name {
+    color: var(--semi-color-text-0);
+  }
+}
