@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Slider } from '@douyinfe/semi-ui';
-import { IconPlay, IconPause, IconVolume2, IconVolumeOff } from '@douyinfe/semi-icons';
+import { IconPlay, IconPause, IconVolume2, IconMute } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { formatTime } from '@/utils/format';
 import styles from './index.module.scss';
@@ -64,7 +64,7 @@ const VideoPlayer: React.FC = () => {
         </div>
 
         <Button
-          icon={muted ? <IconVolumeOff /> : <IconVolume2 />}
+          icon={muted ? <IconMute /> : <IconVolume2 />}
           theme="borderless"
           size="small"
           onClick={() => setMuted(!muted)}

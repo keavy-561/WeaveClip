@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useThemeStore } from '@/stores/themeStore';
-import router from '@/router';
+import Router from '@/router';
 
 const App: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
@@ -9,7 +9,7 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  return router;
+  return <Router />;
 };
 
 export default App;
