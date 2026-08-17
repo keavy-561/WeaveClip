@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
+import '@douyinfe/semi-ui/dist/css/semi.min.css';
 import '@/styles/themes/dark.scss';
 import '@/styles/themes/light.scss';
 import '@/styles/global.scss';
