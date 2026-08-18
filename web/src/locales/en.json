@@ -189,10 +189,17 @@
     },
     "describe": {
       "step": "Describe",
+      "title": "What should we make?",
+      "label": "Describe your video",
+      "duration": "Duration",
+      "format": "Format",
+      "style": "Style",
       "styleCinematic": "Cinematic",
       "styleEnergetic": "Energetic",
       "styleMinimal": "Minimal",
       "styleStorytelling": "Storytelling",
+      "generate": "Generate",
+      "generating": "Generating...",
       "error": {
         "required": "Please describe what you want",
         "minLength": "At least 5 characters"

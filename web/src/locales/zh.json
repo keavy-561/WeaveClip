@@ -189,10 +189,17 @@
     },
     "describe": {
       "step": "描述",
+      "title": "你想做什么视频？",
+      "label": "描述你的视频",
+      "duration": "时长",
+      "format": "画幅比例",
+      "style": "风格",
       "styleCinematic": "电影感",
       "styleEnergetic": "节奏感",
       "styleMinimal": "极简",
       "styleStorytelling": "叙事",
+      "generate": "生成",
+      "generating": "生成中...",
       "error": {
         "required": "请描述你想要的内容",
         "minLength": "至少输入 5 个字符"
