@@ -57,6 +57,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
           placeholder={t('common.searchPlaceholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          aria-label={t('common.search')}
         />
       </div>
 

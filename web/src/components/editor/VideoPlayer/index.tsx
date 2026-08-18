@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@douyinfe/semi-ui';
 import { IconPlay, IconPause, IconMute, IconVolume2 } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
@@ -10,9 +10,9 @@ const VideoPlayer: React.FC = () => {
   const { isPlaying, togglePlay, currentTime, duration, setCurrentTime } =
     useTimelineStore();
   const { t } = useTranslation();
-  const [muted, setMuted] = React.useState(false);
+  const [muted, setMuted] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isPlaying) return;
     const timer = setInterval(() => {
       const next = currentTime + 0.1;

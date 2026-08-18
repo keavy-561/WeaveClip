@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Button } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
@@ -23,6 +23,15 @@ const Describe: React.FC = () => {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [errors, setErrors] = useState<{ prompt?: string }>({});
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const queryPrompt = searchParams.get('prompt');
@@ -42,7 +51,10 @@ const Describe: React.FC = () => {
     if (Object.keys(newErrors).length > 0) return;
 
     setIsGenerating(true);
-    setTimeout(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = window.setTimeout(() => {
       const projectId = `proj_${Date.now()}`;
       addMockProject({
         id: projectId,
@@ -56,6 +68,7 @@ const Describe: React.FC = () => {
         thumbnailUrl: '/src/assets/project-thumb-1.png',
       });
       navigate(`/editor/${projectId}`);
+      timerRef.current = null;
     }, 1500);
   };
 
@@ -66,8 +79,8 @@ const Describe: React.FC = () => {
           <Button
             icon={<IconArrowLeft />}
             theme="borderless"
+            className={styles.backBtn}
             onClick={() => navigate('/projects/new')}
-            style={{ color: 'var(--semi-color-text-1)' }}
           />
           <Logo size="small" />
         </div>

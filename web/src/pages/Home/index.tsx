@@ -1,7 +1,7 @@
 import React from 'react';
 import { Skeleton, Empty, Button } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import HeroSection from '@/components/home/HeroSection';
 import ProjectCard from '@/components/home/ProjectCard';
@@ -14,6 +14,7 @@ import styles from './index.module.scss';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ['projects'],
@@ -63,7 +64,7 @@ const Home: React.FC = () => {
         ) : projects.length === 0 ? (
           <div className={styles.emptyState}>
             <Empty description={t('projects.empty')} />
-            <Button theme="solid" className={styles.emptyCta} onClick={() => window.location.href = '/projects/new'}>
+            <Button theme="solid" className={styles.emptyCta} onClick={() => navigate('/projects/new')}>
               {t('home.ctaNewVideo')}
             </Button>
           </div>

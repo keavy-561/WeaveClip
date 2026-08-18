@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: weaveclip
+          POSTGRES_PASSWORD: weaveclip_dev
+          POSTGRES_DB: weaveclip
+        ports: [5432:5432]
+        options: >-
+          --health-cmd pg_isready -U weaveclip
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Download server deps
+        working-directory: server
+        run: go mod download
+      - name: Vet
+        working-directory: server
+        run: go vet ./...
+      - name: Test
+        working-directory: server
+        env:
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: weaveclip
+          DATABASE_PASSWORD: weaveclip_dev
+          DATABASE_DBNAME: weaveclip
+          DATABASE_SSLMODE: disable
+          REDIS_ADDR: localhost:6379
+          JWT_SECRET: test_secret
+          MOCK_MODE: false
+        run: go test ./...
+      - name: Build
+        working-directory: server
+        run: go build ./cmd/server
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Install deps
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        working-directory: web
+        run: pnpm build
+      - name: i18n check
+        working-directory: web
+        run: pnpm run check:i18n

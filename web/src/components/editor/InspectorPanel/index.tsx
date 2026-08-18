@@ -65,8 +65,8 @@ const InspectorPanel: React.FC = () => {
                     <input
                       type="text"
                       className={styles.textInput}
-                      value={(selectedClip as any).text ?? ''}
-                      onChange={(e) => updateClip(selectedClip.id, { text: e.target.value } as any)}
+                      value={selectedClip.text ?? ''}
+                      onChange={(e) => updateClip(selectedClip.id, { text: e.target.value })}
                     />
                   </div>
                 )}
@@ -108,8 +108,8 @@ const InspectorPanel: React.FC = () => {
                   <div className={styles.controlGroup}>
                     <div className={styles.controlRow}>
                       <span className={styles.controlLabel}>{t('editor.inspector.volume')}</span>
-                      <input type="range" min="0" max="100" defaultValue={Math.round(((selectedClip as any).volume ?? 1) * 100)} className={styles.rangeFlex} />
-                      <input type="number" className={styles.numberInputSm} defaultValue={Math.round(((selectedClip as any).volume ?? 1) * 100)} />
+                      <input type="range" min="0" max="100" defaultValue={Math.round((selectedClip.volume ?? 1) * 100)} className={styles.rangeFlex} />
+                      <input type="number" className={styles.numberInputSm} defaultValue={Math.round((selectedClip.volume ?? 1) * 100)} />
                     </div>
                   </div>
                 </section>

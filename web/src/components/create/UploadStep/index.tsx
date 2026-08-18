@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { Button, Toast } from '@douyinfe/semi-ui';
 import UploadZone from '../UploadZone';
 import FileList from '../FileList';
@@ -15,6 +15,14 @@ const UploadStep: React.FC<UploadStepProps> = ({ onContinue }) => {
   const [files, setFiles] = useState<FileItemData[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const inputId = 'upload-file-input';
+  const intervalsRef = useRef<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    return () => {
+      intervalsRef.current.forEach((id) => clearInterval(id));
+      intervalsRef.current.clear();
+    };
+  }, []);
 
   const handleFiles = useCallback((fileList: FileList | File[]) => {
     const newFiles: FileItemData[] = Array.from(fileList).map((f, i) => ({
@@ -49,6 +57,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onContinue }) => {
         if (progress >= 100) {
           progress = 100;
           clearInterval(interval);
+          intervalsRef.current.delete(file.id);
           setFiles((prev) =>
             prev.map((f) =>
               f.id === file.id ? { ...f, progress: 100, status: 'done' } : f
@@ -62,6 +71,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onContinue }) => {
           );
         }
       }, 300);
+      intervalsRef.current.set(file.id, interval);
     });
   }, []);
 

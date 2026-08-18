@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Spin } from '@douyinfe/semi-ui';
 import { useAIChatStore } from '@/stores/aiChatStore';
 import { useTimelineStore } from '@/stores/timelineStore';
@@ -13,9 +13,18 @@ const AIChat: React.FC = () => {
   const selectedClipId = useTimelineStore((s) => s.selectedClipId);
   const { t } = useTranslation();
   const listRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   // 自动滚动到底部
-  React.useEffect(() => {
+  useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages.length, isLoading]);
 
@@ -31,7 +40,10 @@ const AIChat: React.FC = () => {
     setLoading(true);
 
     // Phase 0: Mock AI 响应
-    setTimeout(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = window.setTimeout(() => {
       addMessage({
         id: generateId(),
         role: 'assistant',
@@ -39,6 +51,7 @@ const AIChat: React.FC = () => {
         timestamp: new Date().toISOString(),
       });
       setLoading(false);
+      timerRef.current = null;
     }, 1200);
   };
 

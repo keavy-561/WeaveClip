@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@douyinfe/semi-ui';
 import {
@@ -35,7 +35,7 @@ const Editor: React.FC = () => {
   const addMessage = useAIChatStore((s) => s.addMessage);
   const clearMessages = useAIChatStore((s) => s.clearMessages);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const project =
       mockProjects.find((p) => p.id === projectId) ??
       ({
@@ -54,7 +54,6 @@ const Editor: React.FC = () => {
 
     clearMessages();
     mockChatMessages.forEach((m) => addMessage(m));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const project = useProjectStore((s) => s.currentProject);
@@ -62,7 +61,7 @@ const Editor: React.FC = () => {
     (a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId)
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.title = project?.name
       ? `${project.name} - ${t('common.appName')}`
       : `${t('editor.header.projectName')} - ${t('common.appName')}`;
