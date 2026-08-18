@@ -18,7 +18,7 @@ jobs:
           POSTGRES_DB: weaveclip
         ports: [5432:5432]
         options: >-
-          --health-cmd pg_isready -U weaveclip
+          --health-cmd "pg_isready -U weaveclip"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.23'
       - name: Download server deps
         working-directory: server
         run: go mod download
