@@ -48,7 +48,11 @@
     "statusReady": "Ready",
     "statusAnalyzing": "Analyzing",
     "statusGenerating": "Generating",
-    "statusRendering": "Rendering"
+    "statusRendering": "Rendering",
+    "examplePromptsTitle": "Try these",
+    "examplePrompt1": "Help me cut a 45-second energetic NYC travel vlog",
+    "examplePrompt2": "Make a product teaser with a strong tech feel",
+    "examplePrompt3": "Turn this beach footage into a 30-second relaxing short"
   },
   "projects": {
     "title": "Projects",

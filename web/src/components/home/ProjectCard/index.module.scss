@@ -1,0 +1,115 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--semi-color-bg-1);
+  border: 1px solid var(--semi-color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.card:focus-visible {
+  border-color: var(--semi-color-primary);
+  box-shadow: 0 0 0 2px var(--color-ai-glow);
+}
+
+.card:hover {
+  border-color: var(--semi-color-primary);
+}
+
+.thumb {
+  width: 100%;
+  height: 120px;
+  background: var(--semi-color-bg-2);
+  overflow: hidden;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--semi-color-text-2);
+  background: linear-gradient(135deg, var(--color-surface-container-high), var(--semi-color-bg-2));
+}
+
+.body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.name {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--semi-color-text-0);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  color: var(--semi-color-text-2);
+  text-transform: capitalize;
+}
+
+.separator {
+  color: var(--semi-color-text-3);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.statusTag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+.updatedAt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 12px;
+  letter-spacing: 0.02em;
+  color: var(--semi-color-text-3);
+}

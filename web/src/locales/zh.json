@@ -48,7 +48,11 @@
     "statusReady": "就绪",
     "statusAnalyzing": "分析中",
     "statusGenerating": "生成中",
-    "statusRendering": "渲染中"
+    "statusRendering": "渲染中",
+    "examplePromptsTitle": "试试这些",
+    "examplePrompt1": "帮我剪一个 45 秒的纽约旅行 vlog，节奏轻快",
+    "examplePrompt2": "做一个产品预告片，突出科技感",
+    "examplePrompt3": "把这段海滩 footage 剪成 30 秒的治愈短片"
   },
   "projects": {
     "title": "项目",

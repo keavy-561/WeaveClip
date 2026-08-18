@@ -1,0 +1,35 @@
+.hero {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 64px 24px 40px;
+  text-align: center;
+}
+
+.heroTitle {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 48px;
+  letter-spacing: -0.02em;
+  color: var(--semi-color-text-0);
+  margin-bottom: 16px;
+}
+
+.heroAccent {
+  color: var(--semi-color-primary);
+}
+
+.heroSubtitle {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--semi-color-text-1);
+  margin-bottom: 32px;
+}
+
+.ctaButton {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0 24px;
+  height: 40px;
+}

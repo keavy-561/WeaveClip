@@ -15,6 +15,7 @@ export const mockProjects: Project[] = [
     style: 'energetic',
     createdAt: '2026-08-10T08:00:00Z',
     updatedAt: '2026-08-10T12:00:00Z',
+    thumbnailUrl: '/src/assets/project-thumb-1.png',
   },
   {
     id: 'proj_2',
@@ -25,6 +26,7 @@ export const mockProjects: Project[] = [
     style: 'cinematic',
     createdAt: '2026-08-08T14:00:00Z',
     updatedAt: '2026-08-08T14:00:00Z',
+    thumbnailUrl: '/src/assets/project-thumb-2.png',
   },
   {
     id: 'proj_3',
@@ -35,6 +37,7 @@ export const mockProjects: Project[] = [
     style: 'minimal',
     createdAt: '2026-08-05T10:00:00Z',
     updatedAt: '2026-08-05T16:00:00Z',
+    thumbnailUrl: '/src/assets/project-thumb-3.png',
   },
 ];
 

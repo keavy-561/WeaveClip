@@ -1,31 +1,47 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@douyinfe/semi-ui';
-import Logo from '@/components/ui/Logo';
+import { Skeleton, Empty, Button } from '@douyinfe/semi-ui';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import HeroSection from '@/components/home/HeroSection';
+import ProjectCard from '@/components/home/ProjectCard';
+import ExamplePrompts from '@/components/home/ExamplePrompts';
+import type { ExamplePrompt } from '@/components/home/ExamplePrompts';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import { useTranslation } from 'react-i18next';
 import { mockProjects } from '@/utils/mockData';
 import styles from './index.module.scss';
 
 const Home: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => mockProjects,
+    staleTime: 1000 * 60,
+  });
+
+  const projects = data || [];
+
+  const examplePrompts: ExamplePrompt[] = [
+    { id: '1', text: '帮我剪一个 45 秒的纽约旅行 vlog，节奏轻快', labelKey: 'home.examplePrompt1' },
+    { id: '2', text: '做一个产品预告片，突出科技感', labelKey: 'home.examplePrompt2' },
+    { id: '3', text: '把这段海滩 footage 剪成 30 秒的治愈短片', labelKey: 'home.examplePrompt3' },
+  ];
 
   return (
     <div className={styles.page}>
-      {/* Navbar */}
       <header className={styles.navbar}>
         <div className={styles.navLeft}>
-          <Logo />
+          <span className={styles.logoText}>WeaveClip</span>
         </div>
         <nav className={styles.navLinks}>
-          <button className={`${styles.navLink} ${styles.active}`} onClick={() => navigate('/')}>
+          <button className={`${styles.navLink} ${styles.active}`} type="button">
             {t('nav.home')}
           </button>
-          <button className={styles.navLink} onClick={() => navigate('/projects')}>
+          <Link to="/projects" className={styles.navLink}>
             {t('nav.projects')}
-          </button>
+          </Link>
         </nav>
         <div className={styles.navRight}>
           <ThemeToggle />
@@ -34,51 +50,33 @@ const Home: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>
-          {t('home.heroTitle')}
-          <br />
-          <span className={styles.heroAccent}>{t('home.heroTitleAccent')}</span>
-        </h1>
-        <p className={styles.heroSubtitle}>{t('home.heroSubtitle')}</p>
-        <Button
-          theme="solid"
-          size="large"
-          className={styles.ctaButton}
-          onClick={() => navigate('/projects/new')}
-        >
-          {t('home.ctaNewVideo')}
-        </Button>
-      </section>
+      <HeroSection />
 
-      {/* Recent Projects */}
       <section className={styles.projects}>
         <h2 className={styles.sectionTitle}>{t('home.recentProjects')}</h2>
-        <div className={styles.projectGrid}>
-          {mockProjects.map((project) => (
-            <div
-              key={project.id}
-              className={styles.projectCard}
-              onClick={() => navigate(`/editor/${project.id}`)}
-            >
-              <div className={styles.projectHeader}>
-                <h3 className={styles.projectName}>{t(project.name)}</h3>
-              </div>
-              <div className={styles.projectMeta}>
-                <div className={styles.projectInfo}>
-                  <span className={styles.badge}>{project.aspectRatio}</span>
-                  <span className={styles.info}>
-                    {project.duration ? `${project.duration}${t('home.durationUnit')}` : '—'}
-                  </span>
-                  <span className={styles.info}>{project.style}</span>
-                </div>
-                <div className={styles.projectStatus}>{t(`home.status${project.status.charAt(0).toUpperCase() + project.status.slice(1)}`)}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className={styles.skeletonGrid}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className={styles.skeletonCard} />
+            ))}
+          </div>
+        ) : projects.length === 0 ? (
+          <div className={styles.emptyState}>
+            <Empty description={t('projects.empty')} />
+            <Button theme="solid" className={styles.emptyCta} onClick={() => window.location.href = '/projects/new'}>
+              {t('home.ctaNewVideo')}
+            </Button>
+          </div>
+        ) : (
+          <div className={styles.projectGrid}>
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
       </section>
+
+      <ExamplePrompts prompts={examplePrompts} />
     </div>
   );
 };

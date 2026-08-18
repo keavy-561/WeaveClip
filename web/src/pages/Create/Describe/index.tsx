@@ -1,24 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Radio, RadioGroup, TextArea, Toast } from '@douyinfe/semi-ui';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button, RadioGroup, Radio, TextArea, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft, IconSend } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import styles from './index.module.scss';
 
-const EXAMPLE_PROMPTS = [
-  'Create a 45-second travel vlog about my NYC trip. Make it energetic and cinematic. Focus on Times Square and Central Park.',
-  'Turn my interview footage into a 60s TikTok with captions.',
-  'Make a 30s product teaser with a strong hook.',
+interface ExamplePromptItem {
+  id: string;
+  text: string;
+}
+
+const EXAMPLE_PROMPTS: ExamplePromptItem[] = [
+  { id: '1', text: 'Create a 45-second travel vlog about my NYC trip. Make it energetic and cinematic. Focus on Times Square and Central Park.' },
+  { id: '2', text: 'Turn my interview footage into a 60s TikTok with captions.' },
+  { id: '3', text: 'Make a 30s product teaser with a strong hook.' },
 ];
 
 const Describe: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [prompt, setPrompt] = useState('');
   const [duration, setDuration] = useState(45);
   const [format, setFormat] = useState('9:16');
   const [style, setStyle] = useState('energetic');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const prefill = searchParams.get('prompt');
+    if (prefill) {
+      setPrompt(prefill);
+    }
+  }, [searchParams]);
 
   const handleGenerate = () => {
     if (!prompt.trim()) {
@@ -72,13 +85,14 @@ const Describe: React.FC = () => {
 
           <div className={styles.examples}>
             <span className={styles.examplesLabel}>Examples:</span>
-            {EXAMPLE_PROMPTS.map((p) => (
+            {EXAMPLE_PROMPTS.map((item) => (
               <button
-                key={p}
+                key={item.id}
+                type="button"
                 className={styles.exampleItem}
-                onClick={() => setPrompt(p)}
+                onClick={() => setPrompt(item.text)}
               >
-                "{p.length > 60 ? p.slice(0, 60) + '...' : p}"
+                {item.text.length > 60 ? `${item.text.slice(0, 60)}...` : item.text}
               </button>
             ))}
           </div>

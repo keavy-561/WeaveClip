@@ -1,0 +1,48 @@
+.section {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+.title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  color: var(--semi-color-text-1);
+  margin: 0 0 12px;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  appearance: none;
+  border: 1px solid var(--semi-color-border);
+  background: var(--semi-color-bg-1);
+  color: var(--semi-color-text-1);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.chip:hover {
+  border-color: var(--semi-color-primary);
+  color: var(--semi-color-primary);
+  background: var(--color-surface-container-high);
+}
+
+.chip:focus-visible {
+  border-color: var(--semi-color-primary);
+  box-shadow: 0 0 0 2px var(--color-ai-glow);
+}
