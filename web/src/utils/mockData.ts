@@ -205,3 +205,20 @@ export const mockAnalyzeResult = {
     duplicates: 3,
   },
 };
+
+// ============ Mock Styles ============
+
+export const mockStyles = [
+  { value: 'cinematic', labelKey: 'create.describe.styleCinematic' },
+  { value: 'energetic', labelKey: 'create.describe.styleEnergetic' },
+  { value: 'minimal', labelKey: 'create.describe.styleMinimal' },
+  { value: 'storytelling', labelKey: 'create.describe.styleStorytelling' },
+];
+
+// ============ In-memory project store for mock generation ============
+
+export const mockProjectStore: Project[] = [...mockProjects];
+
+export const addMockProject = (project: Project) => {
+  mockProjectStore.unshift(project);
+};

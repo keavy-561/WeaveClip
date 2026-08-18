@@ -177,6 +177,33 @@
       "bRoll": "B-roll clips",
       "duplicateScenes": "duplicate scenes",
       "ready": "Your footage is ready."
+    },
+    "upload": {
+      "step": "Upload",
+      "title": "Create new video",
+      "dropTitle": "Drop your footage here",
+      "dropHint": "or click to upload",
+      "formats": "MP4 / MOV / JPG / PNG",
+      "continue": "Continue",
+      "noFiles": "Please upload at least one file"
+    },
+    "describe": {
+      "step": "Describe",
+      "styleCinematic": "Cinematic",
+      "styleEnergetic": "Energetic",
+      "styleMinimal": "Minimal",
+      "styleStorytelling": "Storytelling",
+      "error": {
+        "required": "Please describe what you want",
+        "minLength": "At least 5 characters"
+      }
+    },
+    "generate": {
+      "step": "Generate"
+    },
+    "fileList": {
+      "count": "{{count}} file",
+      "totalDuration": "Total duration"
     }
   },
   "mockData": {

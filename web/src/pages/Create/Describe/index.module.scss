@@ -1,3 +1,5 @@
+@use "@/styles/variables" as *;
+
 .page {
   min-height: 100vh;
   background: var(--semi-color-bg-0);
@@ -8,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  height: 56px;
+  height: 48px;
   border-bottom: 1px solid var(--semi-color-border);
   background: var(--semi-color-bg-1);
 }
@@ -26,7 +28,9 @@
 }
 
 .step {
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 14px;
+  font-weight: 500;
   color: var(--semi-color-text-2);
 
   &.active {
@@ -36,7 +40,7 @@
 }
 
 .stepDivider {
-  color: var(--semi-color-text-2);
+  color: var(--semi-color-text-3);
   font-size: 12px;
 }
 
@@ -52,57 +56,19 @@
 }
 
 .title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--semi-color-text-0);
-  margin-bottom: 24px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
   letter-spacing: -0.02em;
+  color: var(--semi-color-text-0);
+  margin: 0 0 24px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-}
-
-.label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--semi-color-text-0);
-  margin-bottom: 8px;
-  display: block;
-}
-
-.textarea {
-  border-radius: 10px;
-}
-
-.examples {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.examplesLabel {
-  font-size: 13px;
-  color: var(--semi-color-text-2);
-}
-
-.exampleItem {
-  text-align: left;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--semi-color-border);
-  background: var(--semi-color-bg-1);
-  color: var(--semi-color-text-1);
-  font-size: 13px;
-  cursor: pointer;
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: var(--semi-color-primary);
-    color: var(--semi-color-text-0);
-  }
+  gap: 24px;
 }
 
 .optionRow {
@@ -117,11 +83,29 @@
   }
 }
 
-.generateBtn {
-  align-self: flex-end;
-  font-size: 15px;
+.optionLabel {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
   font-weight: 600;
-  padding: 10px 32px;
-  border-radius: 10px;
+  line-height: 20px;
+  color: var(--semi-color-text-0);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.textarea {
+  border-radius: 8px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
   margin-top: 8px;
+}
+
+.generateBtn {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0 24px;
+  height: 40px;
 }

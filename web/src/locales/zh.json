@@ -177,6 +177,33 @@
       "bRoll": "空镜片段",
       "duplicateScenes": "重复场景",
       "ready": "素材已就绪"
+    },
+    "upload": {
+      "step": "上传",
+      "title": "创建新视频",
+      "dropTitle": "拖放素材到这里",
+      "dropHint": "或点击上传",
+      "formats": "MP4 / MOV / JPG / PNG",
+      "continue": "继续",
+      "noFiles": "请至少上传一个文件"
+    },
+    "describe": {
+      "step": "描述",
+      "styleCinematic": "电影感",
+      "styleEnergetic": "节奏感",
+      "styleMinimal": "极简",
+      "styleStorytelling": "叙事",
+      "error": {
+        "required": "请描述你想要的内容",
+        "minLength": "至少输入 5 个字符"
+      }
+    },
+    "generate": {
+      "step": "生成"
+    },
+    "fileList": {
+      "count": "{{count}} 个文件",
+      "totalDuration": "总时长"
     }
   },
   "mockData": {

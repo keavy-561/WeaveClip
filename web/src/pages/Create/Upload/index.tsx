@@ -1,81 +1,91 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Progress, Tag } from '@douyinfe/semi-ui';
-import { IconArrowLeft, IconUpload, IconFile, IconVideo, IconImage, IconMusic } from '@douyinfe/semi-icons';
+import { Button, Toast } from '@douyinfe/semi-ui';
+import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import AnalyzeProgress from '@/components/create/AnalyzeProgress';
-import { formatFileSize, formatDuration } from '@/utils/format';
-import type { Asset } from '@/types/asset';
+import UploadZone from '@/components/create/UploadZone';
+import FileList from '@/components/create/FileList';
+import type { FileItemData } from '@/components/create/FileList';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.scss';
 
-type UploadStage = 'upload' | 'analyzing' | 'done';
-
-const ACCEPTED_TYPES = ['video/mp4', 'video/quicktime', 'image/jpeg', 'image/png'];
-const ACCEPTED_EXTS = ['.mp4', '.mov', '.jpg', '.jpeg', '.png'];
-
 const Upload: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [stage, setStage] = useState<UploadStage>('upload');
-  const [files, setFiles] = useState<Asset[]>([]);
+  const [files, setFiles] = useState<FileItemData[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
-
-  const totalDuration = files.reduce((sum, f) => sum + (f.duration ?? 0), 0);
+  const inputId = 'upload-file-input';
 
   const handleFiles = useCallback((fileList: FileList | File[]) => {
-    const valid: Asset[] = Array.from(fileList)
-      .filter((f) => {
-        const ext = '.' + f.name.split('.').pop()?.toLowerCase();
-        return ACCEPTED_TYPES.includes(f.type) || ACCEPTED_EXTS.includes(ext);
-      })
-      .map((f, i) => ({
-        id: `local_${Date.now()}_${i}`,
-        projectId: 'draft',
-        type: f.type.startsWith('video')
-          ? 'video'
-          : f.type.startsWith('audio')
-            ? 'audio'
-            : f.type.startsWith('image')
-              ? 'image'
-              : 'video',
-        storagePath: '',
-        fileName: f.name,
-        fileSize: f.size,
-        duration: null,
-        width: null,
-        height: null,
-        thumbnailUrl: null,
-        fps: null,
-        codec: null,
-        transcript: null,
-        metadata: null,
-        analysis: null,
-        createdAt: new Date().toISOString(),
-      }));
-    setFiles((prev) => [...prev, ...valid]);
+    const newFiles: FileItemData[] = Array.from(fileList).map((f, i) => ({
+      id: `local_${Date.now()}_${i}`,
+      projectId: 'draft',
+      type: f.type.startsWith('video') ? 'video' : f.type.startsWith('audio') ? 'audio' : f.type.startsWith('image') ? 'image' : 'video',
+      storagePath: '',
+      fileName: f.name,
+      fileSize: f.size,
+      duration: null,
+      width: null,
+      height: null,
+      thumbnailUrl: null,
+      fps: null,
+      codec: null,
+      transcript: null,
+      metadata: null,
+      analysis: null,
+      createdAt: new Date().toISOString(),
+      progress: 0,
+      status: 'pending' as const,
+    }));
+
+    setFiles((prev) => [...prev, ...newFiles]);
+
+    // Simulate upload progress for each file
+    newFiles.forEach((file) => {
+      setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: 'uploading' } : f)));
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 25 + 10;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === file.id ? { ...f, progress: 100, status: 'done' } : f
+            )
+          );
+        } else {
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === file.id ? { ...f, progress: Math.min(progress, 99) } : f
+            )
+          );
+        }
+      }, 300);
+    });
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragOver(false);
-      handleFiles(e.dataTransfer.files);
-    },
-    [handleFiles]
-  );
+  const handleRemove = useCallback((id: string) => {
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+  }, []);
 
-  const fileIcon = (type: string) => {
-    if (type === 'video') return <IconVideo />;
-    if (type === 'image') return <IconImage />;
-    if (type === 'audio') return <IconMusic />;
-    return <IconFile />;
-  };
+  const handleContinue = useCallback(() => {
+    const uploaded = files.filter((f) => f.status === 'done');
+    if (uploaded.length === 0) {
+      Toast.warning(t('create.upload.noFiles', 'Please upload at least one file'));
+      return;
+    }
 
-  // 阶段 2：分析完成 → 进入 Describe
-  const handleAnalyzeDone = () => {
-    setStage('done');
-    setTimeout(() => navigate('/projects/new/describe'), 600);
-  };
+    const draft = {
+      files: uploaded,
+      totalDuration: uploaded.reduce((sum, f) => sum + (f.duration ?? 0), 0),
+      createdAt: new Date().toISOString(),
+    };
+
+    navigate('/projects/new/describe', { state: draft });
+  }, [files, navigate, t]);
 
   return (
     <div className={styles.page}>
@@ -90,11 +100,11 @@ const Upload: React.FC = () => {
           <Logo size="small" />
         </div>
         <div className={styles.steps}>
-          <span className={`${styles.step} ${styles.active}`}>1 Upload</span>
+          <span className={`${styles.step} ${styles.active}`}>1 {t('create.upload.step', 'Upload')}</span>
           <span className={styles.stepDivider}>—</span>
-          <span className={styles.step}>2 Describe</span>
+          <span className={styles.step}>2 {t('create.describe.step', 'Describe')}</span>
           <span className={styles.stepDivider}>—</span>
-          <span className={styles.step}>3 Generate</span>
+          <span className={styles.step}>3 {t('create.generate.step', 'Generate')}</span>
         </div>
         <div className={styles.navRight}>
           <ThemeToggle />
@@ -102,92 +112,32 @@ const Upload: React.FC = () => {
       </header>
 
       <main className={styles.main}>
-        {stage === 'upload' && (
-          <>
-            <h1 className={styles.title}>Create new video</h1>
+        <h1 className={styles.title}>{t('create.upload.title', 'Create new video')}</h1>
 
-            <div
-              className={`${styles.dropzone} ${isDragOver ? styles.dragOver : ''}`}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragOver(true);
-              }}
-              onDragLeave={() => setIsDragOver(false)}
-              onDrop={handleDrop}
-              onClick={() => document.getElementById('file-input')?.click()}
+        <UploadZone
+          isDragOver={isDragOver}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragOver(true);
+          }}
+          onDragLeave={() => setIsDragOver(false)}
+          onFileSelect={handleFiles}
+          inputId={inputId}
+        />
+
+        <FileList files={files} onRemove={handleRemove} />
+
+        {files.length > 0 && (
+          <div className={styles.actions}>
+            <Button
+              theme="solid"
+              size="large"
+              disabled={files.some((f) => f.status !== 'done')}
+              onClick={handleContinue}
+              className={styles.continueBtn}
             >
-              <IconUpload size="extra-large" className={styles.uploadIcon} />
-              <p className={styles.dropzoneTitle}>Drop your footage</p>
-              <p className={styles.dropzoneHint}>or click to upload</p>
-              <p className={styles.dropzoneFormats}>MP4 / MOV / JPG / PNG</p>
-              <input
-                id="file-input"
-                type="file"
-                multiple
-                accept="video/mp4,video/quicktime,image/jpeg,image/png"
-                className={styles.hiddenInput}
-                onChange={(e) => e.target.files && handleFiles(e.target.files)}
-              />
-            </div>
-
-            {files.length > 0 && (
-              <div className={styles.fileSection}>
-                <div className={styles.fileSummary}>
-                  <Tag color="purple" size="large">
-                    {files.length} files
-                  </Tag>
-                  {totalDuration > 0 && (
-                    <span className={styles.summaryText}>
-                      {formatDuration(totalDuration)}
-                    </span>
-                  )}
-                </div>
-                <div className={styles.fileList}>
-                  {files.map((f) => (
-                    <div key={f.id} className={styles.fileItem}>
-                      <span className={styles.fileIcon}>{fileIcon(f.type)}</span>
-                      <span className={styles.fileName}>{f.fileName}</span>
-                      <span className={styles.fileSize}>
-                        {formatFileSize(f.fileSize)}
-                      </span>
-                      <Button
-                        size="small"
-                        theme="borderless"
-                        type="danger"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFiles((prev) => prev.filter((x) => x.id !== f.id));
-                        }}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className={styles.actions}>
-                  <Button
-                    theme="solid"
-                    size="large"
-                    disabled={files.length === 0}
-                    onClick={() => setStage('analyzing')}
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {stage === 'analyzing' && (
-          <AnalyzeProgress onComplete={handleAnalyzeDone} />
-        )}
-
-        {stage === 'done' && (
-          <div className={styles.doneSection}>
-            <Progress percent={100} type="circle" />
-            <p className={styles.doneText}>Your footage is ready.</p>
+              {t('create.upload.continue', 'Continue')}
+            </Button>
           </div>
         )}
       </main>
