@@ -10,6 +10,13 @@ try {
   // noop
 }
 
+// Mock CacheStorage to avoid undici/webidl incompatibility in Node 20
+if (typeof globalThis.CacheStorage === 'undefined') {
+  (globalThis as any).CacheStorage = class CacheStorage {
+    constructor() {}
+  } as any;
+}
+
 // Mock canvas to support lottie-web and other canvas-dependent libs in jsdom
 class MockCanvasRenderingContext2D {
   fillStyle = '';
