@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextArea } from '@douyinfe/semi-ui';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 export interface PromptInputProps {
@@ -10,7 +10,7 @@ export interface PromptInputProps {
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({ value, error, onChange }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   return (
     <div className={styles.promptInput}>

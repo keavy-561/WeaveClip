@@ -7,7 +7,7 @@ import {
   IconFont,
   IconHelpCircle,
 } from '@douyinfe/semi-icons';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface SideNavBarProps {
@@ -17,7 +17,7 @@ interface SideNavBarProps {
 const SideNavBar: React.FC<SideNavBarProps> = ({ activeItem: controlledActiveItem }) => {
   const [internalActive, setInternalActive] = useState<string>('ai-tools');
   const active = controlledActiveItem ?? internalActive;
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   const navItems = [
     { key: 'media', icon: <IconVideoListStroked />, label: t('nav.media') },

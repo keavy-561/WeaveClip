@@ -9,7 +9,7 @@ import {
 } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { useTimelineStore } from '@/stores/timelineStore';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { formatTime } from '@/utils/format';
 import Track from './Track';
 import Ruler from './Ruler';
@@ -32,7 +32,7 @@ const Timeline: React.FC = () => {
     deleteClip,
     splitClip,
   } = useTimelineStore();
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   const pxPerSec = PX_PER_SEC * zoom;
   const totalWidth = Math.max(duration * pxPerSec + 120, 600);

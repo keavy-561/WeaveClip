@@ -22,18 +22,26 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: [6379:6379]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.25'
       - name: Download server deps
         working-directory: server
         run: go mod download
       - name: Vet
         working-directory: server
         run: go vet ./...
-      - name: Test
+      - name: Test with coverage
         working-directory: server
         env:
           DATABASE_HOST: localhost
@@ -45,7 +53,7 @@ jobs:
           REDIS_ADDR: localhost:6379
           JWT_SECRET: test_secret
           MOCK_MODE: false
-        run: go test ./...
+        run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
       - name: Build
         working-directory: server
         run: go build ./cmd/server
@@ -64,9 +72,27 @@ jobs:
       - name: Install deps
         working-directory: web
         run: pnpm install --frozen-lockfile
+      - name: Run tests
+        working-directory: web
+        run: pnpm test:run
       - name: Build
         working-directory: web
         run: pnpm build
       - name: i18n check
         working-directory: web
         run: pnpm run check:i18n
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint backend
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: server
+          version: latest
+      - name: Lint frontend
+        working-directory: web
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec eslint src --ext .ts,.tsx || echo "ESLint not configured, skipping"

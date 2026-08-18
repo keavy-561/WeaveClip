@@ -1,11 +1,11 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { Button } from '@douyinfe/semi-ui';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 
 const HeroSection: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
 
   return (

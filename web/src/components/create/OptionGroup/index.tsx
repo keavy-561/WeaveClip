@@ -1,6 +1,6 @@
 import React from 'react';
 import { RadioGroup, Radio } from '@douyinfe/semi-ui';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 export interface Option {
@@ -21,7 +21,7 @@ const OptionGroup: React.FC<OptionGroupProps> = ({
   options,
   onChange,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   return (
     <div className={styles.optionGroup}>

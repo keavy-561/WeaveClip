@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@douyinfe/semi-ui';
 import { IconPlay, IconPause, IconMute, IconVolume2 } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { formatTime } from '@/utils/format';
 import styles from './index.module.scss';
 
 const VideoPlayer: React.FC = () => {
   const { isPlaying, togglePlay, currentTime, duration, setCurrentTime } =
     useTimelineStore();
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {

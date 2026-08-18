@@ -81,25 +81,20 @@ func main() {
 			auth.GET("/me", middleware.Auth(), authHandler.Me)
 		}
 
-			projects := api.Group("/projects")
-			projects.Use(middleware.Auth())
-			{
-				projects.GET("", projectHandler.List)
-				projects.POST("", projectHandler.Create)
-				projects.GET("/:id", projectHandler.Get)
-				projects.DELETE("/:id", projectHandler.Delete)
+		projects := api.Group("/projects")
+		projects.Use(middleware.Auth())
+		{
+			projects.GET("", projectHandler.List)
+			projects.POST("", projectHandler.Create)
+			projects.GET("/:id", projectHandler.Get)
+			projects.DELETE("/:id", projectHandler.Delete)
+			projects.GET("/:id/assets", assetHandler.List)
+			projects.POST("/:id/assets", assetHandler.Create)
 
-				assets := projects.Group("/:projectId/assets")
-				assets.Use(middleware.Auth())
-				{
-					assets.GET("", assetHandler.List)
-					assets.POST("", assetHandler.Create)
-					assets.GET("/:id", assetHandler.Get)
-					assets.DELETE("/:id", assetHandler.Delete)
-				}
-
-				// Phase 1+: analyze / generate / chat / render
-			}
+			// Phase 1+: analyze / generate / chat / render
+		}
+		api.GET("/assets/:id", middleware.Auth(), assetHandler.Get)
+		api.DELETE("/assets/:id", middleware.Auth(), assetHandler.Delete)
 	}
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)

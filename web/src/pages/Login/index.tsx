@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Form, Toast } from '@douyinfe/semi-ui';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
 import styles from './index.module.scss';
@@ -8,7 +8,7 @@ import styles from './index.module.scss';
 type Mode = 'login' | 'register';
 
 const Login: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>('login');
   const [loading, setLoading] = useState(false);

@@ -6,13 +6,13 @@ import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import UploadStep from '@/components/create/UploadStep';
 import type { FileItemData } from '@/components/create/FileList';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
 import styles from './index.module.scss';
 
 const Upload: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
 
   const createMutation = useMutation({

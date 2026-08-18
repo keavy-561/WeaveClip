@@ -11,17 +11,21 @@ echo "$register_resp" | jq .
 
 USER_ID=$(echo "$register_resp" | jq -r '.user.id')
 if [ -z "$USER_ID" ] || [ "$USER_ID" = "null" ]; then
-  echo "FATAL: register failed"
-  exit 1
+  echo "-> user may already exist, trying login"
+  login_resp=$(curl -s -X POST "$BASE/api/auth/login" \
+    -H 'Content-Type: application/json' \
+    -d '{"email":"assets+smoke@test.com","password":"test123456"}')
+  echo "$login_resp" | jq .
+  TOKEN=$(echo "$login_resp" | jq -r '.token')
+else
+  echo "-> POST /api/auth/login"
+  login_resp=$(curl -s -X POST "$BASE/api/auth/login" \
+    -H 'Content-Type: application/json' \
+    -d '{"email":"assets+smoke@test.com","password":"test123456"}')
+  echo "$login_resp" | jq .
+
+  TOKEN=$(echo "$login_resp" | jq -r '.token')
 fi
-
-echo "-> POST /api/auth/login"
-login_resp=$(curl -s -X POST "$BASE/api/auth/login" \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"assets+smoke@test.com","password":"test123456"}')
-echo "$login_resp" | jq .
-
-TOKEN=$(echo "$login_resp" | jq -r '.token')
 if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
   echo "FATAL: login failed"
   exit 1

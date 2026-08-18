@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 export interface ExamplePrompt {
@@ -14,7 +14,7 @@ interface ExamplePromptsProps {
 }
 
 const ExamplePrompts: React.FC<ExamplePromptsProps> = ({ prompts }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
 
   const handleClick = (text: string) => {

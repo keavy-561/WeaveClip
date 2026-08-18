@@ -8,7 +8,7 @@ import {
 } from '@douyinfe/semi-icons';
 import type { Clip as ClipType } from '@/types/timeline';
 import { mockAssets } from '@/utils/mockData';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface ClipProps {
@@ -26,7 +26,7 @@ const Clip: React.FC<ClipProps> = ({
   isSelected,
   onSelect,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const asset = clip.assetId
     ? mockAssets.find((a) => a.id === clip.assetId)
     : null;

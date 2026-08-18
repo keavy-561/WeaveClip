@@ -1,6 +1,6 @@
 import React from 'react';
 import { Skeleton, Empty, Button, Toast, Popover } from '@douyinfe/semi-ui';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { IconArrowLeft, IconPlus, IconMore, IconDelete } from '@douyinfe/semi-icons';
@@ -14,7 +14,7 @@ import styles from './index.module.scss';
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const Projects: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 

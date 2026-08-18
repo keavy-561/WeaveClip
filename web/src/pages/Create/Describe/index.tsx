@@ -4,7 +4,7 @@ import { Button, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
 import DescribeForm from '@/components/create/DescribeForm';
@@ -15,7 +15,7 @@ import styles from './index.module.scss';
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const Describe: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();

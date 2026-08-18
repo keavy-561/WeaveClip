@@ -87,8 +87,8 @@ func IsMockMode() bool {
 func MockProjects() []model.Project {
 	now := time.Now()
 	return []model.Project{
-		{ID: 1, Name: "NYC Travel Vlog", Status: "ready", Duration: 45, AspectRatio: "9:16", Style: "energetic", CreatedAt: now.Add(-72 * time.Hour), UpdatedAt: now.Add(-48 * time.Hour)},
-		{ID: 2, Name: "Product Teaser", Status: "draft", Duration: 30, AspectRatio: "16:9", Style: "cinematic", CreatedAt: now.Add(-24 * time.Hour), UpdatedAt: now.Add(-24 * time.Hour)},
-		{ID: 3, Name: "Beach Day Reel", Status: "ready", Duration: 60, AspectRatio: "9:16", Style: "minimal", CreatedAt: now.Add(-96 * time.Hour), UpdatedAt: now.Add(-90 * time.Hour)},
+		{ID: 1, Name: "NYC Travel Vlog", UserID: 1, Status: "ready", Duration: 45, AspectRatio: "9:16", Style: "energetic", CreatedAt: now.Add(-72 * time.Hour), UpdatedAt: now.Add(-48 * time.Hour)},
+		{ID: 2, Name: "Product Teaser", UserID: 1, Status: "draft", Duration: 30, AspectRatio: "16:9", Style: "cinematic", CreatedAt: now.Add(-24 * time.Hour), UpdatedAt: now.Add(-24 * time.Hour)},
+		{ID: 3, Name: "Beach Day Reel", UserID: 1, Status: "ready", Duration: 60, AspectRatio: "9:16", Style: "minimal", CreatedAt: now.Add(-96 * time.Hour), UpdatedAt: now.Add(-90 * time.Hour)},
 	}
 }

@@ -3,7 +3,7 @@ import { Button, Progress } from '@douyinfe/semi-ui';
 import { IconVideo, IconImage, IconMusic, IconFile, IconClose } from '@douyinfe/semi-icons';
 import type { Asset } from '@/types/asset';
 import { formatFileSize, formatDuration } from '@/utils/format';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 export interface FileItemData extends Asset {
@@ -17,7 +17,7 @@ interface FileListProps {
 }
 
 const FileList: React.FC<FileListProps> = ({ files, onRemove }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const fileIcon = (type: string) => {
     if (type === 'video') return <IconVideo />;
     if (type === 'image') return <IconImage />;

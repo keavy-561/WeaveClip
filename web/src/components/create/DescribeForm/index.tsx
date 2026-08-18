@@ -4,7 +4,7 @@ import { IconSend } from '@douyinfe/semi-icons';
 import PromptInput from '../PromptInput';
 import OptionGroup from '../OptionGroup';
 import StylePicker from '../StylePicker';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 export interface DescribeFormValues {
@@ -29,7 +29,7 @@ const DescribeForm: React.FC<DescribeFormProps> = ({
   onChange,
   onGenerate,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   return (
     <div className={styles.form}>

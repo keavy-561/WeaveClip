@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Switch } from '@douyinfe/semi-ui';
 import { IconPlus, IconSearch, IconArrowRight } from '@douyinfe/semi-icons';
 import type { Asset } from '@/types/asset';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 const ASSET_IMAGES: Record<string, string> = {
@@ -20,7 +20,7 @@ interface MediaPanelProps {
 const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const [tab, setTab] = useState<string>('library');
   const [query, setQuery] = useState<string>('');
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   const videos = assets.filter((a) => a.type === 'video');
   const filtered = videos.filter((a) =>

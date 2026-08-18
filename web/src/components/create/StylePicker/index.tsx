@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import OptionGroup from '../OptionGroup';
 import styles from './index.module.scss';
 
@@ -21,7 +21,7 @@ export interface StylePickerProps {
 }
 
 const StylePicker: React.FC<StylePickerProps> = ({ value, onChange }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   return (
     <div className={styles.stylePicker}>

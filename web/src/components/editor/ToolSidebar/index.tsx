@@ -6,12 +6,12 @@ import {
   IconLoopTextStroked,
   IconFastForward,
 } from '@douyinfe/semi-icons';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 const ToolSidebar: React.FC = () => {
   const [active, setActive] = useState<string>('adjustments');
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const tools = [
     { key: 'filters', icon: <IconFilter />, title: t('editor.sidebar.filters') },
     { key: 'adjustments', icon: <IconSetting />, title: t('editor.sidebar.adjustments') },

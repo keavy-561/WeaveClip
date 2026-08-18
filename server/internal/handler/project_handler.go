@@ -185,7 +185,7 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 			NotFound(c, "project not found")
 			return
 		}
-		c.Status(http.StatusNoContent)
+		c.JSON(http.StatusNoContent, gin.H{})
 		return
 	}
 

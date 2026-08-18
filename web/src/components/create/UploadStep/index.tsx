@@ -3,7 +3,7 @@ import { Button, Toast } from '@douyinfe/semi-ui';
 import UploadZone from '../UploadZone';
 import FileList from '../FileList';
 import type { FileItemData } from '../FileList';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 export interface UploadStepProps {
@@ -11,7 +11,7 @@ export interface UploadStepProps {
 }
 
 const UploadStep: React.FC<UploadStepProps> = ({ onContinue }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const [files, setFiles] = useState<FileItemData[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const inputId = 'upload-file-input';

@@ -21,7 +21,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useProjectStore } from '@/stores/projectStore';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAIChatStore } from '@/stores/aiChatStore';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useQuery } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
 import { assetService } from '@/services/assetService';
@@ -33,7 +33,7 @@ const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 const Editor: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   const setCurrentProject = useProjectStore((s) => s.setCurrentProject);
   const setDSL = useTimelineStore((s) => s.setDSL);
@@ -193,15 +193,15 @@ const Editor: React.FC = () => {
               <Skeleton loading active />
             </div>
           ) : apiError ? (
-            <div className={styles.errorState}>
-              <Empty
-                description={t('editor.loadError', 'Failed to load editor data')}
-                image={<IconArrowLeft style={{ fontSize: 48 }} />}
-              />
-              <Button theme="solid" onClick={() => navigate('/projects')}>
-                {t('common.back')}
-              </Button>
-            </div>
+              <div className={styles.errorState}>
+                <Empty
+                  description={t('editor.loadError', 'Failed to load editor data')}
+                  image={<IconArrowLeft className={styles.errorIcon} />}
+                />
+                <Button theme="solid" onClick={() => navigate('/projects')}>
+                  {t('common.back')}
+                </Button>
+              </div>
           ) : (
             <>
               <div className={styles.previewArea}>

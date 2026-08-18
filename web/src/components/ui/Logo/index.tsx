@@ -1,9 +1,9 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 const Logo: React.FC<{ size?: 'normal' | 'small' }> = ({ size = 'normal' }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   return (
     <div className={`${styles.logo} ${styles[size]}`}>

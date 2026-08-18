@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Spin } from '@douyinfe/semi-ui';
 import { useAIChatStore } from '@/stores/aiChatStore';
 import { useTimelineStore } from '@/stores/timelineStore';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import ChatMessage from './ChatMessage';
 import QuickActions from './QuickActions';
 import { generateId } from '@/utils/format';
@@ -11,7 +11,7 @@ import styles from './index.module.scss';
 const AIChat: React.FC = () => {
   const { messages, isLoading, addMessage, setLoading } = useAIChatStore();
   const selectedClipId = useTimelineStore((s) => s.selectedClipId);
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const listRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
 

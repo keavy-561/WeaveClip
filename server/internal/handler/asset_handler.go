@@ -33,9 +33,9 @@ type CreateAssetReq struct {
 	Codec        string `json:"codec"`
 }
 
-// List GET /api/projects/:projectId/assets
+// List GET /api/projects/:id/assets
 func (h *AssetHandler) List(c *gin.Context) {
-	projectID, err := strconv.ParseUint(c.Param("projectId"), 10, 64)
+	projectID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		BadRequest(c, "invalid project id")
 		return
@@ -51,9 +51,9 @@ func (h *AssetHandler) List(c *gin.Context) {
 	OK(c, gin.H{"assets": assets})
 }
 
-// Create POST /api/projects/:projectId/assets
+// Create POST /api/projects/:id/assets
 func (h *AssetHandler) Create(c *gin.Context) {
-	projectID, err := strconv.ParseUint(c.Param("projectId"), 10, 64)
+	projectID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		BadRequest(c, "invalid project id")
 		return
@@ -127,7 +127,7 @@ func (h *AssetHandler) Delete(c *gin.Context) {
 		InternalError(c, "failed to delete asset")
 		return
 	}
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // MockAssets returns the initial mock asset list for mock mode.

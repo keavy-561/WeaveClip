@@ -1,10 +1,10 @@
 import React from 'react';
 import { Dropdown } from '@douyinfe/semi-ui';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 const LanguageSwitcher: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { i18n } = useAppTranslation();
 
   const handleChange = (lang: string) => {
     i18n.changeLanguage(lang);

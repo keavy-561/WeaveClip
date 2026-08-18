@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { IconUpload } from '@douyinfe/semi-icons';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 export interface UploadZoneProps {
@@ -22,7 +22,7 @@ const UploadZone: React.FC<UploadZoneProps> = ({
   onFileSelect,
   inputId,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   const validateFiles = useCallback(
     (fileList: FileList | File[]) => {

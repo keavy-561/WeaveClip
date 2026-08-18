@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface QuickActionsProps {
@@ -15,7 +15,7 @@ const QUICK_ACTIONS = [
 ];
 
 const QuickActions: React.FC<QuickActionsProps> = ({ onAction }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   return (
     <div className={styles.quickActions}>

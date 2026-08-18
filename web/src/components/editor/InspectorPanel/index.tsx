@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@douyinfe/semi-ui';
 import { IconMore } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 type Tab = 'adjust' | 'filters';
@@ -10,7 +10,7 @@ type Tab = 'adjust' | 'filters';
 const InspectorPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('adjust');
   const { tracks, selectedClipId, updateClip } = useTimelineStore();
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   const selectedClip = selectedClipId
     ? tracks.flatMap((t) => t.clips).find((c) => c.id === selectedClipId) ?? null

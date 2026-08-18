@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { IconTick } from '@douyinfe/semi-icons';
 import { mockAnalyzeResult } from '@/utils/mockData';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface AnalyzeProgressProps {
@@ -14,7 +14,7 @@ type CheckItem = {
 };
 
 const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete }) => {
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
   const [steps, setSteps] = useState<CheckItem[]>([
     { label: t('create.analyzeProgress.clipsAnalyzed'), done: false },
     { label: t('create.analyzeProgress.speakersDetected'), done: false },

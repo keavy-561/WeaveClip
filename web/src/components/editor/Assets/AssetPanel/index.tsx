@@ -3,7 +3,7 @@ import { Tabs, TabPane, Button } from '@douyinfe/semi-ui';
 import { IconPlus } from '@douyinfe/semi-icons';
 import AssetCard from '../AssetCard';
 import type { Asset } from '@/types/asset';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface AssetPanelProps {
@@ -12,7 +12,7 @@ interface AssetPanelProps {
 
 const AssetPanel: React.FC<AssetPanelProps> = ({ assets }) => {
   const [tab, setTab] = useState<string>('clips');
-  const { t } = useTranslation();
+  const { t } = useAppTranslation();
 
   const clips = assets.filter((a) => a.type === 'video');
   const audio = assets.filter((a) => a.type === 'audio');
