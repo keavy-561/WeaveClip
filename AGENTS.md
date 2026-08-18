@@ -18,6 +18,9 @@ React 18 + TypeScript + Vite + Semi Design + CSS Modules
 6. 页面流转用 React Router 组织，沿用现有路由表，禁止用显隐切换整页。
 7. 样式用 CSS Modules；禁止引入 Stitch 导出的 Tailwind 类名、内联样式和
    原生标签结构——Stitch 稿只作视觉与布局参照。
+8. 所有用户可见文案（含 document.title）必须走 i18n，禁止硬编码，
+   交付前 check-i18n 必须通过。
+9. 任何页面必须保留可用返回路径，全屏页面必须有显式返回按钮。
 
 ## Stitch 设计稿的使用方式
 - 视觉规范以 doc/design-system.md 为唯一基准（首次任务生成）。

@@ -48,12 +48,12 @@ const Projects: React.FC = () => {
                 className={styles.card}
                 onClick={() => navigate(`/editor/${project.id}`)}
               >
-                <h3 className={styles.cardTitle}>{t(project.name)}</h3>
+                <h3 className={styles.cardTitle}>{project.name}</h3>
                 <div className={styles.meta}>
                   <div className={styles.metaLeft}>
                     <span className={styles.badge}>{project.aspectRatio}</span>
                     <span className={styles.info}>
-                      {project.duration ? `${project.duration}s` : '—'}
+                      {project.duration ? `${project.duration}${t('home.durationUnit', 's')}` : '—'}
                     </span>
                     <span className={styles.info}>{project.style}</span>
                   </div>

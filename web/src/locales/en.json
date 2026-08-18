@@ -21,6 +21,7 @@
     "searchPlaceholder": "Search templates",
     "import": "Import",
     "importMedia": "Import media",
+    "back": "Back",
     "help": "Help",
     "user": "User"
   },
@@ -191,6 +192,7 @@
       "step": "Describe",
       "title": "What should we make?",
       "label": "Describe your video",
+      "placeholder": "e.g. \"Create a 45-second travel vlog...\"",
       "duration": "Duration",
       "format": "Format",
       "style": "Style",

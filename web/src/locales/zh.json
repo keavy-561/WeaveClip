@@ -21,6 +21,7 @@
     "searchPlaceholder": "搜索模板",
     "import": "导入",
     "importMedia": "导入媒体",
+    "back": "返回",
     "help": "帮助",
     "user": "用户"
   },
@@ -191,6 +192,7 @@
       "step": "描述",
       "title": "你想做什么视频？",
       "label": "描述你的视频",
+      "placeholder": "例如：「创作一个 45 秒的旅行 Vlog...」",
       "duration": "时长",
       "format": "画幅比例",
       "style": "风格",

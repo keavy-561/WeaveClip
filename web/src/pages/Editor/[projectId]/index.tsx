@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@douyinfe/semi-ui';
 import {
   IconUndo,
@@ -7,6 +7,7 @@ import {
   IconSetting,
   IconShare,
   IconDownload,
+  IconArrowLeft,
 } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import SideNavBar from '@/components/editor/SideNavBar';
@@ -26,6 +27,7 @@ import styles from './index.module.scss';
 
 const Editor: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const setCurrentProject = useProjectStore((s) => s.setCurrentProject);
@@ -38,7 +40,7 @@ const Editor: React.FC = () => {
       mockProjects.find((p) => p.id === projectId) ??
       ({
         id: projectId ?? 'proj_new',
-        name: 'Untitled Video',
+        name: t('editor.header.projectName'),
         status: 'draft',
         duration: 45,
         aspectRatio: '9:16',
@@ -60,11 +62,25 @@ const Editor: React.FC = () => {
     (a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId)
   );
 
+  React.useEffect(() => {
+    document.title = project?.name
+      ? `${project.name} - ${t('common.appName')}`
+      : `${t('editor.header.projectName')} - ${t('common.appName')}`;
+  }, [project?.name, t]);
+
   return (
     <div className={styles.page}>
       {/* 顶部栏 */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
+          <Button
+            icon={<IconArrowLeft />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            aria-label={t('common.back', 'Back')}
+            onClick={() => navigate('/projects')}
+          />
           <Logo size="small" />
           <nav className={styles.navLinks}>
             <button className={`${styles.navLink} ${styles.active}`}>{t('editor.header.drafts')}</button>
@@ -73,7 +89,7 @@ const Editor: React.FC = () => {
         </div>
         <div className={styles.headerCenter}>
           <span className={styles.projectName}>
-            {project?.name ? t(project.name) : t('editor.header.projectName')}
+            {project?.name || t('editor.header.projectName')}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
         </div>
