@@ -14,11 +14,11 @@
 .header {
   height: $editor-toolbar-height;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
+  flex-direction: column;
+  padding: 12px 12px 0;
   border-bottom: 1px solid var(--color-editor-border);
   flex-shrink: 0;
+  gap: 12px;
 }
 
 .title {
@@ -29,9 +29,12 @@
 
 .tabBar {
   display: flex;
-  padding: 12px 12px 0;
   gap: 0;
   flex-shrink: 0;
+  background: var(--semi-color-bg-2);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--color-editor-border);
 }
 
 .segment {
@@ -41,7 +44,7 @@
   font-weight: 500;
   color: var(--semi-color-text-1);
   padding: 6px 0;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
