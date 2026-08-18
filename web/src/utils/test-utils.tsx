@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { render } from '@testing-library/react';
+import { render as testingLibraryRender, RenderOptions } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from '@douyinfe/semi-ui';
@@ -43,4 +43,9 @@ export function mockApiResponse<T>(data: T, delay = 0) {
   });
 }
 
-export { render };
+export function render(ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
+  return testingLibraryRender(ui, { wrapper: Wrapper, ...options });
+}
+
+export { testingLibraryRender as renderOriginal };
+export * from '@testing-library/react';
