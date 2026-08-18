@@ -15,10 +15,8 @@
   height: $editor-toolbar-height;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
   border-bottom: 1px solid var(--color-editor-border);
-  background: var(--color-surface-container);
+  background: var(--semi-color-bg-2);
   flex-shrink: 0;
 }
 
@@ -26,6 +24,7 @@
   display: flex;
   gap: 0;
   flex: 1;
+  height: 100%;
 }
 
 .tab {
@@ -54,12 +53,16 @@
     color: var(--semi-color-primary);
     border-bottom-color: var(--semi-color-primary);
     font-weight: 600;
-    background: var(--color-surface-container-low);
+    background: var(--semi-color-bg-1);
   }
 }
 
 .moreBtn {
   color: var(--semi-color-text-2) !important;
+  width: 48px;
+  height: $editor-toolbar-height;
+  border-left: 1px solid var(--color-editor-border);
+  border-radius: 0 !important;
 }
 
 .content {
