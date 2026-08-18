@@ -15,7 +15,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onContinue }) => {
   const [files, setFiles] = useState<FileItemData[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const inputId = 'upload-file-input';
-  const intervalsRef = useRef<Map<string, number>>(new Map());
+  const intervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
   useEffect(() => {
     return () => {
