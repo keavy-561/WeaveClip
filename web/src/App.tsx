@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useThemeStore } from '@/stores/themeStore';
 import Router from '@/router';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
+import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 const App: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
@@ -20,7 +21,11 @@ const App: React.FC = () => {
     return <div style={{ padding: 24 }}>Loading...</div>;
   }
 
-  return <Router />;
+  return (
+    <ErrorBoundary>
+      <Router />
+    </ErrorBoundary>
+  );
 };
 
 export default App;

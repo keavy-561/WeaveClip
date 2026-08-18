@@ -1,5 +1,15 @@
 import '@testing-library/jest-dom/vitest';
 
+// Polyfill webidl.util.markAsUncloneable for jsdom/undici on Node 20
+try {
+  const webidl = require('webidl');
+  if (webidl?.util && typeof webidl.util.markAsUncloneable !== 'function') {
+    webidl.util.markAsUncloneable = () => {};
+  }
+} catch {
+  // noop
+}
+
 // Mock canvas to support lottie-web and other canvas-dependent libs in jsdom
 class MockCanvasRenderingContext2D {
   fillStyle = '';

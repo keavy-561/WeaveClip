@@ -12,8 +12,18 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // 自动注入公共变量，所有 .module.scss 都可直接使用 $variables
         additionalData: `@use "@/styles/variables" as *;`,
+      },
+    },
+  },
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'semi-ui': ['@douyinfe/semi-ui', '@douyinfe/semi-icons'],
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+        },
       },
     },
   },
