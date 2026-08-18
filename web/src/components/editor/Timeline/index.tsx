@@ -8,6 +8,7 @@ import {
   IconSetting,
 } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { formatTime } from '@/utils/format';
 import Track from './Track';
 import Ruler from './Ruler';
 import Playhead from './Playhead';
@@ -17,27 +18,54 @@ import styles from './index.module.scss';
 const PX_PER_SEC = 24;
 
 const Timeline: React.FC = () => {
-  const { tracks, duration, zoom, selectedClipId, selectClip, setCurrentTime, setZoom } =
-    useTimelineStore();
+  const {
+    tracks,
+    duration,
+    zoom,
+    currentTime,
+    selectedClipId,
+    selectClip,
+    setCurrentTime,
+    setZoom,
+    deleteClip,
+    splitClip,
+  } = useTimelineStore();
 
   const pxPerSec = PX_PER_SEC * zoom;
   const totalWidth = Math.max(duration * pxPerSec + 120, 600);
+
+  const handleDelete = () => {
+    if (selectedClipId) deleteClip(selectedClipId);
+  };
+
+  const handleSplit = () => {
+    if (!selectedClipId) return;
+    const splitPoint = currentTime;
+    // 只在选中片段时间范围内切分
+    for (const track of tracks) {
+      const clip = track.clips.find((c) => c.id === selectedClipId);
+      if (!clip) continue;
+      if (splitPoint <= clip.start || splitPoint >= clip.start + clip.duration) return;
+      splitClip(selectedClipId, splitPoint);
+      return;
+    }
+  };
 
   return (
     <div className={styles.timeline}>
       {/* 工具头 */}
       <div className={styles.toolHeader}>
         <div className={styles.toolHeaderLeft}>
-          <span className={styles.iconBtn}><IconUndo /></span>
-          <span className={styles.iconBtn}><IconRedo /></span>
+          <span className={styles.iconBtn} title="Undo"><IconUndo /></span>
+          <span className={styles.iconBtn} title="Redo"><IconRedo /></span>
           <span className={styles.divider} />
-          <span className={styles.iconBtn}><IconScissors /></span>
-          <span className={styles.iconBtn}><IconDelete /></span>
-          <span className={styles.iconBtn}><IconImage /></span>
+          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title="Split" onClick={handleSplit}><IconScissors /></span>
+          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title="Delete" onClick={handleDelete}><IconDelete /></span>
+          <span className={styles.iconBtn} title="Add media"><IconImage /></span>
         </div>
         <div className={styles.toolHeaderCenter}>
-          <span className={styles.timecodeMain}>02:51:66</span>
-          <span className={styles.timecodeSub}>/ 04:20:00</span>
+          <span className={styles.timecodeMain}>{formatTime(currentTime)}</span>
+          <span className={styles.timecodeSub}>/ {formatTime(duration)}</span>
         </div>
         <div className={styles.toolHeaderRight}>
           <div className={styles.zoomControls}>
@@ -54,7 +82,7 @@ const Timeline: React.FC = () => {
             <button className={styles.iconBtn} onClick={() => setZoom(Math.min(3, zoom + 0.25))}>+</button>
           </div>
           <span className={styles.divider} />
-          <span className={styles.iconBtn}><IconSetting /></span>
+          <span className={styles.iconBtn} title="Settings"><IconSetting /></span>
         </div>
       </div>
 

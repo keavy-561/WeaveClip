@@ -10,8 +10,12 @@ interface MediaPanelProps {
 
 const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const [tab, setTab] = useState<string>('library');
+  const [query, setQuery] = useState<string>('');
 
   const videos = assets.filter((a) => a.type === 'video');
+  const filtered = videos.filter((a) =>
+    a.fileName.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div className={styles.panel}>
@@ -31,7 +35,8 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
           type="text"
           className={styles.searchInput}
           placeholder="Search Templates"
-          readOnly
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
         />
       </div>
 
@@ -42,7 +47,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
             <IconArrowRight className={styles.sectionArrow} />
           </div>
           <div className={styles.assetGrid}>
-            {videos.slice(0, 4).map((asset) => (
+            {filtered.slice(0, 4).map((asset) => (
               <div key={asset.id} className={styles.assetCard}>
                 <div className={styles.assetImage}>
                   <div className={styles.assetPlaceholder} />
@@ -66,7 +71,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
             <IconArrowRight className={styles.sectionArrow} />
           </div>
           <div className={styles.horizontalList}>
-            {videos.slice(0, 4).map((asset) => (
+            {filtered.slice(0, 4).map((asset) => (
               <div key={asset.id} className={styles.horizontalCard}>
                 <div className={styles.horizontalImage}>
                   <div className={styles.assetPlaceholder} />

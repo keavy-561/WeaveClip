@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IconVideoListStroked,
   IconMicrophone,
@@ -13,7 +13,10 @@ interface SideNavBarProps {
   activeItem?: string;
 }
 
-const SideNavBar: React.FC<SideNavBarProps> = ({ activeItem = 'ai-tools' }) => {
+const SideNavBar: React.FC<SideNavBarProps> = ({ activeItem: controlledActiveItem }) => {
+  const [internalActive, setInternalActive] = useState<string>('ai-tools');
+  const active = controlledActiveItem ?? internalActive;
+
   const navItems = [
     { key: 'media', icon: <IconVideoListStroked />, label: 'Media' },
     { key: 'record', icon: <IconMicrophone />, label: 'Record' },
@@ -29,8 +32,9 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ activeItem = 'ai-tools' }) => {
         {navItems.map((item) => (
           <button
             key={item.key}
-            className={`${styles.navItem} ${activeItem === item.key ? styles.active : ''}`}
+            className={`${styles.navItem} ${active === item.key ? styles.active : ''}`}
             title={item.label}
+            onClick={() => setInternalActive(item.key)}
           >
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.label}>{item.label}</span>

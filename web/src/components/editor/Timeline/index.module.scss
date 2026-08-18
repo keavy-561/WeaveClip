@@ -60,10 +60,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent;
+  border: none;
 
-  &:hover {
+  &:hover:not(.disabled) {
     color: var(--semi-color-primary);
     background: var(--color-surface-container-high);
+  }
+
+  &.disabled {
+    color: var(--semi-color-text-3);
+    cursor: not-allowed;
   }
 }
 

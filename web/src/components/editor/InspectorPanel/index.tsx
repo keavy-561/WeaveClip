@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { Button } from '@douyinfe/semi-ui';
 import { IconMore } from '@douyinfe/semi-icons';
+import { useTimelineStore } from '@/stores/timelineStore';
 import styles from './index.module.scss';
 
+type Tab = 'adjust' | 'filters';
+
 const InspectorPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('adjust');
+  const [activeTab, setActiveTab] = useState<Tab>('adjust');
+  const { tracks, selectedClipId, updateClip } = useTimelineStore();
+
+  const selectedClip = selectedClipId
+    ? tracks.flatMap((t) => t.clips).find((c) => c.id === selectedClipId) ?? null
+    : null;
+
+  const isVideo = selectedClip && tracks.some((t) => t.clips.some((c) => c.id === selectedClipId && t.type === 'video'));
+  const isAudio = selectedClip && tracks.some((t) => t.clips.some((c) => c.id === selectedClipId && t.type === 'audio'));
+  const isCaption = selectedClip && tracks.some((t) => t.clips.some((c) => c.id === selectedClipId && t.type === 'caption'));
 
   return (
     <div className={styles.panel}>
@@ -27,134 +39,106 @@ const InspectorPanel: React.FC = () => {
       </div>
 
       <div className={styles.content}>
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h4 className={styles.sectionTitle}>White Balance</h4>
-            <button className={styles.resetBtn}>Reset</button>
-          </div>
-          <div className={styles.controlGroup}>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>
-                <span className={styles.controlIcon}>🌡️</span> Color Temp
-              </span>
-              <input type="number" className={styles.numberInput} defaultValue={0} />
-            </div>
-            <div className={styles.sliderRow}>
-              <span className={styles.sliderDot} style={{ background: '#60a5fa' }} />
-              <input type="range" min="-100" max="100" defaultValue="0" className={styles.range} />
-              <span className={styles.sliderDot} style={{ background: '#fb923c' }} />
-            </div>
-          </div>
-          <div className={styles.controlGroup}>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>Tint</span>
-              <input type="number" className={styles.numberInput} defaultValue={0} />
-            </div>
-            <div className={styles.sliderRow}>
-              <span className={styles.sliderDot} style={{ background: '#4ade80' }} />
-              <input type="range" min="-100" max="100" defaultValue="0" className={styles.range} />
-              <span className={styles.sliderDot} style={{ background: '#c084fc' }} />
-            </div>
-          </div>
-        </section>
-
-        <div className={styles.divider} />
-
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h4 className={styles.sectionTitle}>Tone</h4>
-            <button className={styles.resetBtn}>Reset</button>
-          </div>
-          <div className={styles.controlGroup}>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>Brightness</span>
-              <input type="range" min="-100" max="100" defaultValue="0" className={styles.rangeFlex} />
-              <input type="number" className={styles.numberInputSm} defaultValue={0} />
-            </div>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>Contrast</span>
-              <input type="range" min="-100" max="100" defaultValue="0" className={styles.rangeFlex} />
-              <input type="number" className={styles.numberInputSm} defaultValue={0} />
-            </div>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>Saturation</span>
-              <input type="range" min="-100" max="100" defaultValue="0" className={styles.rangeFlex} />
-              <input type="number" className={styles.numberInputSm} defaultValue={0} />
-            </div>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>Exposure</span>
-              <input type="range" min="-100" max="100" defaultValue="0" className={styles.rangeFlex} />
-              <input type="number" className={styles.numberInputSm} defaultValue={0} />
-            </div>
-          </div>
-        </section>
-
-        <div className={styles.divider} />
-
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h4 className={styles.sectionTitle}>
-              Creative
-              <span className={styles.aiBadge}>✨</span>
-            </h4>
-            <button className={styles.resetBtn}>Reset</button>
-          </div>
-          <div className={styles.controlGroup}>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>Hue</span>
-              <input
-                type="range"
-                min="-100"
-                max="100"
-                defaultValue="0"
-                className={styles.rangeFlex}
-                style={{
-                  background: 'linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red)',
-                  height: '2px',
-                }}
-              />
-              <input type="number" className={styles.numberInputSm} defaultValue={0} />
-            </div>
-            <div className={styles.controlRow}>
-              <span className={styles.controlLabel}>Sharpness</span>
-              <input type="range" min="0" max="100" defaultValue="0" className={styles.rangeFlex} />
-              <input type="number" className={styles.numberInputSm} defaultValue={0} />
-            </div>
-            <div className={styles.controlRow}>
-              <span className={`${styles.controlLabel} ${styles.activeLabel}`}>Blur</span>
-              <div className={styles.sliderWrap}>
-                <div className={styles.sliderTrack} style={{ width: '20%' }} />
-                <input type="range" min="0" max="100" defaultValue="20" className={styles.rangeActive} />
-                <div className={styles.sliderThumb} style={{ left: '20%' }} />
+        {!selectedClip ? (
+          <div className={styles.empty}>Select a clip to inspect</div>
+        ) : (
+          <>
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h4 className={styles.sectionTitle}>Clip Info</h4>
+                <button className={styles.resetBtn}>Reset</button>
               </div>
-              <input type="number" className={`${styles.numberInputSm} ${styles.activeInput}`} defaultValue={20} />
-            </div>
-          </div>
-        </section>
-
-        <div className={styles.divider} />
-
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h4 className={styles.sectionTitle}>Quick Filters</h4>
-            <button className={styles.resetBtn}>See All</button>
-          </div>
-          <div className={styles.filterGrid}>
-            {[
-              { name: 'None', active: true },
-              { name: 'Vivid', active: false },
-              { name: 'Charm', active: false },
-              { name: 'Sky', active: false },
-            ].map((filter) => (
-              <div key={filter.name} className={`${styles.filterItem} ${filter.active ? styles.active : ''}`}>
-                <div className={styles.filterPreview}>
-                  <div className={styles.filterPlaceholder} />
+              <div className={styles.controlGroup}>
+                <div className={styles.controlRow}>
+                  <span className={styles.controlLabel}>Start</span>
+                  <span className={styles.valueText}>{selectedClip.start.toFixed(2)}s</span>
                 </div>
-                <span className={styles.filterName}>{filter.name}</span>
+                <div className={styles.controlRow}>
+                  <span className={styles.controlLabel}>Duration</span>
+                  <span className={styles.valueText}>{selectedClip.duration.toFixed(2)}s</span>
+                </div>
+                {isCaption && (
+                  <div className={styles.controlRow}>
+                    <span className={styles.controlLabel}>Text</span>
+                    <input
+                      type="text"
+                      className={styles.textInput}
+                      value={(selectedClip as any).text ?? ''}
+                      onChange={(e) => updateClip(selectedClip.id, { text: e.target.value } as any)}
+                    />
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
+
+            {isVideo && (
+              <>
+                <div className={styles.divider} />
+                <section className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h4 className={styles.sectionTitle}>Tone</h4>
+                    <button className={styles.resetBtn}>Reset</button>
+                  </div>
+                  <div className={styles.controlGroup}>
+                    <div className={styles.controlRow}>
+                      <span className={styles.controlLabel}>Brightness</span>
+                      <input type="range" min="-100" max="100" defaultValue="0" className={styles.rangeFlex} />
+                      <input type="number" className={styles.numberInputSm} defaultValue={0} />
+                    </div>
+                    <div className={styles.controlRow}>
+                      <span className={styles.controlLabel}>Contrast</span>
+                      <input type="range" min="-100" max="100" defaultValue="0" className={styles.rangeFlex} />
+                      <input type="number" className={styles.numberInputSm} defaultValue={0} />
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+
+            {isAudio && (
+              <>
+                <div className={styles.divider} />
+                <section className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h4 className={styles.sectionTitle}>Audio</h4>
+                    <button className={styles.resetBtn}>Reset</button>
+                  </div>
+                  <div className={styles.controlGroup}>
+                    <div className={styles.controlRow}>
+                      <span className={styles.controlLabel}>Volume</span>
+                      <input type="range" min="0" max="100" defaultValue={Math.round(((selectedClip as any).volume ?? 1) * 100)} className={styles.rangeFlex} />
+                      <input type="number" className={styles.numberInputSm} defaultValue={Math.round(((selectedClip as any).volume ?? 1) * 100)} />
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+
+            <div className={styles.divider} />
+
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h4 className={styles.sectionTitle}>Quick Filters</h4>
+                <button className={styles.resetBtn}>See All</button>
+              </div>
+              <div className={styles.filterGrid}>
+                {[
+                  { name: 'None', active: true },
+                  { name: 'Vivid', active: false },
+                  { name: 'Charm', active: false },
+                  { name: 'Sky', active: false },
+                ].map((filter) => (
+                  <div key={filter.name} className={`${styles.filterItem} ${filter.active ? styles.active : ''}`}>
+                    <div className={styles.filterPreview}>
+                      <div className={styles.filterPlaceholder} />
+                    </div>
+                    <span className={styles.filterName}>{filter.name}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </div>
   );

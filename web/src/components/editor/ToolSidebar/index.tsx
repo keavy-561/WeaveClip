@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IconFilter,
   IconSetting,
@@ -9,9 +9,10 @@ import {
 import styles from './index.module.scss';
 
 const ToolSidebar: React.FC = () => {
+  const [active, setActive] = useState<string>('adjustments');
   const tools = [
     { key: 'filters', icon: <IconFilter />, title: 'Filters' },
-    { key: 'adjustments', icon: <IconSetting />, title: 'Adjustments', active: true },
+    { key: 'adjustments', icon: <IconSetting />, title: 'Adjustments' },
     { key: 'effects', icon: <IconAIWandLevel1 />, title: 'Effects' },
     { key: 'captions', icon: <IconLoopTextStroked />, title: 'Captions' },
     { key: 'speed', icon: <IconFastForward />, title: 'Speed' },
@@ -22,8 +23,9 @@ const ToolSidebar: React.FC = () => {
       {tools.map((tool) => (
         <button
           key={tool.key}
-          className={`${styles.toolBtn} ${tool.active ? styles.active : ''}`}
+          className={`${styles.toolBtn} ${active === tool.key ? styles.active : ''}`}
           title={tool.title}
+          onClick={() => setActive(tool.key)}
         >
           <span className={styles.toolIcon}>{tool.icon}</span>
         </button>

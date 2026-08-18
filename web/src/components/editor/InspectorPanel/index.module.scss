@@ -105,6 +105,31 @@
   }
 }
 
+.empty {
+  padding: 24px 16px;
+  color: var(--semi-color-text-2);
+  font-size: 13px;
+  text-align: center;
+}
+
+.valueText {
+  font-size: 12px;
+  color: var(--semi-color-text-0);
+  font-family: $font-mono;
+}
+
+.textInput {
+  flex: 1;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--color-editor-border);
+  border-radius: 6px;
+  background: var(--color-surface-container);
+  font-size: 12px;
+  color: var(--semi-color-text-0);
+  outline: none;
+}
+
 .controlGroup {
   display: flex;
   flex-direction: column;
