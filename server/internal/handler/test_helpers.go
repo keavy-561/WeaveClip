@@ -52,50 +52,6 @@ func (r *fakeUserRepo) GetByID(id uint) (*model.User, error) {
 	return nil, nil
 }
 
-// fakeProjectRepo is an in-memory implementation for testing.
-type fakeProjectRepo struct {
-	projects []model.Project
-}
-
-func newFakeProjectRepo(initial []model.Project) *fakeProjectRepo {
-	return &fakeProjectRepo{projects: initial}
-}
-
-func (r *fakeProjectRepo) ListByUser(userID uint) ([]model.Project, error) {
-	var result []model.Project
-	for _, p := range r.projects {
-		if p.UserID == userID {
-			result = append(result, p)
-		}
-	}
-	return result, nil
-}
-
-func (r *fakeProjectRepo) Get(id, userID uint) (*model.Project, error) {
-	for i := range r.projects {
-		if r.projects[i].ID == id && r.projects[i].UserID == userID {
-			return &r.projects[i], nil
-		}
-	}
-	return nil, errNotFound
-}
-
-func (r *fakeProjectRepo) Create(project *model.Project) error {
-	project.ID = uint(len(r.projects) + 1)
-	r.projects = append(r.projects, *project)
-	return nil
-}
-
-func (r *fakeProjectRepo) Delete(id, userID uint) error {
-	for i := range r.projects {
-		if r.projects[i].ID == id && r.projects[i].UserID == userID {
-			r.projects = append(r.projects[:i], r.projects[i+1:]...)
-			return nil
-		}
-	}
-	return errNotFound
-}
-
 func setupAuth(t *testing.T) *AuthHandler {
 	t.Helper()
 	middleware.InitJWT("test_secret", 0)
@@ -113,7 +69,9 @@ func JSONRequest(t *testing.T, method, url string, body any) *http.Request {
 	t.Helper()
 	var buf bytes.Buffer
 	if body != nil {
-		json.NewEncoder(&buf).Encode(body)
+		if err := json.NewEncoder(&buf).Encode(body); err != nil {
+			t.Fatalf("failed to encode request body: %v", err)
+		}
 	}
 	req := httptest.NewRequest(method, url, &buf)
 	req.Header.Set("Content-Type", "application/json")

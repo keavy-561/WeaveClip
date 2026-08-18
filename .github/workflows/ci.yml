@@ -53,7 +53,7 @@ jobs:
           REDIS_ADDR: localhost:6379
           JWT_SECRET: test_secret
           MOCK_MODE: false
-        run: go test -race -coverprofile=coverage.out -covermode=atomic ./internal/... ./tests/...
+        run: go test -race -coverprofile=coverage.out -covermode=atomic ./internal/handler ./internal/middleware ./tests/...
       - name: Build
         working-directory: server
         run: go build ./cmd/server

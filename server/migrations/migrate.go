@@ -46,14 +46,18 @@ func Up(db *sql.DB, dir string) error {
 		if err != nil {
 			return err
 		}
-		if _, err := tx.Exec(string(sqlBytes)); err != nil {
-			tx.Rollback()
-			return fmt.Errorf("migrate up %s: %w", ver, err)
+	if _, err := tx.Exec(string(sqlBytes)); err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("migrate up %s rollback: %w", ver, rbErr)
 		}
-		if _, err := tx.Exec("INSERT INTO schema_migrations(version) VALUES($1)", ver); err != nil {
-			tx.Rollback()
-			return err
+		return fmt.Errorf("migrate up %s: %w", ver, err)
+	}
+	if _, err := tx.Exec("INSERT INTO schema_migrations(version) VALUES($1)", ver); err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("migrate up %s rollback: %w", ver, rbErr)
 		}
+		return err
+	}
 		if err := tx.Commit(); err != nil {
 			return err
 		}
@@ -123,11 +127,15 @@ func Down(db *sql.DB, dir, target string) error {
 					return err
 				}
 				if _, err := tx.Exec(string(sqlBytes)); err != nil {
-					tx.Rollback()
+					if rbErr := tx.Rollback(); rbErr != nil {
+						return fmt.Errorf("migrate down %s rollback: %w", ver, rbErr)
+					}
 					return fmt.Errorf("migrate down %s: %w", ver, err)
 				}
 				if _, err := tx.Exec("DELETE FROM schema_migrations WHERE version=$1", ver); err != nil {
-					tx.Rollback()
+					if rbErr := tx.Rollback(); rbErr != nil {
+						return fmt.Errorf("migrate down %s rollback: %w", ver, rbErr)
+					}
 					return err
 				}
 				if err := tx.Commit(); err != nil {

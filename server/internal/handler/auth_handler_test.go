@@ -98,11 +98,13 @@ func TestAuthHandler_Login(t *testing.T) {
 
 	// Pre-register a user
 	repo := newFakeUserRepo()
-	repo.Create(&model.User{
+	if err := repo.Create(&model.User{
 		Email:        "alice@example.com",
 		PasswordHash: "hashed_password",
 		Name:         "Alice",
-	})
+	}); err != nil {
+		t.Fatalf("failed to create user: %v", err)
+	}
 	// We need to update the handler with this repo
 	// For simplicity, we'll test the register first then login
 	_ = repo

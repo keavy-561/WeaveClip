@@ -81,7 +81,9 @@ func Load(env string) (*Config, error) {
 
 func overrideFromEnv(cfg *Config) {
 	if v := os.Getenv("SERVER_PORT"); v != "" {
-		fmt.Sscanf(v, "%d", &cfg.Server.Port)
+		if _, err := fmt.Sscanf(v, "%d", &cfg.Server.Port); err != nil {
+			fmt.Printf("invalid SERVER_PORT %q: %v\n", v, err)
+		}
 	}
 	if v := os.Getenv("SERVER_REQUEST_TIMEOUT"); v != "" {
 		if d, err := time.ParseDuration(v); err == nil {
