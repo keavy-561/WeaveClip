@@ -1,4 +1,12 @@
 import React from 'react';
+import {
+  IconUndo,
+  IconRedo,
+  IconScissors,
+  IconDelete,
+  IconImage,
+  IconSetting,
+} from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
 import Track from './Track';
 import Ruler from './Ruler';
@@ -9,7 +17,7 @@ import styles from './index.module.scss';
 const PX_PER_SEC = 24;
 
 const Timeline: React.FC = () => {
-  const { tracks, duration, zoom, selectedClipId, selectClip, setCurrentTime } =
+  const { tracks, duration, zoom, selectedClipId, selectClip, setCurrentTime, setZoom } =
     useTimelineStore();
 
   const pxPerSec = PX_PER_SEC * zoom;
@@ -17,15 +25,48 @@ const Timeline: React.FC = () => {
 
   return (
     <div className={styles.timeline}>
+      {/* 工具头 */}
+      <div className={styles.toolHeader}>
+        <div className={styles.toolHeaderLeft}>
+          <span className={styles.iconBtn}><IconUndo /></span>
+          <span className={styles.iconBtn}><IconRedo /></span>
+          <span className={styles.divider} />
+          <span className={styles.iconBtn}><IconScissors /></span>
+          <span className={styles.iconBtn}><IconDelete /></span>
+          <span className={styles.iconBtn}><IconImage /></span>
+        </div>
+        <div className={styles.toolHeaderCenter}>
+          <span className={styles.timecodeMain}>02:51:66</span>
+          <span className={styles.timecodeSub}>/ 04:20:00</span>
+        </div>
+        <div className={styles.toolHeaderRight}>
+          <div className={styles.zoomControls}>
+            <button className={styles.iconBtn} onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}>−</button>
+            <input
+              type="range"
+              min="0.5"
+              max="3"
+              step="0.25"
+              value={zoom}
+              onChange={(e) => setZoom(Number(e.target.value))}
+              className={styles.zoomSlider}
+            />
+            <button className={styles.iconBtn} onClick={() => setZoom(Math.min(3, zoom + 0.25))}>+</button>
+          </div>
+          <span className={styles.divider} />
+          <span className={styles.iconBtn}><IconSetting /></span>
+        </div>
+      </div>
+
       {/* 左侧轨道标签列 */}
       <div className={styles.trackLabels}>
         <div className={styles.rulerSpacer} />
         {tracks.map((track) => (
           <div key={track.id} className={styles.trackLabel}>
-            <span
-              className={`${styles.trackDot} ${styles[track.type]}`}
-            />
-            <span className={styles.trackName}>
+            {track.type === 'video' && <span className={`${styles.trackLabelCode} ${styles.video}`}>V1</span>}
+            {track.type === 'audio' && <span className={`${styles.trackLabelCode} ${styles.audio}`}>A1</span>}
+            <span className={styles.trackDot} />
+            <span className={styles.trackLabelText}>
               {track.type === 'video'
                 ? 'Video'
                 : track.type === 'caption'
@@ -42,7 +83,6 @@ const Timeline: React.FC = () => {
       <div
         className={styles.scrollArea}
         onClick={(e) => {
-          // 点击空白处取消选中
           if (e.target === e.currentTarget) selectClip(null);
         }}
       >

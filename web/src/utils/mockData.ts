@@ -8,7 +8,7 @@ import type { ChatMessage } from '@/types/ai';
 export const mockProjects: Project[] = [
   {
     id: 'proj_1',
-    name: 'NYC Travel Vlog',
+    name: '纽约旅行Vlog',
     status: 'ready',
     duration: 45,
     aspectRatio: '9:16',
@@ -18,7 +18,7 @@ export const mockProjects: Project[] = [
   },
   {
     id: 'proj_2',
-    name: 'Product Teaser',
+    name: '产品预告',
     status: 'draft',
     duration: 30,
     aspectRatio: '16:9',
@@ -28,7 +28,7 @@ export const mockProjects: Project[] = [
   },
   {
     id: 'proj_3',
-    name: 'Beach Day Reel',
+    name: '海滩日记录像',
     status: 'ready',
     duration: 60,
     aspectRatio: '9:16',

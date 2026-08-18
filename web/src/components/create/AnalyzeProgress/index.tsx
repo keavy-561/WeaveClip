@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IconTick, IconClose } from '@douyinfe/semi-icons';
+import { IconTick } from '@douyinfe/semi-icons';
 import { mockAnalyzeResult } from '@/utils/mockData';
 import styles from './index.module.scss';
 

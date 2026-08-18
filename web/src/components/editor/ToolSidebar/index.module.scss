@@ -1,0 +1,46 @@
+@use "@/styles/variables" as *;
+
+.toolbar {
+  width: $editor-tool-sidebar-width;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 16px;
+  background: var(--color-surface-container-highest);
+  border-left: 1px solid var(--color-editor-border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.toolBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--semi-color-text-1);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--semi-color-text-0);
+    background: var(--color-surface-container-high);
+  }
+
+  &.active {
+    color: var(--semi-color-primary);
+    background: var(--color-surface-container);
+    border-left: 2px solid var(--semi-color-primary);
+    border-radius: 0 8px 8px 0;
+  }
+}
+
+.toolIcon {
+  font-size: 20px;
+  line-height: 1;
+}

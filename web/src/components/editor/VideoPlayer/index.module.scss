@@ -1,23 +1,25 @@
+@use "@/styles/variables" as *;
+
 .player {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  height: 100%;
-  justify-content: center;
   width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
 .screen {
-  height: 100%;
-  max-height: 100%;
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  aspect-ratio: 16 / 9;
+  background: #000;
   border-radius: 12px;
   overflow: hidden;
-  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
 .mockFrame {
@@ -27,54 +29,83 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 16px;
+  background: linear-gradient(135deg, var(--semi-color-bg-3), var(--semi-color-bg-2));
+}
+
+.mockContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  background: linear-gradient(
-    135deg,
-    var(--semi-color-bg-3),
-    var(--semi-color-bg-2)
-  );
+}
+
+.mockIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
 }
 
 .mockLabel {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--semi-color-text-2);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
 }
 
 .mockTime {
-  font-size: 15px;
+  font-size: 12px;
   color: var(--semi-color-text-1);
-  font-variant-numeric: tabular-nums;
+  font-family: $font-mono;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.screen:hover .overlay {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .controls {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
-  max-width: 480px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: var(--semi-color-bg-1);
-  border: 1px solid var(--semi-color-border);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: rgba(243, 244, 246, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.controlBtn {
+  color: var(--semi-color-text-0) !important;
+  flex-shrink: 0;
 }
 
 .timeDisplay {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--semi-color-text-1);
+  font-family: $font-mono;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-
-.progressWrap {
-  flex: 1;
-
-  :global(.semi-slider) {
-    margin: 0;
-  }
-}
-
-.slider {
-  width: 100%;
+  min-width: 80px;
+  text-align: center;
 }

@@ -1,3 +1,5 @@
+@use "@/styles/variables" as *;
+
 .page {
   min-height: 100vh;
   background: var(--semi-color-bg-0);
@@ -34,18 +36,13 @@
 .navRight {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
 .main {
   max-width: 960px;
   margin: 0 auto;
   padding: 24px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
 }
 
 .grid {
@@ -55,23 +52,32 @@
 }
 
 .card {
+  background: var(--semi-color-bg-1);
+  border: 1px solid var(--semi-color-border);
+  border-radius: 12px;
+  padding: 20px;
   cursor: pointer;
-  background: var(--semi-color-bg-1) !important;
-  border: 1px solid var(--semi-color-border) !important;
-  border-radius: 12px !important;
   transition: border-color 0.2s;
 
   &:hover {
-    border-color: var(--semi-color-primary) !important;
-  }
-
-  :global(.semi-card-title) {
-    color: var(--semi-color-text-0) !important;
-    font-weight: 600;
+    border-color: var(--semi-color-primary);
   }
 }
 
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--semi-color-text-0);
+  margin: 0 0 16px;
+}
+
 .meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metaLeft {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -94,6 +100,11 @@
 .status {
   font-size: 13px;
   color: var(--semi-color-text-2);
-  margin-left: auto;
   text-transform: capitalize;
+}
+
+.empty {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--semi-color-text-1);
 }

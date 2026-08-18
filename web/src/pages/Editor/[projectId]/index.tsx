@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@douyinfe/semi-ui';
 import { IconArrowLeft, IconExport } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import AssetPanel from '@/components/editor/Assets/AssetPanel';
+import SideNavBar from '@/components/editor/SideNavBar';
+import MediaPanel from '@/components/editor/MediaPanel';
 import VideoPlayer from '@/components/editor/VideoPlayer';
 import Timeline from '@/components/editor/Timeline';
-import AIChat from '@/components/editor/AIChat';
+import InspectorPanel from '@/components/editor/InspectorPanel';
+import ToolSidebar from '@/components/editor/ToolSidebar';
 import { useProjectStore } from '@/stores/projectStore';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAIChatStore } from '@/stores/aiChatStore';
@@ -23,8 +25,7 @@ const Editor: React.FC = () => {
   const addMessage = useAIChatStore((s) => s.addMessage);
   const clearMessages = useAIChatStore((s) => s.clearMessages);
 
-  // Phase 0: 加载 Mock 数据
-  useEffect(() => {
+  React.useEffect(() => {
     const project =
       mockProjects.find((p) => p.id === projectId) ??
       ({
@@ -81,14 +82,10 @@ const Editor: React.FC = () => {
         </div>
       </header>
 
-      {/* 三栏主体 */}
+      {/* 五区主体 */}
       <div className={styles.body}>
-        {/* 左栏：Assets */}
-        <aside className={styles.assetsPane}>
-          <AssetPanel assets={projectAssets.length > 0 ? projectAssets : mockAssets} />
-        </aside>
-
-        {/* 中栏：Preview + Timeline */}
+        <SideNavBar />
+        <MediaPanel assets={projectAssets.length > 0 ? projectAssets : mockAssets} />
         <main className={styles.centerPane}>
           <div className={styles.previewArea}>
             <VideoPlayer />
@@ -97,11 +94,8 @@ const Editor: React.FC = () => {
             <Timeline />
           </div>
         </main>
-
-        {/* 右栏：AI Chat */}
-        <aside className={styles.chatPane}>
-          <AIChat />
-        </aside>
+        <InspectorPanel />
+        <ToolSidebar />
       </div>
     </div>
   );

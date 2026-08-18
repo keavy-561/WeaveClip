@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Icon } from '@douyinfe/semi-ui';
-import { IconMoon, IconSun } from '@douyinfe/semi-icons';
+import { Button } from '@douyinfe/semi-ui';
+import { IconSun, IconMoon } from '@douyinfe/semi-icons';
 import { useThemeStore } from '@/stores/themeStore';
 import styles from './index.module.scss';
 
@@ -9,7 +9,7 @@ const ThemeToggle: React.FC = () => {
 
   return (
     <Button
-      icon={<Icon icon={theme === 'dark' ? IconSun : IconMoon} />}
+      icon={theme === 'dark' ? <IconSun /> : <IconMoon />}
       theme="borderless"
       size="small"
       onClick={toggleTheme}

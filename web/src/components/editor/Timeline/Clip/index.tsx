@@ -1,5 +1,11 @@
 import React from 'react';
-import { IconVideo, IconImage, IconMusic, IconFont } from '@douyinfe/semi-icons';
+import {
+  IconVideo,
+  IconImage,
+  IconMusic,
+  IconFont,
+  IconAIWandLevel1,
+} from '@douyinfe/semi-icons';
 import type { Clip as ClipType } from '@/types/timeline';
 import { mockAssets } from '@/utils/mockData';
 import styles from './index.module.scss';
@@ -39,12 +45,14 @@ const Clip: React.FC<ClipProps> = ({
       <IconVideo />
     );
 
+  const width = Math.max(clip.duration * pxPerSec, 20);
+
   return (
     <div
       className={`${styles.clip} ${styles[trackType]} ${isSelected ? styles.selected : ''}`}
       style={{
         left: clip.start * pxPerSec,
-        width: Math.max(clip.duration * pxPerSec, 20),
+        width,
       }}
       onClick={(e) => {
         e.stopPropagation();
@@ -52,8 +60,50 @@ const Clip: React.FC<ClipProps> = ({
       }}
       title={`${label} (${clip.duration.toFixed(1)}s)`}
     >
-      <span className={styles.clipIcon}>{typeIcon}</span>
-      <span className={styles.clipLabel}>{label}</span>
+      {trackType === 'video' && (
+        <div className={styles.filmstrip}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className={styles.filmstripFrame} />
+          ))}
+        </div>
+      )}
+
+      {trackType === 'audio' && (
+        <div className={styles.waveform}>
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div
+              key={i}
+              className={styles.waveformBar}
+              style={{
+                height: `${20 + Math.random() * 60}%`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {(trackType === 'caption' || trackType === 'effect') && (
+        <div className={styles.pillContent}>
+          <span className={styles.pillIcon}>
+            {trackType === 'effect' ? <IconAIWandLevel1 /> : <IconFont />}
+          </span>
+          <div className={styles.pillText}>
+            <span className={styles.pillTitle}>
+              {trackType === 'effect' ? 'Vivid Effects' : 'Text'}
+            </span>
+            <span className={styles.pillSub}>
+              {trackType === 'effect' ? 'H: 20% R: 05%' : (clip.text ?? 'Take the opportunity')}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {trackType !== 'caption' && trackType !== 'effect' && (
+        <>
+          <span className={styles.clipIcon}>{typeIcon}</span>
+          <span className={styles.clipLabel}>{label}</span>
+        </>
+      )}
 
       {/* Trim 手柄（Phase 1 实现交互） */}
       <span className={`${styles.handle} ${styles.left}`} />

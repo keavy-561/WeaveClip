@@ -1,6 +1,12 @@
+@use "@/styles/variables" as *;
+
 .track {
   position: relative;
-  height: 44px;
-  border-bottom: 1px solid var(--semi-color-border);
+  height: 64px;
+  border-bottom: 1px solid var(--color-editor-border);
   background: var(--color-timeline-track);
+
+  &:last-child {
+    border-bottom: none;
+  }
 }

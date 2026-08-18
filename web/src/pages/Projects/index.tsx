@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, Empty } from '@douyinfe/semi-ui';
-import { IconPlus, IconArrowLeft } from '@douyinfe/semi-icons';
+import { Button } from '@douyinfe/semi-ui';
+import { IconArrowLeft, IconPlus } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { mockProjects } from '@/utils/mockData';
@@ -23,47 +23,39 @@ const Projects: React.FC = () => {
           <Logo size="small" />
         </div>
         <div className={styles.navCenter}>
-          <h2 className={styles.title}>Projects</h2>
+          <h2 className={styles.title}>项目</h2>
         </div>
         <div className={styles.navRight}>
           <ThemeToggle />
+          <Button theme="solid" size="small" icon={<IconPlus />} onClick={() => navigate('/projects/new')}>
+            + 新视频
+          </Button>
         </div>
       </header>
 
       <main className={styles.main}>
-        <div className={styles.actions}>
-          <Button
-            theme="solid"
-            icon={<IconPlus />}
-            onClick={() => navigate('/projects/new')}
-          >
-            New Video
-          </Button>
-        </div>
-
         {mockProjects.length === 0 ? (
-          <Empty
-            title="No projects yet"
-            description="Create your first video to get started."
-          />
+          <div className={styles.empty}>No projects yet</div>
         ) : (
           <div className={styles.grid}>
             {mockProjects.map((project) => (
-              <Card
+              <div
                 key={project.id}
                 className={styles.card}
-                title={project.name}
                 onClick={() => navigate(`/editor/${project.id}`)}
               >
+                <h3 className={styles.cardTitle}>{project.name}</h3>
                 <div className={styles.meta}>
-                  <span className={styles.badge}>{project.aspectRatio}</span>
-                  <span className={styles.info}>
-                    {project.duration ? `${project.duration}s` : '—'}
-                  </span>
-                  <span className={styles.info}>{project.style}</span>
+                  <div className={styles.metaLeft}>
+                    <span className={styles.badge}>{project.aspectRatio}</span>
+                    <span className={styles.info}>
+                      {project.duration ? `${project.duration}s` : '—'}
+                    </span>
+                    <span className={styles.info}>{project.style}</span>
+                  </div>
                   <span className={styles.status}>{project.status}</span>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}
