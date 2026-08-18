@@ -13,10 +13,11 @@
   overflow: hidden;
   cursor: pointer;
   user-select: none;
+  background: var(--semi-color-bg-2);
 
   &.video {
-    background: rgba(137, 154, 171, 0.10);
     border-color: var(--color-slate-blue);
+    background: rgba(137, 154, 171, 0.10);
   }
 
   &.caption {

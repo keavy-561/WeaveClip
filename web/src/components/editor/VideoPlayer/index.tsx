@@ -27,13 +27,12 @@ const VideoPlayer: React.FC = () => {
   return (
     <div className={styles.player}>
       <div className={styles.screen}>
-        <div className={styles.mockFrame}>
-          <div className={styles.mockContent}>
-            <div className={styles.mockIcon}>▶</div>
-            <span className={styles.mockLabel}>Preview</span>
-          </div>
-          <span className={styles.mockTime}>{formatTime(currentTime)}</span>
-        </div>
+        <img
+          className={styles.previewImage}
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5JApBOE5ibho-CY0MmltucxXxPsymmJ6TbumNUrcbSQzXrrZp5S_P6IIWygvuAlf9vDdLscZo8bsbvzB-hRab_TmD4YficAjetaLisUEdrNMKJDJW0t_wLF4PbeqjVtXPnCRN8UTKyPKzdw8Hy6Hahq5KUDhOW3MzoayX5MYg16-q0WB-KKycLfYgOkPyM_L-YDsIE1eCxZvcal4h9K4m-yMqE6tpqmghg9eEcoA71q8ka_DX_SOF9d9TiL9tvoq4yuQ"
+          alt="Video preview"
+        />
+        <div className={styles.mockTime}>{formatTime(currentTime)}</div>
 
         <div className={styles.overlay}>
           <div className={styles.controls}>
