@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/weaveclip/server/internal/model"
 )
 
@@ -23,21 +25,20 @@ func ValidateRegisterRequest(email, password, name string) error {
 	return nil
 }
 
+const bcryptCost = 12
+
 // HashPassword hashes a plain text password using bcrypt.
-// This is a placeholder; real bcrypt will be implemented after adding golang.org/x/crypto.
 func HashPassword(password string) (string, error) {
-	// TODO: replace with bcrypt.GenerateFromPassword after adding golang.org/x/crypto
-	return password, nil
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcryptCost)
+	if err != nil {
+		return "", fmt.Errorf("hash password failed: %w", err)
+	}
+	return string(hash), nil
 }
 
 // ComparePassword compares a plain text password with a bcrypt hash.
-// This is a placeholder; real bcrypt will be implemented after adding golang.org/x/crypto.
 func ComparePassword(hash, password string) error {
-	// TODO: replace with bcrypt.CompareHashAndPassword after adding golang.org/x/crypto
-	if hash != password {
-		return fmt.Errorf("invalid credentials")
-	}
-	return nil
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 // AuthService provides authentication-related business logic.

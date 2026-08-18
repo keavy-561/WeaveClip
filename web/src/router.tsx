@@ -5,13 +5,13 @@ import Upload from '@/pages/Create/Upload';
 import Describe from '@/pages/Create/Describe';
 import Editor from '@/pages/Editor/[projectId]';
 import Login from '@/pages/Login';
+import Home from '@/pages/Home';
 import RequireAuth from '@/components/auth/RequireAuth';
-import TestI18n from '@/components/test/TestI18n';
 
 const Router: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<TestI18n />} />
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/projects" element={
         <RequireAuth>

@@ -45,7 +45,7 @@ func main() {
 
 	// HTTP 服务
 	r := gin.New()
-	r.Use(gin.Recovery(), middleware.Recover(), middleware.RequestID(), middleware.Logger(), middleware.CORS(cfg.CORS.AllowedOrigins))
+	r.Use(gin.Recovery(), middleware.Recover(), middleware.RequestID(), middleware.Logger(), middleware.CORS(cfg.CORS.AllowedOrigins), middleware.Security())
 
 	// Handlers
 	healthHandler := handler.NewHealthHandler()
