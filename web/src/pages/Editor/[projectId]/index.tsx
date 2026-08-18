@@ -51,6 +51,7 @@ const Editor: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
+  const project = useProjectStore((s) => s.currentProject);
   const projectAssets = mockAssets.filter(
     (a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId)
   );
@@ -61,14 +62,22 @@ const Editor: React.FC = () => {
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <Logo size="small" />
+          <nav className={styles.navLinks}>
+            <button className={`${styles.navLink} ${styles.active}`}>Drafts</button>
+            <button className={styles.navLink}>Templates</button>
+          </nav>
         </div>
         <div className={styles.headerCenter}>
           <span className={styles.projectName}>
-            16:9
+            {project?.name ?? 'Untitled Video'}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
         </div>
         <div className={styles.headerRight}>
+          <span className={styles.aspectBtn}>
+            16:9
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
           <Button
             icon={<IconUndo />}
             theme="borderless"
