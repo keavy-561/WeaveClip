@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V_DTOR AI - Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#e9bdae",
+                        "inverse-primary": "#79564a",
+                        "secondary-container": "#5a4531",
+                        "surface": "#141400",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#57432f",
+                        "surface-variant": "#363700",
+                        "on-error": "#690005",
+                        "background": "#141400",
+                        "on-primary-fixed-variant": "#5e3f34",
+                        "on-tertiary-container": "#302825",
+                        "tertiary-fixed-dim": "#d2c4bf",
+                        "surface-dim": "#141400",
+                        "surface-container-high": "#2b2c00",
+                        "surface-bright": "#3b3b00",
+                        "on-primary-container": "#3e2319",
+                        "primary-container": "#af887a",
+                        "primary-fixed-dim": "#e9bdae",
+                        "tertiary": "#d2c4bf",
+                        "surface-container": "#212100",
+                        "inverse-surface": "#e8ea24",
+                        "on-tertiary": "#372f2c",
+                        "on-secondary-fixed": "#281808",
+                        "secondary-fixed-dim": "#dfc1a7",
+                        "on-surface-variant": "#d4c3be",
+                        "secondary": "#dfc1a7",
+                        "surface-container-lowest": "#0f0f00",
+                        "on-background": "#e8ea24",
+                        "on-primary-fixed": "#2d150c",
+                        "primary-fixed": "#ffdbcf",
+                        "on-secondary": "#3f2d1b",
+                        "tertiary-container": "#9a8e8a",
+                        "on-secondary-container": "#d0b39a",
+                        "on-primary": "#45291f",
+                        "tertiary-fixed": "#eedfdb",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e8ea24",
+                        "surface-container-highest": "#363700",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1c1d00",
+                        "surface-tint": "#e9bdae",
+                        "outline-variant": "#504440",
+                        "secondary-fixed": "#fcddc2",
+                        "inverse-on-surface": "#323200",
+                        "outline": "#9d8d89",
+                        "on-tertiary-fixed": "#211a17",
+                        "on-tertiary-fixed-variant": "#4e4542"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "item-gap-relaxed": "12px",
+                        "item-gap-dense": "4px",
+                        "container-padding": "12px",
+                        "unit": "4px",
+                        "toolbar-height": "40px",
+                        "panel-gap": "1px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #1A1615; color: #d4c3be; }
+        .panel-bg { background-color: #26211F; border-color: #322B29; }
+        .popover-bg { background-color: #322B29; }
+        .border-active { border-color: #9E786B; }
+        .bg-dusty-rose { background-color: #9E786B; }
+        .text-dusty-rose { color: #9E786B; }
+        .bg-warm-beige { background-color: #dfc1a7; }
+        .text-warm-beige { color: #dfc1a7; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col font-body-md text-body-md select-none">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-primary-fixed-dim docked full-width top-0 h-toolbar-height border-b border-outline-variant dark:border-surface-variant flex justify-between items-center px-container-padding w-full h-[40px] z-50 flat no shadows">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-black text-primary dark:text-primary-fixed-dim">V_DTOR AI</span>
+<nav class="hidden md:flex gap-4 h-full items-end">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 text-label-md font-label-md hover:bg-surface-container-high transition-colors duration-200 Active: opacity-80 scale-95 transition-all" href="#">Drafts</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary text-label-md font-label-md hover:bg-surface-container-high transition-colors duration-200" href="#">Templates</a>
+</nav>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex gap-1 text-on-surface-variant">
+<button class="p-1 hover:bg-surface-container-high transition-colors duration-200 rounded"><span class="material-symbols-outlined text-[18px]">undo</span></button>
+<button class="p-1 hover:bg-surface-container-high transition-colors duration-200 rounded"><span class="material-symbols-outlined text-[18px]">redo</span></button>
+<button class="p-1 hover:bg-surface-container-high transition-colors duration-200 rounded"><span class="material-symbols-outlined text-[18px]">settings</span></button>
+</div>
+<button class="text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-high px-3 py-1 rounded transition-colors duration-200">Share</button>
+<button class="bg-dusty-rose text-white text-label-md font-label-md px-3 py-1 rounded hover:opacity-90 transition-opacity flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">download</span> Export Video
+            </button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-container dark:bg-surface-container text-primary dark:text-primary-fixed-dim docked h-full w-[64px] left-0 border-r border-outline-variant dark:border-surface-variant flat no shadows fixed top-[40px] left-0 bottom-0 flex flex-col items-center py-4 z-40">
+<div class="flex-1 flex flex-col gap-2 w-full mt-10">
+<button class="bg-secondary-container dark:bg-secondary-container text-on-secondary-container rounded-lg mx-2 flex flex-col items-center justify-center py-2 hover:bg-surface-container-highest transition-all duration-200 Click: scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">video_library</span>
+<span class="text-label-sm font-label-sm mt-1">Media</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined">mic</span>
+<span class="text-label-sm font-label-sm mt-1">Record</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined">auto_fix_high</span>
+<span class="text-label-sm font-label-sm mt-1">Content</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined">psychology</span>
+<span class="text-label-sm font-label-sm mt-1">AI Tools</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined">title</span>
+<span class="text-label-sm font-label-sm mt-1">Text</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="text-label-sm font-label-sm mt-1">Brand</span>
+</button>
+</div>
+<div class="flex flex-col gap-2 w-full mt-auto mb-4">
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-sm font-label-sm mt-1">Help</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined">folder_zip</span>
+<span class="text-label-sm font-label-sm mt-1">Assets</span>
+</button>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="ml-[64px] flex-1 flex flex-col p-panel-gap gap-panel-gap bg-black">
+<!-- Top Half: Media Bin, Viewer, Inspector -->
+<div class="flex-1 flex gap-panel-gap min-h-0">
+<!-- Media Bin Panel -->
+<div class="w-[280px] panel-bg flex flex-col border border-solid">
+<div class="h-toolbar-height flex items-center px-container-padding border-b border-[#322B29] justify-between">
+<span class="text-headline-md font-headline-md text-on-surface">Media Bin</span>
+<div class="flex gap-2">
+<button class="p-1 text-on-surface-variant hover:text-white"><span class="material-symbols-outlined text-[18px]">search</span></button>
+<button class="p-1 text-on-surface-variant hover:text-white"><span class="material-symbols-outlined text-[18px]">filter_list</span></button>
+</div>
+</div>
+<div class="p-container-padding">
+<button class="w-full py-2 border border-dashed border-outline-variant rounded flex items-center justify-center gap-2 text-on-surface-variant hover:text-white hover:border-outline transition-colors text-label-md font-label-md">
+<span class="material-symbols-outlined text-[16px]">add</span> Import Media
+                        </button>
+</div>
+<div class="flex-1 overflow-y-auto p-container-padding pt-0 grid grid-cols-2 gap-2">
+<!-- Media Item 1 -->
+<div class="group relative rounded overflow-hidden bg-surface cursor-pointer border border-transparent hover:border-[#9E786B]">
+<div class="aspect-video bg-black relative">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A cinematic, wide-angle shot of a luxurious, modern living room interior with expansive floor-to-ceiling windows overlooking a serene, majestic landscape featuring mountains and a lake at sunset. The lighting is warm and inviting, casting long shadows across the sophisticated, minimalist furniture. The color palette emphasizes warm neutrals, deep browns, and the vibrant oranges of the sunset." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXfErIjK3aNqa3Ps_uOZIz6G0teqzmTH1o9_mbBRJ1NxV1Fi6iotMXD_9EljZqd4I7vTZ_dSD0G2ggC8VvSHh5RchVvC-lURCjXGwvGOUlf5ok1AeQy-SK73ruHHCpHGhCXbRZsGqR2pnYkvZ3KW6kdNufbAoGGn6BiuVzOMMnMAvlfyheVDDscJhz9yGYE1R-mO7TwGaaPq-IW2yFDqyGpBNcG4TAOG8lrzEoGVd8ukfwmwTHtCZLUIR_lK_vjug5sL0"/>
+<span class="absolute bottom-1 right-1 bg-black/70 px-1 rounded text-label-sm font-label-sm text-white">00:15</span>
+</div>
+<div class="p-1 text-label-sm font-label-sm truncate text-on-surface-variant">landscape_broll.mp4</div>
+</div>
+<!-- Media Item 2 -->
+<div class="group relative rounded overflow-hidden bg-surface cursor-pointer border border-transparent hover:border-[#9E786B]">
+<div class="aspect-video bg-black relative flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[24px]">audio_file</span>
+<span class="absolute bottom-1 right-1 bg-black/70 px-1 rounded text-label-sm font-label-sm text-white">03:42</span>
+</div>
+<div class="p-1 text-label-sm font-label-sm truncate text-on-surface-variant">ambient_track.mp3</div>
+</div>
+</div>
+</div>
+<!-- Viewer Panel -->
+<div class="flex-1 panel-bg flex flex-col border border-solid relative">
+<div class="h-toolbar-height flex items-center justify-center border-b border-[#322B29]">
+<div class="flex gap-4 text-on-surface-variant text-label-md font-label-md">
+<span class="text-white">1920x1080</span>
+<span>24 fps</span>
+<span>Fit</span>
+</div>
+</div>
+<div class="flex-1 bg-black flex items-center justify-center relative overflow-hidden">
+<img class="max-w-full max-h-full object-contain" data-alt="A cinematic, wide-angle shot of a luxurious, modern living room interior with expansive floor-to-ceiling windows overlooking a serene, majestic landscape featuring mountains and a lake at sunset. The lighting is warm and inviting, casting long shadows across the sophisticated, minimalist furniture. The color palette emphasizes warm neutrals, deep browns, and the vibrant oranges of the sunset." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3t1zfE-HZ9YLYZRCt1R-d806VpmiYbDriKZPaI8VYpJw2lNUwlaSXbXERdzgHsLx49CyWQue7uPVu7aNgj_f0Y4kayRTFfIYpOh-zTssoOLn8JiVlu3JFUd-YuKYhSowHlHmn4ujfidIITKTXsO3Mp6xi5SX7tqrrRvQ6hNbzMvcpEksba8TNf5OiFqAysHkpJOaxwh473CLKA0NEgIBdpIcrcuKF3_7edWHo0YUZ9Wsz9BdrAxoA7mCZmnixncbOnHs"/>
+<!-- Overlay Controls (Glassmorphism) -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 flex items-center gap-4 text-white">
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined">fast_rewind</span></button>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span></button>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined">fast_forward</span></button>
+<div class="w-px h-4 bg-white/20 mx-2"></div>
+<span class="text-label-md font-label-md font-mono">00:00:12:04</span>
+</div>
+</div>
+</div>
+<!-- Inspector Panel -->
+<div class="w-[300px] panel-bg flex flex-col border border-solid">
+<div class="h-toolbar-height flex items-center px-container-padding border-b border-[#322B29]">
+<span class="text-headline-md font-headline-md text-on-surface">Properties</span>
+</div>
+<div class="flex border-b border-[#322B29] text-label-md font-label-md">
+<button class="flex-1 py-2 text-white border-b-2 border-dusty-rose">Video</button>
+<button class="flex-1 py-2 text-on-surface-variant hover:text-white">Audio</button>
+<button class="flex-1 py-2 text-on-surface-variant hover:text-white">Effects</button>
+</div>
+<div class="flex-1 overflow-y-auto p-container-padding flex flex-col gap-6">
+<!-- Transform Section -->
+<div>
+<div class="flex items-center justify-between mb-4 cursor-pointer">
+<span class="font-bold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">expand_more</span> Transform
+                                </span>
+<button class="text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">restart_alt</span></button>
+</div>
+<div class="flex flex-col gap-3 pl-5">
+<div class="flex items-center justify-between text-label-md font-label-md">
+<span class="text-on-surface-variant">Scale</span>
+<div class="flex items-center gap-2">
+<div class="w-24 h-1 bg-surface-container-highest rounded relative">
+<div class="absolute left-0 top-0 h-full bg-dusty-rose rounded w-[100%]"></div>
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-warm-beige rounded-full"></div>
+</div>
+<input class="w-14 bg-surface border border-outline-variant rounded px-1 py-0.5 text-right text-white font-mono focus:border-dusty-rose outline-none" type="text" value="100%"/>
+</div>
+</div>
+<div class="flex items-center justify-between text-label-md font-label-md">
+<span class="text-on-surface-variant">Position X</span>
+<input class="w-14 bg-surface border border-outline-variant rounded px-1 py-0.5 text-right text-white font-mono focus:border-dusty-rose outline-none" type="text" value="0.0"/>
+</div>
+<div class="flex items-center justify-between text-label-md font-label-md">
+<span class="text-on-surface-variant">Position Y</span>
+<input class="w-14 bg-surface border border-outline-variant rounded px-1 py-0.5 text-right text-white font-mono focus:border-dusty-rose outline-none" type="text" value="0.0"/>
+</div>
+</div>
+</div>
+<!-- Blend Mode -->
+<div>
+<div class="flex items-center justify-between mb-4 cursor-pointer">
+<span class="font-bold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span> Blend Mode
+                                </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Half: Timeline -->
+<div class="h-[35%] panel-bg border border-solid flex flex-col relative overflow-hidden">
+<!-- Timeline Header -->
+<div class="h-toolbar-height flex items-center px-container-padding border-b border-[#322B29] justify-between">
+<div class="flex items-center gap-4">
+<div class="flex gap-2">
+<button class="p-1 text-on-surface-variant hover:text-white"><span class="material-symbols-outlined text-[18px]">content_cut</span></button>
+<button class="p-1 text-on-surface-variant hover:text-white"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+<button class="p-1 text-on-surface-variant hover:text-white"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">zoom_out</span>
+<div class="w-24 h-1 bg-surface-container-highest rounded relative">
+<div class="absolute left-1/4 top-1/2 -translate-y-1/2 w-3 h-3 bg-warm-beige rounded-full"></div>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">zoom_in</span>
+</div>
+</div>
+<!-- Time Ruler -->
+<div class="h-6 border-b border-[#322B29] flex relative text-label-sm font-label-sm text-on-surface-variant select-none">
+<div class="w-[100px] border-r border-[#322B29] flex-shrink-0 bg-[#26211F] z-10"></div>
+<div class="flex-1 relative overflow-hidden bg-[#26211F]">
+<!-- Ruler Marks (Mockup) -->
+<div class="absolute top-0 bottom-0 left-0 flex items-end">
+<span class="px-2 border-l border-outline-variant h-2"></span><span class="ml-8">00:00</span>
+<span class="px-2 border-l border-outline-variant h-1 ml-10"></span>
+<span class="px-2 border-l border-outline-variant h-2 ml-10"></span><span class="ml-8">00:10</span>
+<span class="px-2 border-l border-outline-variant h-1 ml-10"></span>
+<span class="px-2 border-l border-outline-variant h-2 ml-10"></span><span class="ml-8">00:20</span>
+<span class="px-2 border-l border-outline-variant h-1 ml-10"></span>
+<span class="px-2 border-l border-outline-variant h-2 ml-10"></span><span class="ml-8">00:30</span>
+</div>
+</div>
+</div>
+<!-- Timeline Tracks -->
+<div class="flex-1 overflow-y-auto relative flex flex-col">
+<!-- Playhead -->
+<div class="absolute top-0 bottom-0 left-[250px] w-px bg-error z-20 pointer-events-none">
+<div class="absolute -top-3 -left-1.5 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-error"></div>
+</div>
+<!-- Video Track 1 -->
+<div class="flex h-[80px] border-b border-[#322B29]/50 group hover:bg-surface-container-high/30 transition-colors">
+<div class="w-[100px] border-r border-[#322B29] flex-shrink-0 flex items-center justify-center p-2 text-on-surface-variant bg-[#26211F] z-10">
+<div class="flex items-center gap-2 text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>V1</span>
+</div>
+</div>
+<div class="flex-1 relative bg-surface-dim">
+<!-- Clip -->
+<div class="absolute top-2 bottom-2 left-[10px] w-[300px] bg-[#1A1615] rounded overflow-hidden border border-active flex">
+<div class="w-1 bg-dusty-rose h-full"></div>
+<div class="flex-1 flex overflow-hidden opacity-80">
+<img class="h-full object-cover w-1/4" data-alt="A cinematic, wide-angle shot of a luxurious, modern living room interior with expansive floor-to-ceiling windows overlooking a serene, majestic landscape featuring mountains and a lake at sunset. The lighting is warm and inviting, casting long shadows across the sophisticated, minimalist furniture. The color palette emphasizes warm neutrals, deep browns, and the vibrant oranges of the sunset." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCST7iBnsT8WH1eUC2j8VVEfUZXQHA7hk1DHlPyaia_MzD-dxV2HiJKfFYldUfxUIgu2EzCWXT4zVBSidV4GtnlZGh1JCLafEkhvuE27zKAymcP4IZ947VG3Ue9x4sH4bQM4KY0nDb9-7m-T9-LT9i98gqSNtnC3xReNjpHEMbQ0AL5eKMnk0-H4nEzG8WBpZOi6ZeV1WrhTbE8pE0wO_M6AwL5Z8SF0SJFlhyVXT5mDl2sFZP5z0fH2zvYicI5wg9zuZc"/>
+<img class="h-full object-cover w-1/4" data-alt="A cinematic, wide-angle shot of a luxurious, modern living room interior with expansive floor-to-ceiling windows overlooking a serene, majestic landscape featuring mountains and a lake at sunset. The lighting is warm and inviting, casting long shadows across the sophisticated, minimalist furniture. The color palette emphasizes warm neutrals, deep browns, and the vibrant oranges of the sunset." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBA1bsQ20r3s_SNatBbgTUEB85v4Ufc6fDw1eBvDicp2cy0S72hTgDW3a_cRTu-7B4ZLr0n5JNrdIN1yqobN7dfmWVrKILFtNxj8DK5rtAakIDT1OaXn_OX2Iv02qY2yuJ68Y3M6btS4MH57qlQzvptr4-sLKt5JrL-je_TLDwvErtWne10O3wd9lIMDsUyTtRKbgZSFDCfINEgNzSvXq5zLHgxfoNcasUdb_wtYornsfOC2IaDrEU-W92-pyBQ8NMoPEg"/>
+<img class="h-full object-cover w-1/4" data-alt="A cinematic, wide-angle shot of a luxurious, modern living room interior with expansive floor-to-ceiling windows overlooking a serene, majestic landscape featuring mountains and a lake at sunset. The lighting is warm and inviting, casting long shadows across the sophisticated, minimalist furniture. The color palette emphasizes warm neutrals, deep browns, and the vibrant oranges of the sunset." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdoDnN2Tq2alC_EeHrliRCMdHrYtkgcgaMzlOyKHGDgo1C_KfSoIam8nvYUyyGHtY7flisEGwcujo3wg-uq3BhF9RoD9nBAPEPeNUIhkbyJsExbqDux2ASnUkDrnHnl1xljvqoUgouYDI6wF96FVSYmudDwnnzkMP0ZFzdlO8bVSV5j_s6BRjQxOdH2J5JiMNkfStT86qduzVncKb88NAm3w90JWlRMVdcNcmTcDWQ-xw94i6f7BCu2qO-qGubV_4UD28"/>
+<img class="h-full object-cover w-1/4" data-alt="A cinematic, wide-angle shot of a luxurious, modern living room interior with expansive floor-to-ceiling windows overlooking a serene, majestic landscape featuring mountains and a lake at sunset. The lighting is warm and inviting, casting long shadows across the sophisticated, minimalist furniture. The color palette emphasizes warm neutrals, deep browns, and the vibrant oranges of the sunset." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt3KB9Ef74USaennzsV4kHMj45ZZdDxFpyuiyYjvs9fapygexeu8PDBJgw4zxsJhDwZ-QD9NCDSTokpW-8z6cHfWJ1urVoGXIqsriZhROnePaRlLZdKogiLfMrKmf1JhW07qak1YxAbASoz4-XB1jIhDh4UOQPEg0ZfVR1-4RBme4cZRztOmofHKNQmsi8q7G5EXz2fsWJ_9ROt_pSqeGAsi3ItXjfQF2GuX7w_nk1oAomH-4fFARNdk-NmNkhIchgs4g"/>
+</div>
+<span class="absolute top-1 left-2 text-white text-label-sm font-label-sm bg-black/50 px-1 rounded">landscape.mp4</span>
+</div>
+</div>
+</div>
+<!-- Audio Track 1 -->
+<div class="flex h-[60px] border-b border-[#322B29]/50 group hover:bg-surface-container-high/30 transition-colors">
+<div class="w-[100px] border-r border-[#322B29] flex-shrink-0 flex items-center justify-center p-2 text-on-surface-variant bg-[#26211F] z-10">
+<div class="flex items-center gap-2 text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px]">volume_up</span>
+<span>A1</span>
+</div>
+</div>
+<div class="flex-1 relative bg-surface-dim">
+<!-- Audio Clip -->
+<div class="absolute top-1 bottom-1 left-[10px] w-[280px] bg-secondary-container/50 rounded overflow-hidden border border-secondary-container flex flex-col justify-end p-1">
+<span class="absolute top-1 left-2 text-warm-beige text-label-sm font-label-sm">ambient.mp3</span>
+<!-- Mock Waveform -->
+<div class="w-full h-1/2 flex items-end gap-[1px] opacity-70">
+<div class="w-1 bg-warm-beige h-[20%]"></div><div class="w-1 bg-warm-beige h-[40%]"></div><div class="w-1 bg-warm-beige h-[80%]"></div><div class="w-1 bg-warm-beige h-[60%]"></div><div class="w-1 bg-warm-beige h-[30%]"></div><div class="w-1 bg-warm-beige h-[90%]"></div><div class="w-1 bg-warm-beige h-[50%]"></div><div class="w-1 bg-warm-beige h-[20%]"></div><div class="w-1 bg-warm-beige h-[40%]"></div><div class="w-1 bg-warm-beige h-[70%]"></div><div class="w-1 bg-warm-beige h-[100%]"></div><div class="w-1 bg-warm-beige h-[60%]"></div><div class="w-1 bg-warm-beige h-[30%]"></div><div class="w-1 bg-warm-beige h-[80%]"></div><div class="w-1 bg-warm-beige h-[50%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Generated Audio Track -->
+<div class="flex h-[60px] border-b border-[#322B29]/50 group hover:bg-surface-container-high/30 transition-colors">
+<div class="w-[100px] border-r border-[#322B29] flex-shrink-0 flex items-center justify-center p-2 text-on-surface-variant bg-[#26211F] z-10">
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-dusty-rose">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+<span>AI A2</span>
+</div>
+</div>
+<div class="flex-1 relative bg-surface-dim">
+<!-- AI Audio Clip -->
+<div class="absolute top-1 bottom-1 left-[150px] w-[200px] bg-gradient-to-r from-dusty-rose/20 to-dusty-rose/40 rounded overflow-hidden border border-dusty-rose/50 flex flex-col justify-end p-1">
+<span class="absolute top-1 left-2 text-dusty-rose text-label-sm font-label-sm">gen_music.wav</span>
+<!-- Mock Waveform -->
+<div class="w-full h-1/2 flex items-end gap-[1px] opacity-70">
+<div class="w-1 bg-dusty-rose h-[40%]"></div><div class="w-1 bg-dusty-rose h-[70%]"></div><div class="w-1 bg-dusty-rose h-[100%]"></div><div class="w-1 bg-dusty-rose h-[60%]"></div><div class="w-1 bg-dusty-rose h-[30%]"></div><div class="w-1 bg-dusty-rose h-[80%]"></div><div class="w-1 bg-dusty-rose h-[50%]"></div><div class="w-1 bg-dusty-rose h-[20%]"></div><div class="w-1 bg-dusty-rose h-[40%]"></div><div class="w-1 bg-dusty-rose h-[70%]"></div>
+</div>
+<div class="absolute bottom-[-10px] right-2 bg-[#d2c4bf] text-black text-[8px] font-bold px-1 rounded-full flex items-center">animate</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

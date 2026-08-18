@@ -29,3 +29,6 @@ Thumbs.db
 .zcode/
 temp_*.png
 
+# TypeScript build info
+*.tsbuildinfo
+

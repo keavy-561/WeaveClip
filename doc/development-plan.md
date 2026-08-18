@@ -1,4 +1,4 @@
-# CutPilot — AI 视频剪辑助手 · 开发计划
+# WeaveClip — AI 视频剪辑助手 · 开发计划
 
 > Talk to your footage. Get the video you mean.
 > 告诉 AI 你想要什么，它帮你从原始素材剪出视频。
@@ -9,7 +9,7 @@
 
 ### 1.1 产品定位
 
-CutPilot 是一款 AI Native 的视频剪辑助手，将传统视频编辑流程重新定义为：
+WeaveClip（中文：织影）是一款 AI Native 的视频剪辑助手，将传统视频编辑流程重新定义为：
 
 **表达意图 → AI 执行 → 用户控制 → 导出**
 

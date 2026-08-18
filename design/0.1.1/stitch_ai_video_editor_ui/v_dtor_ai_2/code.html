@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>V_DTOR AI - Editor Workspace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#e9bdae",
+                        "inverse-primary": "#79564a",
+                        "secondary-container": "#5a4531",
+                        "surface": "#141400",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#57432f",
+                        "surface-variant": "#363700",
+                        "on-error": "#690005",
+                        "background": "#141400",
+                        "on-primary-fixed-variant": "#5e3f34",
+                        "on-tertiary-container": "#302825",
+                        "tertiary-fixed-dim": "#d2c4bf",
+                        "surface-dim": "#141400",
+                        "surface-container-high": "#2b2c00",
+                        "surface-bright": "#3b3b00",
+                        "on-primary-container": "#3e2319",
+                        "primary-container": "#af887a",
+                        "primary-fixed-dim": "#e9bdae",
+                        "tertiary": "#d2c4bf",
+                        "surface-container": "#212100",
+                        "inverse-surface": "#e8ea24",
+                        "on-tertiary": "#372f2c",
+                        "on-secondary-fixed": "#281808",
+                        "secondary-fixed-dim": "#dfc1a7",
+                        "on-surface-variant": "#d4c3be",
+                        "secondary": "#dfc1a7",
+                        "surface-container-lowest": "#0f0f00",
+                        "on-background": "#e8ea24",
+                        "on-primary-fixed": "#2d150c",
+                        "primary-fixed": "#ffdbcf",
+                        "on-secondary": "#3f2d1b",
+                        "tertiary-container": "#9a8e8a",
+                        "on-secondary-container": "#d0b39a",
+                        "on-primary": "#45291f",
+                        "tertiary-fixed": "#eedfdb",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e8ea24",
+                        "surface-container-highest": "#363700",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1c1d00",
+                        "surface-tint": "#e9bdae",
+                        "outline-variant": "#504440",
+                        "secondary-fixed": "#fcddc2",
+                        "inverse-on-surface": "#323200",
+                        "outline": "#9d8d89",
+                        "on-tertiary-fixed": "#211a17",
+                        "on-tertiary-fixed-variant": "#4e4542"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "item-gap-relaxed": "12px",
+                        "item-gap-dense": "4px",
+                        "container-padding": "12px",
+                        "unit": "4px",
+                        "toolbar-height": "40px",
+                        "panel-gap": "1px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for deep dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141400; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #363700; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #504440; 
+        }
+        
+        /* Slider thumb styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #d4c3be; /* Warm Beige / on-surface-variant */
+            cursor: pointer;
+            margin-top: -5px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 2px;
+            cursor: pointer;
+            background: #322B29; /* Track background */
+            border-radius: 1px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        
+        /* Level 1 & 2 Backgrounds from guidance */
+        .bg-level-1 { background-color: #26211F; }
+        .bg-level-2 { background-color: #322B29; }
+        
+        /* Borders from guidance */
+        .border-panel { border-color: #322B29; }
+        .border-active-clip { border-color: #9E786B; }
+    </style>
+</head>
+<body class="bg-background text-on-surface h-screen w-screen overflow-hidden flex flex-col font-body-md select-none">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface flex justify-between items-center px-container-padding w-full h-toolbar-height z-50 border-b border-outline-variant dark:border-surface-variant flex-shrink-0">
+<!-- Logo & Navigation Links -->
+<div class="flex items-center gap-6">
+<div class="text-headline-md font-headline-md font-black text-primary dark:text-primary-fixed-dim flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                V_DTOR AI
+            </div>
+<div class="hidden md:flex gap-4">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary text-label-md font-label-md hover:bg-surface-container-high transition-colors duration-200 px-2 py-1 rounded" href="#">Drafts</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary text-label-md font-label-md hover:bg-surface-container-high transition-colors duration-200 px-2 py-1 rounded" href="#">Templates</a>
+</div>
+</div>
+<!-- Center Project Name -->
+<div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 px-4 py-1 bg-level-2 rounded-lg border border-panel hover:bg-surface-container-high transition-colors cursor-pointer">
+<span class="text-label-md font-label-md">Sales Campaign Video</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-unit">
+<!-- Aspect Ratio Dropdown -->
+<button class="flex items-center gap-1 text-label-md font-label-md px-3 py-1.5 hover:bg-surface-container-high rounded transition-colors border border-panel mr-2">
+                16:9 <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary p-1.5 rounded hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[20px]">undo</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary p-1.5 rounded hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[20px]">redo</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary p-1.5 rounded hover:bg-surface-container-high transition-colors mr-2">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="flex items-center gap-2 text-label-md font-label-md px-4 py-1.5 text-on-surface-variant hover:text-inverse-surface border border-outline-variant rounded transition-colors ml-2 hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-[16px]">share</span>
+                Share
+            </button>
+<button class="flex items-center gap-2 text-label-md font-label-md px-4 py-1.5 bg-primary text-on-primary hover:bg-primary-fixed rounded transition-colors ml-2">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                Export Video
+            </button>
+</div>
+</nav>
+<!-- Main Workspace Area -->
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-container dark:bg-surface-container w-[64px] h-full flex flex-col items-center py-4 z-40 border-r border-outline-variant dark:border-surface-variant flex-shrink-0">
+<!-- Top Actions -->
+<div class="flex flex-col gap-2 w-full px-2">
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200 rounded-lg">
+<span class="material-symbols-outlined mb-1 text-[24px]">video_library</span>
+<span class="text-label-sm font-label-sm">Media</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200 rounded-lg">
+<span class="material-symbols-outlined mb-1 text-[24px]">mic</span>
+<span class="text-label-sm font-label-sm">Record</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200 rounded-lg">
+<span class="material-symbols-outlined mb-1 text-[24px]">auto_fix_high</span>
+<span class="text-label-sm font-label-sm">Content</span>
+</button>
+<button class="bg-secondary-container dark:bg-secondary-container text-on-secondary-container flex flex-col items-center justify-center py-2 rounded-lg scale-95 transition-transform w-full relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3/4 bg-[#d4c3be] rounded-r-full"></div>
+<span class="material-symbols-outlined mb-1 text-[24px]">psychology</span>
+<span class="text-label-sm font-label-sm">AI Tools</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200 rounded-lg">
+<span class="material-symbols-outlined mb-1 text-[24px]">title</span>
+<span class="text-label-sm font-label-sm">Text</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all duration-200 rounded-lg">
+<span class="material-symbols-outlined mb-1 text-[24px]">auto_awesome</span>
+<span class="text-label-sm font-label-sm">Brand</span>
+</button>
+</div>
+<div class="mt-auto flex flex-col gap-2 w-full px-2">
+<button class="text-on-surface-variant flex flex-col items-center justify-center py-2 hover:text-primary hover:bg-surface-container-highest transition-all rounded-lg">
+<span class="material-symbols-outlined text-[24px]">help</span>
+</button>
+<!-- User Profile Avatar -->
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center mt-2 cursor-pointer border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small circular portrait of a professional video editor, looking focused and creative, set against a dark studio background with subtle warm rim lighting. High quality, clear, minimalist avatar style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6SbRvBK7utPQvzhZjbwhsiLfLZ5afT8fCm2YA_xflsK48xTlPbHK3h_zjVV4s_0MjLlgBGpNRrRdJxKgEYFHqHhgOHDmh9MXDDyakOnlrhUu1xtHCF1KNxzH8j1gZWcYbKOGNQY9ZMUO-3tGf7_DRSwhLVu83WwD-jM9Ec8kd2LSqiift0jArE5kjHB7nkFjwZu3eoaQ9oN0RIY0BPkT_r8fX1e1tK0Z3q6CxJ4O4bLhXEB7OauXKMA"/>
+</div>
+</div>
+</aside>
+<!-- Media/Library Panel (Zone 1) -->
+<div class="w-[320px] bg-level-1 border-r border-panel flex flex-col flex-shrink-0">
+<!-- Panel Header -->
+<div class="h-toolbar-height flex items-center px-4 border-b border-panel">
+<div class="flex bg-level-2 rounded-lg p-1 w-full border border-panel">
+<button class="flex-1 text-center text-label-md font-label-md py-1 bg-[#504440] text-on-surface rounded shadow-sm">Library</button>
+<button class="flex-1 text-center text-label-md font-label-md py-1 text-on-surface-variant hover:text-on-surface transition-colors">Media</button>
+</div>
+</div>
+<!-- Search -->
+<div class="p-3 border-b border-panel bg-level-1">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[16px]">search</span>
+<input class="w-full bg-level-2 border border-panel text-label-md font-label-md text-on-surface rounded py-1.5 pl-9 pr-3 focus:outline-none focus:border-outline-variant placeholder-on-surface-variant" placeholder="Search Templates" type="text"/>
+</div>
+</div>
+<!-- Library Content -->
+<div class="flex-1 overflow-y-auto p-3 space-y-6">
+<!-- Grid Category 1 -->
+<div>
+<h3 class="text-label-md font-headline-md font-bold text-on-surface mb-3 flex items-center justify-between">
+                        Recent Assets <span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer hover:text-on-surface">chevron_right</span>
+</h3>
+<div class="grid grid-cols-2 gap-2">
+<div class="aspect-square bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Abstract macro shot of overlapping flower petals in deep purple and vibrant pink hues. High contrast, professional macro photography with sharp details and soft bokeh background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5t2CMfKsH5ke_RmKFLCqdOHPnI6M8Zn-U1hNep4ehXBzfPdebI2P_ty6oBddArLpHMVSWdxQNjrfLMZwxKr2-INNOU8OHHztNAVmHXsv1c7FNNZruoDHtUtHLoTCCKXzLG754ZS7wRao2jvEPIDQo66VCyf55Ipt_qi8L3UuQpNjDu0NYyNli6oPgL3soui-qoqM17VYGSknDdpIseFBR-ilcETv0isAoGU5MaX5VruxRiaBlZI-c_g"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white">add</span>
+</div>
+</div>
+<div class="aspect-square bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A peaceful close-up of a sleeping baby swaddled in soft white blankets. Soft, warm, natural light creating a gentle and tender mood. High quality editorial photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC7qJIQ1KQOs8_H0eY8vdsK55JlBwMB5BpLHREjyLE6MZMjxwSCBUBWa8eVuomkWrlEn-xp0QY6Pj3CmjGZNrYFfHQz2wXi0sC5GJFyZYRJ4d8jyUoL1qL64lzdMUVWHiRZM2NxN73PbIWZDqMVxZ2m2JoFYJ8Jq7eLCdjoRPp-tbYu_TnYuzMF0C0Dff7-yJ-BCn_6uH2bE_RGca_G5BD0UTaGd1JnzjScesPyy9mX2sEeY0Cf4gw1w"/>
+<div class="absolute bottom-1 right-1 bg-black/60 rounded px-1 text-[10px] text-white">00:05</div>
+</div>
+<div class="aspect-square bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Abstract slow-motion ink drop in water, creating vibrant blue and turquoise plumes against a clean light background. High-speed fluid dynamics photography, crisp and colorful." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ2zMKwMFws3IuXEdm7iG4rVF1bcj66rog5fF8_njEt33ONfeCb0XiyWp6Hyv5x18QGQGRZCzER1pNM5Ywg_E0eY42xE3uGIxbGyah8dmt5WCR_kMUXwlB04pE149OjZMZKu7bvpeoU8CamPVWKvQB9KZY1YkIJ4T-0WJQoJ-KBsbcJKdNkTk3WEFvLgdHUD0U0heQZYBoixp9uyrkAEBjoIwafTqfI_AzP-94AGFLZhzSdmgnacng3w"/>
+<div class="absolute bottom-1 right-1 bg-black/60 rounded px-1 text-[10px] text-white">00:12</div>
+</div>
+<div class="aspect-square bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Top-down view of a stylish bowl of ramen with vibrant garnishes on a dark slate table. Cinematic food photography with rich colors and directional lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXpyJ05fJFVnRUe2X3XLDyAWZTHwWPTLBglUUazIkhQPXx-6lty2Q2lUx3eIqMxgAIoMO9YuvP9OKdIHIQQMcOWQrGlO2juOxxGkaYVBYQlIWotvwDLbHFXwhJoTdKiGC9tM-0rdv9MShl2QGgiiYucA97dsP4UMb25jSCjYi9qml_oT77Pi2GjBr7BtBnK20OWhPALc_MZi8mWwfvvBbwEuf4phkLRB61b-vnqfmp7F1DOeIImycNfg"/>
+</div>
+</div>
+</div>
+<!-- Grid Category 2 -->
+<div>
+<h3 class="text-label-md font-headline-md font-bold text-on-surface mb-3 flex items-center justify-between">
+                        Landscape Video <span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer hover:text-on-surface">chevron_right</span>
+</h3>
+<div class="space-y-3">
+<div class="h-24 bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Vibrant autumn leaves covering a forest floor, rich reds, oranges, and yellows. Crisp detail, shallow depth of field, warm sunlight filtering through. High resolution nature b-roll frame." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrRUynQrsKtloYqXPqHJ66v4aX7Wx4e4ZRARDS_f0cZjDMKve_KjyVdUmfN_mCV16KaphvR24Ra6hito-9v3HjHlphizj3EpkD3UweWxQ40N5pYieHpSYLM_QN3zWCaZigytPGpsZpUD0EovYKiEh_S8iuzFTLzqN98qtWy-bRBvyDiHMNys1R_QY8YyeeBot_MZHyLfMxClO_Q7OgJCEiTlO-orI5ZZH2WQ0axS7NkxGcuXKrbDO-Tw"/>
+<div class="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/80 to-transparent">
+<span class="text-label-md text-white font-label-md">Floral</span>
+</div>
+<div class="absolute top-1 right-1 bg-black/60 rounded px-1 text-[10px] text-white flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">4k</span> 00:15</div>
+</div>
+<div class="h-24 bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A stylized 3D render of a geometric sphere composed of glowing wireframes against a dark purple, grid-like synthetic landscape. Synthwave aesthetic, neon colors, highly detailed CGI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0fJc6DzeY0xDBrM1JB6ECuxmOxtWKmNF6n0Xn3kCCMa95wrxVmgzRWcDZU8fmTdAfMO_7AcVeZB1D48jbp4IrovPwjyMuHIX7BPrwoI1_OFPunRn5XS8q475kptHqXFVfgW4IvDM8IH0zAaDA0LLMPOPaNis5nr4EiDRAE5NVQVpndybcPsMY7N7g-uRmJ0ubJPBq-gP5CrrhFmfzejsU7eiMGD9V-HprbjsXITpaJ3WHeGv2bolF1Q"/>
+<div class="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/80 to-transparent">
+<span class="text-label-md text-white font-label-md">3D Renders</span>
+</div>
+<div class="absolute top-1 right-1 bg-[#e9bdae] text-black font-bold rounded px-1 text-[10px] flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">auto_awesome</span> AI Generated</div>
+</div>
+<div class="h-24 bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A serene sunrise over a misty lake framed by silhouetted trees. Golden hour lighting, calm water reflection, cinematic landscape photography, wide angle view." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_j1NdMfP4fizfZav67_s7dDJza1cyeQppJTRayUy8z5atlauTYtUdAiNQBMPba-0F2eZXL4YZhKs_9MPXFIPA4yrRI-yqcp8x7IBm5Ut2HP5TNrJ28_SreqGnqrKWowtBc4pSNlOwsFpHLr_EDddd-QkxEkVxjCTcEtK90dSRVpsh1zaJ4hFQfbFXy64ZUnBDk2vP7GUoYA_t_FAXjKao4lyZZhiYf7ixSFFjiveFgFGWc7HnQGz0yQ"/>
+<div class="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/80 to-transparent">
+<span class="text-label-md text-white font-label-md">Nature</span>
+</div>
+</div>
+<div class="h-24 bg-level-2 rounded-lg border border-panel overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A close up view of a classical building dome against a pale sky. Intricate architectural details, soft uniform lighting, professional stock footage still." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0fm2_jDJod0UvTnqAcHKPGQle5a4q9HlqQoNvVR1bPe-Sh14A6Ueb8xlOjKtFpn2kr0bkxWxX9-4f6fJtW0F8jIidsetQyyVYjxP5a1siT2g1O1tr9iGTJ3r779FPpJUZN4gGIdCNd1er4zQWj4v3ToJEawMt_MtSP6nN0ucqnL2_PbnzpSkwX1m3YAtMexK4C38Qaqvzkq5FcwpJqDW7Cyd00wLs6mdF6xb_XgNuuPmbh1UI8IjWfg"/>
+<div class="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/80 to-transparent">
+<span class="text-label-md text-white font-label-md">Architected</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Center Workspace (Preview & Timeline) -->
+<div class="flex-1 flex flex-col min-w-0 bg-background relative">
+<!-- Video Preview Area -->
+<div class="flex-1 flex flex-col items-center justify-center p-4 min-h-[40%]">
+<!-- Main Canvas -->
+<div class="relative w-full max-w-4xl aspect-video bg-black rounded-lg border border-panel overflow-hidden shadow-2xl flex items-center justify-center">
+<!-- Inject user image placeholder as the main video content -->
+<img alt="Main Video Preview" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5JApBOE5ibho-CY0MmltucxXxPsymmJ6TbumNUrcbSQzXrrZp5S_P6IIWygvuAlf9vDdLscZo8bsbvzB-hRab_TmD4YficAjetaLisUEdrNMKJDJW0t_wLF4PbeqjVtXPnCRN8UTKyPKzdw8Hy6Hahq5KUDhOW3MzoayX5MYg16-q0WB-KKycLfYgOkPyM_L-YDsIE1eCxZvcal4h9K4m-yMqE6tpqmghg9eEcoA71q8ka_DX_SOF9d9TiL9tvoq4yuQ"/>
+<!-- AI Character Overlay (simulating an active edit) -->
+<div class="absolute bottom-8 right-8 border-2 border-primary border-dashed p-1 cursor-move group">
+<div class="absolute -top-6 left-0 bg-primary text-on-primary text-[10px] px-1 font-label-md font-bold rounded-t hidden group-hover:block">AI Avatar Tracker</div>
+<!-- Corner handles -->
+<div class="absolute -top-1 -left-1 w-2 h-2 bg-white rounded-full"></div>
+<div class="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></div>
+<div class="absolute -bottom-1 -left-1 w-2 h-2 bg-white rounded-full"></div>
+<div class="absolute -bottom-1 -right-1 w-2 h-2 bg-white rounded-full"></div>
+</div>
+<!-- On-Canvas Playback Controls (Glassmorphism) -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-[#141400]/40 backdrop-blur-[12px] border border-white/10 px-4 py-2 rounded-full opacity-0 hover:opacity-100 transition-opacity duration-300">
+<button class="text-white hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">fast_rewind</span></button>
+<button class="text-white hover:text-primary transition-colors"><span class="material-symbols-outlined text-[28px]">play_arrow</span></button>
+<button class="text-white hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">fast_forward</span></button>
+</div>
+</div>
+</div>
+<!-- Timeline Tool Header -->
+<div class="h-toolbar-height bg-level-1 border-t border-b border-panel flex items-center justify-between px-4 flex-shrink-0">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:text-primary transition-colors p-1" title="Undo"><span class="material-symbols-outlined text-[18px]">undo</span></button>
+<button class="hover:text-primary transition-colors p-1" title="Redo"><span class="material-symbols-outlined text-[18px]">redo</span></button>
+<div class="w-px h-4 bg-outline-variant mx-1"></div>
+<button class="hover:text-primary transition-colors p-1" title="Split Clip"><span class="material-symbols-outlined text-[18px]">content_cut</span></button>
+<button class="hover:text-primary transition-colors p-1" title="Delete"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+<button class="hover:text-primary transition-colors p-1" title="Add Media"><span class="material-symbols-outlined text-[18px]">add_photo_alternate</span></button>
+</div>
+<!-- Timecode -->
+<div class="flex flex-col items-center justify-center font-label-md text-[13px] tracking-wider">
+<span class="text-primary font-bold">02:51:66</span>
+<span class="text-on-surface-variant text-[10px] -mt-1">/ 04:20:00</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<button class="hover:text-primary transition-colors" title="Zoom Out"><span class="material-symbols-outlined text-[18px]">zoom_out</span></button>
+<!-- Timeline Zoom Slider -->
+<div class="w-24 flex items-center">
+<input class="w-full" max="100" min="1" type="range" value="50"/>
+</div>
+<button class="hover:text-primary transition-colors" title="Zoom In"><span class="material-symbols-outlined text-[18px]">zoom_in</span></button>
+<div class="w-px h-4 bg-outline-variant mx-1"></div>
+<button class="hover:text-primary transition-colors" title="Timeline Settings"><span class="material-symbols-outlined text-[18px]">tune</span></button>
+</div>
+</div>
+<!-- Timeline Area -->
+<div class="flex-1 bg-level-1 overflow-hidden relative flex flex-col min-h-[250px] border-b border-panel">
+<!-- Time Ruler -->
+<div class="h-6 border-b border-panel flex items-end px-16 relative text-on-surface-variant font-label-sm text-[10px]">
+<div class="flex-1 flex justify-between pb-1">
+<span>00:00</span>
+<span>00:20</span>
+<span>00:40</span>
+<span>01:00</span>
+<span>01:20</span>
+<span>01:40</span>
+<span>02:00</span>
+<span>02:20</span>
+</div>
+<!-- Playhead Line -->
+<div class="absolute top-0 bottom-0 left-[45%] w-[1px] bg-primary z-30 pointer-events-none overflow-visible">
+<div class="absolute -top-0 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-primary"></div>
+</div>
+</div>
+<!-- Tracks Container -->
+<div class="flex-1 overflow-y-auto overflow-x-hidden relative">
+<!-- Track 1: Main Video -->
+<div class="flex h-16 border-b border-panel group relative">
+<!-- Track Header -->
+<div class="w-16 bg-level-2 border-r border-panel flex items-center justify-center sticky left-0 z-20 flex-shrink-0 group-hover:bg-[#3a3230] transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">videocam</span>
+</div>
+<!-- Track Content -->
+<div class="flex-1 relative flex items-center px-2 py-1">
+<!-- Video Clip -->
+<div class="absolute left-2 w-[85%] h-[80%] bg-[#212b36] rounded border border-panel flex overflow-hidden">
+<div class="w-full h-1 bg-blue-500/50 absolute top-0 left-0"></div> <!-- color indicator -->
+<!-- Filmstrip thumbnails -->
+<div class="flex w-full h-full opacity-50 grayscale gap-px p-1 pt-2">
+<img class="h-full w-auto object-cover" data-alt="A tiny thumbnail preview of a Lego character sitting at a desk, part of a video timeline filmstrip. Blurry and muted." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO5BuA9leCZhZtM6ckazE1lArOUJN6njlLxSVESHPsRO14HUAM6MbhA5CO5Sq_lsz-yVgdF9m-7qLD13eLXlS-KOYVOqhLADevWlyXadOf7Bxo9vFxssgmqcKdptMKxC3yLGX6eddDyGkT6d4My4xP0bwJP3xUStuYSNTEfa3lDSpWO5_-cQKAhNeytUixfVxnAH8iuB3BP_uZe_vcJThnzd2vKx8TOmFyd95heZCimrJ6pPv2GbsZ9g"/>
+<img class="h-full w-auto object-cover" data-alt="A tiny thumbnail preview of a Lego character moving its arm, part of a video timeline filmstrip. Blurry and muted." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDp2HseeJ5GMFXtBnL5sk_EaQHR2a67fMcsXu3NN-aMHQ4VDcGsyD0U_luBavS-8xvL9OrRxVvXIqgRuUqKEv1UaFhwD5owJ-zSUd5WMiiUoTXck_awy2hW5GkjgFazK9uPqjaCLhQYUz2QyHUItQWExcNyHixpQEguonNrCK3tve2q54MMzd2FYLOettU55Fncz83Y943O25zGKzvl9eajw4_4krLd_VMX56y-PxQX9mykjVqQJBc_aA"/>
+<img class="h-full w-auto object-cover hidden sm:block" data-alt="A tiny thumbnail preview of a Lego character looking around, part of a video timeline filmstrip. Blurry and muted." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1rWaFrEq6F--L4spD-ThTOxxnXWovC_CekDDME3mtcb43EexmF9qm69BYhqUqMbPG7DB4mFUWEy9yfEnRtlE3Z-LLzxR_QPfqcTNtsjmG5-aXBs1tsuVfzrNNI3A7YjKPfDxso4eSDtWrYvvR8pi7pZeSXijsvrl1KqyAVBpHK51B_RUj2VHhk_Dc4dDxakPpK6W8EsiFP2wLNj46B_jm7Kqll0tfo9wsbciYsxVM2u6NzfyVoHmKfQ"/>
+<img class="h-full w-auto object-cover hidden md:block" data-alt="A tiny thumbnail preview of a Lego character standing up, part of a video timeline filmstrip. Blurry and muted." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfN5RjdtIhATVVYZwx6_PBnFE5TCg599KankN3Uc4ri25l42nYmnyKIGjGZEF-J2a78VUVP15exl05VBCpHT1y-NEQAS3QSidYk19Y96o4U8lJcl_cVj8qDKKwJFTMaFyN_MZoEOUd21NjTm-AGCySKy3PdnJ5ZRnq-yWEcUC0V5w7ADx9pVXtnhG8TmoRx4lVFhCMXSC_tMllz3HvyiP4IJCL_uJ6i4pdEcm-kbGF67E6SDtE5ckhPw"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Track 2: Audio -->
+<div class="flex h-16 border-b border-panel group relative bg-level-1">
+<div class="w-16 bg-level-2 border-r border-panel flex flex-col items-center justify-center gap-1 sticky left-0 z-20 flex-shrink-0 group-hover:bg-[#3a3230] transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">volume_up</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[14px] opacity-50">lock_open</span>
+</div>
+<div class="flex-1 relative flex items-center px-2 py-1">
+<!-- Audio Clip -->
+<div class="absolute left-4 w-[75%] h-[80%] bg-[#b31454] rounded border border-[#8a0f40] flex flex-col justify-center overflow-hidden">
+<div class="text-[10px] font-label-sm text-white px-2 py-0.5 bg-black/30 w-max rounded-br">Gala_Night.mp3</div>
+<!-- CSS Waveform Simulation -->
+<div class="flex items-end h-full w-full gap-px px-1 opacity-70 pb-1">
+<div class="w-1 h-[20%] bg-white/80 rounded-t"></div><div class="w-1 h-[40%] bg-white/80 rounded-t"></div><div class="w-1 h-[30%] bg-white/80 rounded-t"></div><div class="w-1 h-[60%] bg-white/80 rounded-t"></div><div class="w-1 h-[80%] bg-white/80 rounded-t"></div><div class="w-1 h-[50%] bg-white/80 rounded-t"></div><div class="w-1 h-[90%] bg-white/80 rounded-t"></div><div class="w-1 h-[40%] bg-white/80 rounded-t"></div><div class="w-1 h-[20%] bg-white/80 rounded-t"></div><div class="w-1 h-[30%] bg-white/80 rounded-t"></div><div class="w-1 h-[70%] bg-white/80 rounded-t"></div><div class="w-1 h-[60%] bg-white/80 rounded-t"></div><div class="w-1 h-[80%] bg-white/80 rounded-t"></div><div class="w-1 h-[40%] bg-white/80 rounded-t"></div><div class="w-1 h-[20%] bg-white/80 rounded-t"></div><div class="w-1 h-[50%] bg-white/80 rounded-t"></div>
+<div class="w-1 h-[60%] bg-white/80 rounded-t"></div><div class="w-1 h-[30%] bg-white/80 rounded-t"></div><div class="w-1 h-[80%] bg-white/80 rounded-t"></div><div class="w-1 h-[50%] bg-white/80 rounded-t"></div><div class="w-1 h-[90%] bg-white/80 rounded-t"></div><div class="w-1 h-[40%] bg-white/80 rounded-t"></div><div class="w-1 h-[20%] bg-white/80 rounded-t"></div><div class="w-1 h-[30%] bg-white/80 rounded-t"></div>
+<div class="w-1 h-[20%] bg-white/80 rounded-t hidden sm:block"></div><div class="w-1 h-[40%] bg-white/80 rounded-t hidden sm:block"></div><div class="w-1 h-[30%] bg-white/80 rounded-t hidden sm:block"></div><div class="w-1 h-[60%] bg-white/80 rounded-t hidden sm:block"></div><div class="w-1 h-[80%] bg-white/80 rounded-t hidden sm:block"></div><div class="w-1 h-[50%] bg-white/80 rounded-t hidden sm:block"></div>
+</div>
+<!-- Active playhead line overlay -->
+<div class="absolute top-0 bottom-0 left-[55%] w-[1px] bg-primary z-30 pointer-events-none"></div>
+</div>
+</div>
+</div>
+<!-- Track 3: Text / AI Overlay -->
+<div class="flex h-16 border-b border-panel group relative">
+<div class="w-16 bg-level-2 border-r border-panel flex items-center justify-center sticky left-0 z-20 flex-shrink-0 group-hover:bg-[#3a3230] transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">match_word</span>
+</div>
+<div class="flex-1 relative flex items-center px-2 py-1 gap-2">
+<!-- Text Clip -->
+<div class="w-[30%] h-[70%] bg-[#0f243b] rounded-full border border-[#1e4676] flex items-center px-3 cursor-pointer hover:border-[#3874bd]">
+<span class="material-symbols-outlined text-[#3874bd] text-[14px] mr-2">title</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-white leading-tight">Text</span>
+<span class="text-[9px] text-white/70 leading-tight truncate">Take the opportunity</span>
+</div>
+</div>
+<!-- Effects Clip (Selected state) -->
+<div class="w-[25%] h-[70%] bg-[#0f243b] rounded-full border-[1.5px] border-active-clip flex items-center px-3 cursor-pointer shadow-[0_0_8px_rgba(158,120,107,0.3)]">
+<span class="material-symbols-outlined text-primary text-[14px] mr-2">auto_awesome</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-primary leading-tight">Vivid Effects</span>
+<span class="text-[9px] text-white/70 leading-tight truncate font-label-sm">H: 20% R: 05%</span>
+</div>
+<!-- Resize Handles -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-4 bg-primary/50 rounded-r cursor-col-resize flex items-center justify-center"><span class="material-symbols-outlined text-[8px] text-black">chevron_left</span></div>
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-4 bg-primary/50 rounded-l cursor-col-resize flex items-center justify-center"><span class="material-symbols-outlined text-[8px] text-black">chevron_right</span></div>
+</div>
+<!-- Effects Clip -->
+<div class="w-[20%] h-[70%] bg-[#0f243b] rounded-full border border-[#1e4676] flex items-center px-3 cursor-pointer hover:border-[#3874bd]">
+<span class="material-symbols-outlined text-[#3874bd] text-[14px] mr-2">blur_on</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-white leading-tight">Gaussian Blur</span>
+<span class="text-[9px] text-white/70 leading-tight truncate font-label-sm">B: 10% L: 05%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel (Inspector/Adjustments - Zone 3) -->
+<div class="w-[280px] bg-level-1 border-l border-panel flex flex-col flex-shrink-0 hidden lg:flex">
+<!-- Contextual Tabs -->
+<div class="h-toolbar-height flex items-center border-b border-panel bg-level-2">
+<button class="flex-1 h-full text-label-md font-label-md border-b-2 border-primary text-primary font-bold bg-level-1">Adjust Colors</button>
+<button class="flex-1 h-full text-label-md font-label-md border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors">Filters</button>
+<button class="w-12 h-full flex items-center justify-center border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border-l border-panel">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+<!-- Scrollable Settings -->
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<!-- White Balance Section -->
+<div>
+<div class="flex justify-between items-center mb-3">
+<h4 class="text-label-md font-bold text-on-surface">White Balance</h4>
+<button class="text-label-sm text-on-surface-variant hover:text-primary transition-colors">Reset ↺</button>
+</div>
+<div class="space-y-4">
+<!-- Temperature Slider -->
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="text-label-sm text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-orange-400">thermostat</span> Color Temp</span>
+<input class="w-10 bg-level-2 border border-panel text-label-sm text-center rounded py-0.5 text-on-surface font-label-md focus:border-primary focus:outline-none" type="number" value="0"/>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-blue-400"></span>
+<input class="flex-1" max="100" min="-100" type="range" value="0"/>
+<span class="w-2 h-2 rounded-full bg-orange-400"></span>
+</div>
+</div>
+<!-- Tint Slider -->
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="text-label-sm text-on-surface-variant">Tint</span>
+<input class="w-10 bg-level-2 border border-panel text-label-sm text-center rounded py-0.5 text-on-surface font-label-md focus:border-primary focus:outline-none" type="number" value="0"/>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-400"></span>
+<input class="flex-1" max="100" min="-100" type="range" value="0"/>
+<span class="w-2 h-2 rounded-full bg-purple-400"></span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full h-px bg-panel-gap bg-panel"></div>
+<!-- Tone Section -->
+<div>
+<div class="flex justify-between items-center mb-3">
+<h4 class="text-label-md font-bold text-on-surface">Tone</h4>
+<button class="text-label-sm text-on-surface-variant hover:text-primary transition-colors">Reset ↺</button>
+</div>
+<div class="space-y-4">
+<!-- Brightness -->
+<div class="flex items-center gap-3">
+<span class="text-label-sm text-on-surface-variant w-16">Brightness</span>
+<input class="flex-1" max="100" min="-100" type="range" value="0"/>
+<input class="w-8 bg-transparent text-label-sm text-right text-on-surface font-label-md focus:outline-none" type="number" value="0"/>
+</div>
+<!-- Contrast -->
+<div class="flex items-center gap-3">
+<span class="text-label-sm text-on-surface-variant w-16">Contrast</span>
+<input class="flex-1" max="100" min="-100" type="range" value="0"/>
+<input class="w-8 bg-transparent text-label-sm text-right text-on-surface font-label-md focus:outline-none" type="number" value="0"/>
+</div>
+<!-- Saturation -->
+<div class="flex items-center gap-3">
+<span class="text-label-sm text-on-surface-variant w-16">Saturation</span>
+<input class="flex-1" max="100" min="-100" type="range" value="0"/>
+<input class="w-8 bg-transparent text-label-sm text-right text-on-surface font-label-md focus:outline-none" type="number" value="0"/>
+</div>
+<!-- Exposure -->
+<div class="flex items-center gap-3">
+<span class="text-label-sm text-on-surface-variant w-16">Exposure</span>
+<input class="flex-1" max="100" min="-100" type="range" value="0"/>
+<input class="w-8 bg-transparent text-label-sm text-right text-on-surface font-label-md focus:outline-none" type="number" value="0"/>
+</div>
+</div>
+</div>
+<div class="w-full h-px bg-panel-gap bg-panel"></div>
+<!-- Creative Section -->
+<div>
+<div class="flex justify-between items-center mb-3">
+<h4 class="text-label-md font-bold text-on-surface flex items-center gap-1">Creative <span class="material-symbols-outlined text-[14px] text-primary">auto_awesome</span></h4>
+<button class="text-label-sm text-on-surface-variant hover:text-primary transition-colors">Reset ↺</button>
+</div>
+<div class="space-y-4">
+<!-- Hue -->
+<div class="flex items-center gap-3">
+<span class="text-label-sm text-on-surface-variant w-16">Hue</span>
+<input class="flex-1" max="100" min="-100" style="background: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red); height: 2px;" type="range" value="0"/>
+<input class="w-8 bg-transparent text-label-sm text-right text-on-surface font-label-md focus:outline-none" type="number" value="0"/>
+</div>
+<!-- Sharpness -->
+<div class="flex items-center gap-3">
+<span class="text-label-sm text-on-surface-variant w-16">Sharpness</span>
+<input class="flex-1" max="100" min="0" type="range" value="0"/>
+<input class="w-8 bg-transparent text-label-sm text-right text-on-surface font-label-md focus:outline-none" type="number" value="0"/>
+</div>
+<!-- Blur (Active) -->
+<div class="flex items-center gap-3 group">
+<span class="text-label-sm text-primary font-bold w-16">Blur</span>
+<div class="flex-1 relative flex items-center">
+<div class="absolute left-0 h-0.5 bg-primary rounded-l" style="width: 20%;"></div>
+<input class="w-full relative z-10 opacity-0 cursor-pointer" max="100" min="0" type="range" value="20"/>
+<div class="absolute w-3 h-3 bg-primary rounded-full shadow pointer-events-none" style="left: 20%; transform: translateX(-50%);"></div>
+</div>
+<input class="w-8 bg-transparent text-label-sm text-right text-primary font-label-md focus:outline-none" type="number" value="20"/>
+</div>
+</div>
+</div>
+<!-- Filters Preview Grid -->
+<div class="pt-4 border-t border-panel">
+<div class="flex justify-between items-center mb-3">
+<h4 class="text-label-md font-bold text-on-surface">Quick Filters</h4>
+<button class="text-label-sm text-on-surface-variant hover:text-primary transition-colors">See All</button>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div class="flex flex-col items-center gap-1 cursor-pointer group">
+<div class="w-full aspect-square rounded bg-level-2 border-2 border-primary overflow-hidden relative">
+<img alt="Filter Preview" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmMBV12gE1eNYhNqzsHXNyAps3MavAdfOXYhMlgeIWm4IeFafFUIafYD86bZ86AScbcnV_5E__MlK77qXWERYyNuUO2AZTRbTFTJvZC-Dm8bucHzvRw98qV5WZB_WNdTq1GsYYP_bk9KdHZUmbgcTUHUoOSiEZEcvDhQ3-2I_6tmEomWHHTHgP_D3aikBajzswRKZ9BEr2EkYkAcWR0Hjn8sMmcj9ppNGq6wHwm1EyURah36kDwnasd9hHWFvuEYF9rgM"/>
+</div>
+<span class="text-[10px] text-primary font-bold">None</span>
+</div>
+<div class="flex flex-col items-center gap-1 cursor-pointer group">
+<div class="w-full aspect-square rounded bg-level-2 border border-panel overflow-hidden relative group-hover:border-outline-variant">
+<img alt="Filter Preview" class="w-full h-full object-cover saturate-150 contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhOF29UdAjAdoafTDszEjVNctOak6vdvvHHdfaQFuv96qiqYLkl4b9Molt8BxcVHz_gY2dwZlqn4rgzvFxCdqnAEeIhmErKCTNay6ccHsupyA0DziwMUMi6wpuY7jgpqPbSTxx9H5gWZnmRobi6O_xbgSS4hZBGXGNb8tvi_xGRLnYhvog-gohYfundSbZjg7ge9PLR-_ywpiXIbxRaLCWvBQGhBWtiQQYf6W-tbl3yEJX8M-7IKG83mp2HqGHmTrLR9w"/>
+</div>
+<span class="text-[10px] text-on-surface-variant group-hover:text-on-surface">Vivid</span>
+</div>
+<div class="flex flex-col items-center gap-1 cursor-pointer group">
+<div class="w-full aspect-square rounded bg-level-2 border border-panel overflow-hidden relative group-hover:border-outline-variant">
+<img alt="Filter Preview" class="w-full h-full object-cover sepia-[0.3] hue-rotate-15" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA42TY7m9VH7xATRqqUpg7MaQAJLXlDW8HAHoQ-80pwRt7yBZ15aKOk4jM4h0RfqlKepdl9840XM6lH9eyrOrS304Rrc9_zXDGot2bLRXGAWXVV_kFD-UlAAAJXtxOD7Ek3l9s5b4ZBfYlB9Lr5BsN659goqZ9P_JMkZqvQfVt7m2h4WuX2XZsGbjKjv2WJFJk7tnE9r4wA65RZEouIx9r5qhaCZFfFbDoIWUblCQVLUn_uK-aFAcqp0fTNDhC0xmvopOg"/>
+</div>
+<span class="text-[10px] text-on-surface-variant group-hover:text-on-surface">Charm</span>
+</div>
+<div class="flex flex-col items-center gap-1 cursor-pointer group">
+<div class="w-full aspect-square rounded bg-level-2 border border-panel overflow-hidden relative group-hover:border-outline-variant">
+<img alt="Filter Preview" class="w-full h-full object-cover hue-rotate-180 saturate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAa3RTpeeJKHdXL46Bq4Rmx9PA4bWopI_SQyVvIj0oweXyzz1Lzfck9AL-aFolnZA6A_fYNMJForShu9sB9LHiMsMKa9ZgIr0gxyKdQ0qx-JmttuamTM5Gz-5Lbz-3EcoExi-f3ga7sM-m2gJ4dFWdicSVf4qgJmL5hrJv53o5IJsJZXOKneHYMCbeyQd6cqFD4W_v70JkVk4ewp8_D7K0yWK6i4HP1tUOy11nVBrEVrw7hzg_l4LrlR6kRxMj1Gd9wQHE"/>
+</div>
+<span class="text-[10px] text-on-surface-variant group-hover:text-on-surface">Sky</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Far Right Tool Sidebar (Icon Only) -->
+<div class="w-12 bg-level-2 border-l border-panel flex flex-col items-center py-2 gap-4 flex-shrink-0 z-10 hidden xl:flex">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Filters">
+<span class="material-symbols-outlined text-[20px]">filter_b_and_w</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-level-1 text-primary border-l-2 border-primary transition-colors relative" title="Adjustments">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Effects">
+<span class="material-symbols-outlined text-[20px]">auto_fix_high</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Captions">
+<span class="material-symbols-outlined text-[20px]">closed_caption</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Speed">
+<span class="material-symbols-outlined text-[20px]">speed</span>
+</button>
+</div>
+</div>
+</body></html>
