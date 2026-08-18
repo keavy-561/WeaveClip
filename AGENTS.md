@@ -30,3 +30,23 @@ React 18 + TypeScript + Vite + Semi Design + CSS Modules
 - 动手前先输出计划（改哪些文件、拆哪些组件），确认后再写代码。
 - 一次任务只做一个页面/模块，完成后 git commit（信息用 conventional 格式）。
 - 每页完成后运行 pnpm dev 自检：无 console 报错、交互可用、响应式正常。
+
+## 交付标准（每个页面/模块完成后必须提供，缺一视为未完成）
+1. typecheck + build 通过的完整日志；
+2. 用内置浏览器打开 dev server，实际走一遍核心流程，
+   关键状态各截一张图：正常态 / loading / 空态 / 校验错误 / 预填生效；
+3. git diff --stat 与计划清单逐项对照，计划外的改动单独说明原因；
+4. 未完成项或偏离计划处主动申报，禁止静默降级。
+
+## 一分钟快检（抽查专用）
+```powershell
+# 1. 找 div/span + onClick 违规（出现结果就要人工看是不是模拟交互控件）
+Get-ChildItem web/src/components/create -Recurse -Filter *.tsx | Select-String "onClick"
+
+# 2. 确认 Semi 组件是真实引入的，不是手写仿制品
+Get-ChildItem web/src/components/create -Recurse -Filter *.tsx | Select-String "semi-ui"
+
+# 3. 确认列表是 map 数据驱动渲染
+Get-ChildItem web/src/components/create -Recurse -Filter *.tsx | Select-String "\.map\("
+```
+第 1 条有输出不一定是违规（删除按钮等 Semi 组件也带 onClick），但逐条看一眼只要 30 秒；第 2、3 条没输出才是危险信号。
