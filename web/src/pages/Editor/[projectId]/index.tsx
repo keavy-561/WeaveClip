@@ -1,9 +1,14 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Button } from '@douyinfe/semi-ui';
-import { IconArrowLeft, IconExport } from '@douyinfe/semi-icons';
+import {
+  IconUndo,
+  IconRedo,
+  IconSetting,
+  IconShare,
+  IconDownload,
+} from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import SideNavBar from '@/components/editor/SideNavBar';
 import MediaPanel from '@/components/editor/MediaPanel';
 import VideoPlayer from '@/components/editor/VideoPlayer';
@@ -18,7 +23,6 @@ import styles from './index.module.scss';
 
 const Editor: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const navigate = useNavigate();
 
   const setCurrentProject = useProjectStore((s) => s.setCurrentProject);
   const setDSL = useTimelineStore((s) => s.setDSL);
@@ -47,7 +51,6 @@ const Editor: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
-  const project = useProjectStore((s) => s.currentProject);
   const projectAssets = mockAssets.filter(
     (a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId)
   );
@@ -57,27 +60,42 @@ const Editor: React.FC = () => {
       {/* 顶部栏 */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <Button
-            icon={<IconArrowLeft />}
-            theme="borderless"
-            size="small"
-            onClick={() => navigate('/projects')}
-            style={{ color: 'var(--semi-color-text-1)' }}
-          />
           <Logo size="small" />
         </div>
         <div className={styles.headerCenter}>
-          <span className={styles.projectName}>{project?.name ?? 'Untitled Video'}</span>
+          <span className={styles.projectName}>
+            16:9
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
         </div>
         <div className={styles.headerRight}>
-          <ThemeToggle />
           <Button
-            theme="solid"
+            icon={<IconUndo />}
+            theme="borderless"
             size="small"
-            icon={<IconExport />}
-            className={styles.exportBtn}
-          >
-            Export
+            className={styles.iconBtn}
+            aria-label="Undo"
+          />
+          <Button
+            icon={<IconRedo />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            aria-label="Redo"
+          />
+          <Button
+            icon={<IconSetting />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            aria-label="Settings"
+          />
+          <Button theme="borderless" size="small" className={styles.shareBtn}>
+            <IconShare />
+            Share
+          </Button>
+          <Button icon={<IconDownload />} theme="solid" size="small" className={styles.exportBtn}>
+            Export Video
           </Button>
         </div>
       </header>
