@@ -9,8 +9,11 @@ import ExamplePrompts from '@/components/home/ExamplePrompts';
 import type { ExamplePrompt } from '@/components/home/ExamplePrompts';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { projectService } from '@/services/projectService';
 import { mockProjects } from '@/utils/mockData';
 import styles from './index.module.scss';
+
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -18,11 +21,12 @@ const Home: React.FC = () => {
 
   const { data, isLoading } = useQuery({
     queryKey: ['projects'],
-    queryFn: async () => mockProjects,
+    queryFn: projectService.list,
     staleTime: 1000 * 60,
+    enabled: !isMockMode,
   });
 
-  const projects = data || [];
+  const projects = isMockMode ? mockProjects : (data || []);
 
   const examplePrompts: ExamplePrompt[] = [
     { id: '1', text: '帮我剪一个 45 秒的纽约旅行 vlog，节奏轻快', labelKey: 'home.examplePrompt1' },

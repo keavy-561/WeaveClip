@@ -60,6 +60,14 @@ const Clip: React.FC<ClipProps> = ({
         e.stopPropagation();
         onSelect();
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      role="button"
+      tabIndex={0}
       title={`${label} (${clip.duration.toFixed(1)}s)`}
     >
       {trackType === 'video' && (

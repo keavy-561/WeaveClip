@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@douyinfe/semi-ui';
+import { Button, Empty, Skeleton } from '@douyinfe/semi-ui';
 import {
   IconUndo,
   IconRedo,
@@ -22,8 +22,13 @@ import { useProjectStore } from '@/stores/projectStore';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAIChatStore } from '@/stores/aiChatStore';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { projectService } from '@/services/projectService';
+import { assetService } from '@/services/assetService';
 import { mockProjects, mockAssets, mockTimelineDSL, mockChatMessages } from '@/utils/mockData';
 import styles from './index.module.scss';
+
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const Editor: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -35,37 +40,85 @@ const Editor: React.FC = () => {
   const addMessage = useAIChatStore((s) => s.addMessage);
   const clearMessages = useAIChatStore((s) => s.clearMessages);
 
-  useEffect(() => {
-    const project =
-      mockProjects.find((p) => p.id === projectId) ??
-      ({
-        id: projectId ?? 'proj_new',
-        name: t('editor.header.projectName'),
-        status: 'draft',
-        duration: 45,
-        aspectRatio: '9:16',
-        style: 'energetic',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      } as const);
+  const {
+    data: project,
+    isLoading: projectLoading,
+    error: projectError,
+  } = useQuery({
+    queryKey: ['project', projectId],
+    queryFn: () => projectService.get(projectId!),
+    enabled: !!projectId && !isMockMode,
+    retry: false,
+  });
 
-    setCurrentProject({ ...project });
-    setDSL(mockTimelineDSL);
-
-    clearMessages();
-    mockChatMessages.forEach((m) => addMessage(m));
-  }, [projectId]);
-
-  const project = useProjectStore((s) => s.currentProject);
-  const projectAssets = mockAssets.filter(
-    (a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId)
-  );
+  const {
+    data: assets = [],
+    isLoading: assetsLoading,
+    error: assetsError,
+  } = useQuery({
+    queryKey: ['assets', projectId],
+    queryFn: () => assetService.list(projectId!),
+    enabled: !!projectId && !isMockMode,
+    retry: false,
+  });
 
   useEffect(() => {
-    document.title = project?.name
-      ? `${project.name} - ${t('common.appName')}`
+    if (isMockMode) {
+      const p =
+        mockProjects.find((p) => p.id === projectId) ??
+        ({
+          id: projectId ?? 'proj_new',
+          name: t('editor.header.projectName'),
+          status: 'draft',
+          duration: 45,
+          aspectRatio: '9:16',
+          style: 'energetic',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        } as const);
+      setCurrentProject({ ...p });
+      setDSL(mockTimelineDSL);
+      clearMessages();
+      mockChatMessages.forEach((m) => addMessage(m));
+      return;
+    }
+
+    if (project) {
+      setCurrentProject({
+        id: project.id,
+        name: project.name,
+        status: project.status,
+        duration: project.duration,
+        aspectRatio: project.aspectRatio,
+        style: project.style,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+        thumbnailUrl: project.thumbnailUrl,
+      });
+      setDSL(mockTimelineDSL);
+      clearMessages();
+      mockChatMessages.forEach((m) => addMessage(m));
+    }
+  }, [projectId, project, isMockMode]);
+
+  const currentProject = useProjectStore((s) => s.currentProject);
+
+  const displayAssets =
+    !isMockMode && projectId
+      ? assetsLoading
+        ? []
+        : assets.length > 0
+          ? assets
+          : mockAssets
+      : mockAssets.filter((a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId));
+
+  useEffect(() => {
+    document.title = currentProject?.name
+      ? `${currentProject.name} - ${t('common.appName')}`
       : `${t('editor.header.projectName')} - ${t('common.appName')}`;
-  }, [project?.name, t]);
+  }, [currentProject?.name, t]);
+
+  const apiError = projectError || assetsError;
 
   return (
     <div className={styles.page}>
@@ -88,7 +141,7 @@ const Editor: React.FC = () => {
         </div>
         <div className={styles.headerCenter}>
           <span className={styles.projectName}>
-            {project?.name || t('editor.header.projectName')}
+            {currentProject?.name || t('editor.header.projectName')}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
         </div>
@@ -133,14 +186,32 @@ const Editor: React.FC = () => {
       {/* 五区主体 */}
       <div className={styles.body}>
         <SideNavBar />
-        <MediaPanel assets={projectAssets.length > 0 ? projectAssets : mockAssets} />
+        <MediaPanel assets={displayAssets} />
         <main className={styles.centerPane}>
-          <div className={styles.previewArea}>
-            <VideoPlayer />
-          </div>
-          <div className={styles.timelineArea}>
-            <Timeline />
-          </div>
+          {projectLoading ? (
+            <div className={styles.loadingOverlay}>
+              <Skeleton loading active />
+            </div>
+          ) : apiError ? (
+            <div className={styles.errorState}>
+              <Empty
+                description={t('editor.loadError', 'Failed to load editor data')}
+                image={<IconArrowLeft style={{ fontSize: 48 }} />}
+              />
+              <Button theme="solid" onClick={() => navigate('/projects')}>
+                {t('common.back')}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className={styles.previewArea}>
+                <VideoPlayer />
+              </div>
+              <div className={styles.timelineArea}>
+                <Timeline />
+              </div>
+            </>
+          )}
         </main>
         <InspectorPanel />
         <ToolSidebar />

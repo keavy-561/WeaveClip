@@ -1,26 +1,39 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@douyinfe/semi-ui';
+import { Button, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import UploadStep from '@/components/create/UploadStep';
 import type { FileItemData } from '@/components/create/FileList';
 import { useTranslation } from 'react-i18next';
+import { useMutation } from '@tanstack/react-query';
+import { projectService } from '@/services/projectService';
 import styles from './index.module.scss';
 
 const Upload: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const handleContinue = (files: FileItemData[]) => {
-    const draft = {
-      files,
-      totalDuration: files.reduce((sum, f) => sum + (f.duration ?? 0), 0),
-      createdAt: new Date().toISOString(),
-    };
+  const createMutation = useMutation({
+    mutationFn: (payload: { name: string; duration?: number; aspectRatio?: string; style?: string }) =>
+      projectService.create(payload),
+    onSuccess: (project) => {
+      navigate(`/editor/${project.id}`);
+    },
+    onError: () => {
+      Toast.error(t('create.upload.error', 'Failed to create project'));
+    },
+  });
 
-    navigate('/projects/new/describe', { state: draft });
+  const handleContinue = (files: FileItemData[]) => {
+    const totalDuration = files.reduce((sum, f) => sum + (f.duration ?? 0), 0);
+    createMutation.mutate({
+      name: files[0]?.fileName ?? 'Untitled Project',
+      duration: totalDuration > 0 ? Math.round(totalDuration) : undefined,
+      aspectRatio: '9:16',
+      style: 'energetic',
+    });
   };
 
   return (

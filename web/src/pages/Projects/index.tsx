@@ -1,17 +1,51 @@
 import React from 'react';
+import { Skeleton, Empty, Button, Toast, Popover } from '@douyinfe/semi-ui';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@douyinfe/semi-ui';
-import { IconArrowLeft, IconPlus } from '@douyinfe/semi-icons';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { IconArrowLeft, IconPlus, IconMore, IconDelete } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import { useTranslation } from 'react-i18next';
+import { projectService } from '@/services/projectService';
 import { mockProjects } from '@/utils/mockData';
 import styles from './index.module.scss';
 
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
+
 const Projects: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: apiProjects = [], isLoading, error } = useQuery({
+    queryKey: ['projects'],
+    queryFn: projectService.list,
+    enabled: !isMockMode,
+  });
+
+  const [localProjects, setLocalProjects] = React.useState(mockProjects);
+
+  const projects = isMockMode ? localProjects : apiProjects;
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => projectService.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      Toast.success(t('projects.deleteSuccess', 'Project deleted'));
+    },
+    onError: () => {
+      Toast.error(t('projects.deleteError', 'Failed to delete project'));
+    },
+  });
+
+  const confirmDelete = (id: string) => {
+    if (isMockMode) {
+      setLocalProjects((prev) => prev.filter((p) => p.id !== id));
+    } else {
+      deleteMutation.mutate(id);
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -38,11 +72,19 @@ const Projects: React.FC = () => {
       </header>
 
       <main className={styles.main}>
-        {mockProjects.length === 0 ? (
+        {isLoading ? (
+          <div className={styles.skeletonGrid}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className={styles.card} />
+            ))}
+          </div>
+        ) : error ? (
+          <Empty description={t('projects.loadError', 'Failed to load projects')} />
+        ) : projects.length === 0 ? (
           <div className={styles.empty}>{t('projects.empty')}</div>
         ) : (
           <div className={styles.grid}>
-            {mockProjects.map((project) => (
+            {projects.map((project) => (
               <div
                 key={project.id}
                 className={styles.card}
@@ -58,6 +100,28 @@ const Projects: React.FC = () => {
                     <span className={styles.info}>{project.style}</span>
                   </div>
                   <span className={styles.status}>{project.status}</span>
+                </div>
+                <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
+                  <Popover
+                    trigger="click"
+                    content={
+                      <div className={styles.popoverMenu}>
+                        <div className={styles.popoverItem} onClick={() => confirmDelete(project.id)}>
+                          <IconDelete />
+                          {t('projects.delete', 'Delete')}
+                        </div>
+                      </div>
+                    }
+                    position="bottomRight"
+                  >
+                    <Button
+                      icon={<IconMore />}
+                      theme="borderless"
+                      size="small"
+                      className={styles.actionBtn}
+                      aria-label={t('projects.actions', 'Actions')}
+                    />
+                  </Popover>
                 </div>
               </div>
             ))}

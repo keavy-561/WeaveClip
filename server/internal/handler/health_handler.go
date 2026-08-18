@@ -20,8 +20,6 @@ func (h *HealthHandler) Check(c *gin.Context) {
 		"time":   time.Now().UTC().Format(time.RFC3339),
 	}
 	if c.Query("deep") == "true" {
-		components := gin.H{}
-		_ = components
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"time":   time.Now().UTC().Format(time.RFC3339),

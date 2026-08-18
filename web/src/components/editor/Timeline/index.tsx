@@ -7,6 +7,7 @@ import {
   IconImage,
   IconSetting,
 } from '@douyinfe/semi-icons';
+import { Button } from '@douyinfe/semi-ui';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useTranslation } from 'react-i18next';
 import { formatTime } from '@/utils/format';
@@ -58,12 +59,34 @@ const Timeline: React.FC = () => {
       {/* 工具头 */}
       <div className={styles.toolHeader}>
         <div className={styles.toolHeaderLeft}>
-          <span className={styles.iconBtn} title={t('common.undo')}><IconUndo /></span>
-          <span className={styles.iconBtn} title={t('common.redo')}><IconRedo /></span>
+          <Button icon={<IconUndo />} theme="borderless" size="small" className={styles.iconBtn} aria-label={t('common.undo')} />
+          <Button icon={<IconRedo />} theme="borderless" size="small" className={styles.iconBtn} aria-label={t('common.redo')} />
           <span className={styles.divider} />
-          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title={t('editor.timeline.split')} onClick={handleSplit}><IconScissors /></span>
-          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title={t('editor.timeline.deleteClip')} onClick={handleDelete}><IconDelete /></span>
-          <span className={styles.iconBtn} title={t('editor.timeline.addMedia')}><IconImage /></span>
+          <Button
+            icon={<IconScissors />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            disabled={!selectedClipId}
+            onClick={handleSplit}
+            aria-label={t('editor.timeline.split')}
+          />
+          <Button
+            icon={<IconDelete />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            disabled={!selectedClipId}
+            onClick={handleDelete}
+            aria-label={t('editor.timeline.deleteClip')}
+          />
+          <Button
+            icon={<IconImage />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            aria-label={t('editor.timeline.addMedia')}
+          />
         </div>
         <div className={styles.toolHeaderCenter}>
           <span className={styles.timecodeMain}>{formatTime(currentTime)}</span>

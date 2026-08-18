@@ -15,6 +15,12 @@
   user-select: none;
   background: var(--semi-color-bg-2);
 
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-ai-glow);
+    border-color: var(--semi-color-primary);
+  }
+
   &.video {
     border-color: var(--color-slate-blue);
     background: rgba(137, 154, 171, 0.10);

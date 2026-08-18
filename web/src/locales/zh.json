@@ -58,7 +58,12 @@
   "projects": {
     "title": "项目",
     "newVideo": "+ 新视频",
-    "empty": "暂无项目"
+    "empty": "暂无项目",
+    "delete": "删除",
+    "actions": "操作",
+    "deleteSuccess": "项目已删除",
+    "deleteError": "删除项目失败",
+    "loadError": "加载项目失败"
   },
   "editor": {
     "header": {
@@ -162,8 +167,10 @@
       "audio": "音频",
       "images": "图片",
       "emptyNoTab": "暂无{{tab}}",
-      "duration": "时长"
-    }
+      "duration": "时长",
+      "loadError": "加载编辑器数据失败"
+    },
+    "loadError": "加载编辑器数据失败"
   },
   "create": {
     "analyzeProgress": {
@@ -186,7 +193,8 @@
       "dropHint": "或点击上传",
       "formats": "MP4 / MOV / JPG / PNG",
       "continue": "继续",
-      "noFiles": "请至少上传一个文件"
+      "noFiles": "请至少上传一个文件",
+      "error": "创建项目失败"
     },
     "describe": {
       "step": "描述",
@@ -202,7 +210,8 @@
       "styleStorytelling": "叙事",
       "generate": "生成",
       "generating": "生成中...",
-      "error": {
+      "error": "创建项目失败",
+      "validation": {
         "required": "请描述你想要的内容",
         "minLength": "至少输入 5 个字符"
       }

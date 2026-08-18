@@ -11,6 +11,7 @@ import (
 	"github.com/weaveclip/server/internal/database"
 	"github.com/weaveclip/server/internal/handler"
 	"github.com/weaveclip/server/internal/middleware"
+	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
 )
 
@@ -59,6 +60,15 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	authHandler := handler.NewAuthHandler(authService)
 
+	var assetRepo repository.AssetRepository
+	if db != nil {
+		assetRepo = repository.NewGormAssetRepo(db)
+	} else {
+		assetRepo = repository.NewMockAssetRepo(handler.MockAssets())
+	}
+	assetService := service.NewAssetService(assetRepo, projectHandler)
+	assetHandler := handler.NewAssetHandler(assetService)
+
 	// 路由注册
 	api := r.Group("/api")
 	{
@@ -71,16 +81,25 @@ func main() {
 			auth.GET("/me", middleware.Auth(), authHandler.Me)
 		}
 
-		projects := api.Group("/projects")
-		projects.Use(middleware.Auth())
-		{
-			projects.GET("", projectHandler.List)
-			projects.POST("", projectHandler.Create)
-			projects.GET("/:id", projectHandler.Get)
-			projects.DELETE("/:id", projectHandler.Delete)
+			projects := api.Group("/projects")
+			projects.Use(middleware.Auth())
+			{
+				projects.GET("", projectHandler.List)
+				projects.POST("", projectHandler.Create)
+				projects.GET("/:id", projectHandler.Get)
+				projects.DELETE("/:id", projectHandler.Delete)
 
-			// Phase 1+: assets / analyze / generate / chat / render
-		}
+				assets := projects.Group("/:projectId/assets")
+				assets.Use(middleware.Auth())
+				{
+					assets.GET("", assetHandler.List)
+					assets.POST("", assetHandler.Create)
+					assets.GET("/:id", assetHandler.Get)
+					assets.DELETE("/:id", assetHandler.Delete)
+				}
+
+				// Phase 1+: analyze / generate / chat / render
+			}
 	}
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)

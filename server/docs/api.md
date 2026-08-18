@@ -189,6 +189,81 @@ Base URL: `/api`
 
 响应 204：无内容
 
+### `GET /api/projects/:projectId/assets`
+
+获取项目资产列表。
+
+响应 200：
+```json
+{
+  "assets": [
+    {
+      "id": 1,
+      "projectId": 1,
+      "type": "video",
+      "storagePath": "/mock/nyc_bridge.mp4",
+      "fileName": "nyc_bridge.mp4",
+      "fileSize": 52428800,
+      "duration": 15.2,
+      "width": 1920,
+      "height": 1080,
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+### `POST /api/projects/:projectId/assets`
+
+注册/上传资产（元数据注册，实际文件上传 Phase E 补充）。
+
+请求体：
+```json
+{
+  "type": "video",
+  "storagePath": "/mock/a.mp4",
+  "fileName": "a.mp4",
+  "fileSize": 1024,
+  "duration": 10.5,
+  "width": 1920,
+  "height": 1080
+}
+```
+
+响应 201：
+```json
+{
+  "asset": { "id": 1, "projectId": 1, "type": "video", "fileName": "a.mp4", ... }
+}
+```
+
+### `GET /api/assets/:id`
+
+获取资产详情。
+
+响应 200：
+```json
+{
+  "asset": { "id": 1, "projectId": 1, "type": "video", "fileName": "a.mp4", ... }
+}
+```
+
+错误 404：
+```json
+{
+  "success": false,
+  "code": "NOT_FOUND",
+  "message": "asset not found",
+  "request_id": "uuid"
+}
+```
+
+### `DELETE /api/assets/:id`
+
+删除资产。
+
+响应 204：无内容
+
 ## 常见错误码
 
 | code | http status | 说明 |

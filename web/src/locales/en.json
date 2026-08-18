@@ -58,7 +58,12 @@
   "projects": {
     "title": "Projects",
     "newVideo": "+ New Video",
-    "empty": "No projects yet"
+    "empty": "No projects yet",
+    "delete": "Delete",
+    "actions": "Actions",
+    "deleteSuccess": "Project deleted",
+    "deleteError": "Failed to delete project",
+    "loadError": "Failed to load projects"
   },
   "editor": {
     "header": {
@@ -162,8 +167,10 @@
       "audio": "Audio",
       "images": "Images",
       "emptyNoTab": "No {{tab}} yet",
-      "duration": "Duration"
-    }
+      "duration": "Duration",
+      "loadError": "Failed to load editor data"
+    },
+    "loadError": "Failed to load editor data"
   },
   "create": {
     "analyzeProgress": {
@@ -186,7 +193,8 @@
       "dropHint": "or click to upload",
       "formats": "MP4 / MOV / JPG / PNG",
       "continue": "Continue",
-      "noFiles": "Please upload at least one file"
+      "noFiles": "Please upload at least one file",
+      "error": "Failed to create project"
     },
     "describe": {
       "step": "Describe",
@@ -202,7 +210,8 @@
       "styleStorytelling": "Storytelling",
       "generate": "Generate",
       "generating": "Generating...",
-      "error": {
+      "error": "Failed to create project",
+      "validation": {
         "required": "Please describe what you want",
         "minLength": "At least 5 characters"
       }

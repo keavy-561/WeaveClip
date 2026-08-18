@@ -1,4 +1,4 @@
-.PHONY: dev build run test clean docker-up docker-down migrate-up migrate-down migrate-status
+.PHONY: dev build run test clean docker-up docker-down migrate-up migrate-down migrate-status smoke
 
 # 启动后端开发服务（默认 dev 环境）
 dev:
@@ -34,6 +34,9 @@ docker-up:
 
 docker-down:
 	docker-compose down
+
+smoke:
+	@bash tests/smoke/health.sh && bash tests/smoke/auth.sh && bash tests/smoke/assets.sh
 
 clean:
 	rm -rf bin/

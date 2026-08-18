@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +24,48 @@ func NewProjectHandler(db *gorm.DB) *ProjectHandler {
 	return &ProjectHandler{db: db}
 }
 
+var (
+	mockProjectStore []model.Project
+	mockProjectOnce  sync.Once
+)
+
+func initMockProjectStore() {
+	mockProjectStore = database.MockProjects()
+}
+
+func filterMockProjects(userID uint) []model.Project {
+	mockProjectOnce.Do(initMockProjectStore)
+	if userID == 0 {
+		return nil
+	}
+	var result []model.Project
+	for _, p := range mockProjectStore {
+		if p.UserID == userID {
+			result = append(result, p)
+		}
+	}
+	return result
+}
+
+func addMockProject(project model.Project) {
+	mockProjectOnce.Do(initMockProjectStore)
+	mockProjectStore = append(mockProjectStore, project)
+}
+
+// Test helpers
+func ResetMockProjectStoreForTest() {
+	mockProjectStore = nil
+	mockProjectOnce = sync.Once{}
+}
+
+func AddMockProjectForTest(project model.Project) {
+	addMockProject(project)
+}
+
+func FilterMockProjectsForTest(userID uint) []model.Project {
+	return filterMockProjects(userID)
+}
+
 type CreateProjectReq struct {
 	Name        string `json:"name" binding:"required"`
 	Duration    *int   `json:"duration"`
@@ -31,16 +75,17 @@ type CreateProjectReq struct {
 
 // List GET /api/projects
 func (h *ProjectHandler) List(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+	uid, _ := userID.(uint)
+
 	if h.db == nil {
-		userID, _ := c.Get("user_id")
-		uid, _ := userID.(uint)
 		projects := filterMockProjects(uid)
 		OK(c, gin.H{"projects": projects})
 		return
 	}
 
 	var projects []model.Project
-	if err := h.db.Order("updated_at DESC").Find(&projects).Error; err != nil {
+	if err := h.db.Where("user_id = ?", uid).Order("updated_at DESC").Find(&projects).Error; err != nil {
 		InternalError(c, "failed to list projects")
 		return
 	}
@@ -55,8 +100,12 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 		return
 	}
 
+	userID, _ := c.Get("user_id")
+	uid, _ := userID.(uint)
+
 	project := model.Project{
 		Name:        req.Name,
+		UserID:      uid,
 		Status:      "draft",
 		AspectRatio: defaultStr(req.AspectRatio, "9:16"),
 		Style:       defaultStr(req.Style, "cinematic"),
@@ -66,11 +115,8 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 	}
 
 	if h.db == nil {
-		// Mock 模式：返回构造的对象（不入库）
-		userID, _ := c.Get("user_id")
-		uid, _ := userID.(uint)
 		project.ID = uint(time.Now().Unix())
-		project.UserID = uid
+		addMockProject(project)
 		Created(c, gin.H{"project": project})
 		return
 	}
@@ -90,9 +136,10 @@ func (h *ProjectHandler) Get(c *gin.Context) {
 		return
 	}
 
+	userID, _ := c.Get("user_id")
+	uid, _ := userID.(uint)
+
 	if h.db == nil {
-		userID, _ := c.Get("user_id")
-		uid, _ := userID.(uint)
 		for _, p := range filterMockProjects(uid) {
 			if uint64(p.ID) == id {
 				OK(c, gin.H{"project": p})
@@ -108,6 +155,10 @@ func (h *ProjectHandler) Get(c *gin.Context) {
 		NotFound(c, "project not found")
 		return
 	}
+	if project.UserID != uid {
+		NotFound(c, "project not found")
+		return
+	}
 	OK(c, gin.H{"project": project})
 }
 
@@ -119,9 +170,10 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 		return
 	}
 
+	userID, _ := c.Get("user_id")
+	uid, _ := userID.(uint)
+
 	if h.db == nil {
-		userID, _ := c.Get("user_id")
-		uid, _ := userID.(uint)
 		found := false
 		for _, p := range filterMockProjects(uid) {
 			if uint64(p.ID) == id {
@@ -137,6 +189,15 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 		return
 	}
 
+	var project model.Project
+	if err := h.db.First(&project, id).Error; err != nil {
+		NotFound(c, "project not found")
+		return
+	}
+	if project.UserID != uid {
+		NotFound(c, "project not found")
+		return
+	}
 	if err := h.db.Delete(&model.Project{}, id).Error; err != nil {
 		InternalError(c, "failed to delete project")
 		return
@@ -144,24 +205,30 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func filterMockProjects(userID uint) []model.Project {
-	all := database.MockProjects()
-	if userID == 0 {
-		return nil
-	}
-	// In mock mode, only user 1 sees the seeded projects; others get empty list.
-	if userID != 1 {
-		return nil
-	}
-	for i := range all {
-		all[i].UserID = userID
-	}
-	return all
-}
-
 func defaultStr(v, fallback string) string {
 	if v == "" {
 		return fallback
 	}
 	return v
+}
+
+// GetProject retrieves a project by ID and verifies ownership.
+func (h *ProjectHandler) GetProject(id, userID uint) (*model.Project, error) {
+	if h.db == nil {
+		for _, p := range filterMockProjects(userID) {
+			if p.ID == id {
+				cpy := p
+				return &cpy, nil
+			}
+		}
+		return nil, fmt.Errorf("project not found")
+	}
+	var project model.Project
+	if err := h.db.First(&project, id).Error; err != nil {
+		return nil, err
+	}
+	if project.UserID != userID {
+		return nil, fmt.Errorf("project not found")
+	}
+	return &project, nil
 }
