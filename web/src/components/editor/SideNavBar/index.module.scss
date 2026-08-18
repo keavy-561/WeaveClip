@@ -42,8 +42,8 @@
   }
 
   &.active {
-    color: var(--semi-color-primary);
-    background: var(--color-surface-container-high);
+    color: var(--color-on-secondary-container);
+    background: var(--color-secondary-container);
     position: relative;
 
     &::before {
