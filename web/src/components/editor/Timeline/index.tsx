@@ -8,6 +8,7 @@ import {
   IconSetting,
 } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useTranslation } from 'react-i18next';
 import { formatTime } from '@/utils/format';
 import Track from './Track';
 import Ruler from './Ruler';
@@ -30,6 +31,7 @@ const Timeline: React.FC = () => {
     deleteClip,
     splitClip,
   } = useTimelineStore();
+  const { t } = useTranslation();
 
   const pxPerSec = PX_PER_SEC * zoom;
   const totalWidth = Math.max(duration * pxPerSec + 120, 600);
@@ -56,12 +58,12 @@ const Timeline: React.FC = () => {
       {/* 工具头 */}
       <div className={styles.toolHeader}>
         <div className={styles.toolHeaderLeft}>
-          <span className={styles.iconBtn} title="Undo"><IconUndo /></span>
-          <span className={styles.iconBtn} title="Redo"><IconRedo /></span>
+          <span className={styles.iconBtn} title={t('common.undo')}><IconUndo /></span>
+          <span className={styles.iconBtn} title={t('common.redo')}><IconRedo /></span>
           <span className={styles.divider} />
-          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title="Split" onClick={handleSplit}><IconScissors /></span>
-          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title="Delete" onClick={handleDelete}><IconDelete /></span>
-          <span className={styles.iconBtn} title="Add media"><IconImage /></span>
+          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title={t('editor.timeline.split')} onClick={handleSplit}><IconScissors /></span>
+          <span className={`${styles.iconBtn} ${!selectedClipId ? styles.disabled : ''}`} title={t('editor.timeline.deleteClip')} onClick={handleDelete}><IconDelete /></span>
+          <span className={styles.iconBtn} title={t('editor.timeline.addMedia')}><IconImage /></span>
         </div>
         <div className={styles.toolHeaderCenter}>
           <span className={styles.timecodeMain}>{formatTime(currentTime)}</span>
@@ -69,7 +71,7 @@ const Timeline: React.FC = () => {
         </div>
         <div className={styles.toolHeaderRight}>
           <div className={styles.zoomControls}>
-            <button className={styles.iconBtn} onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}>−</button>
+            <button className={styles.iconBtn} onClick={() => setZoom(Math.max(0.5, zoom - 0.25))} title={t('editor.timeline.zoomOut')}>−</button>
             <input
               type="range"
               min="0.5"
@@ -79,10 +81,10 @@ const Timeline: React.FC = () => {
               onChange={(e) => setZoom(Number(e.target.value))}
               className={styles.zoomSlider}
             />
-            <button className={styles.iconBtn} onClick={() => setZoom(Math.min(3, zoom + 0.25))}>+</button>
+            <button className={styles.iconBtn} onClick={() => setZoom(Math.min(3, zoom + 0.25))} title={t('editor.timeline.zoomIn')}>+</button>
           </div>
           <span className={styles.divider} />
-          <span className={styles.iconBtn} title="Settings"><IconSetting /></span>
+          <span className={styles.iconBtn} title={t('common.settings')}><IconSetting /></span>
         </div>
       </div>
 
@@ -96,12 +98,12 @@ const Timeline: React.FC = () => {
             <span className={styles.trackDot} />
             <span className={styles.trackLabelText}>
               {track.type === 'video'
-                ? 'Video'
+                ? t('editor.timeline.videoTrack')
                 : track.type === 'caption'
-                  ? 'Caption'
+                  ? t('editor.timeline.captionTrack')
                   : track.type === 'audio'
-                    ? 'Audio'
-                    : 'Effect'}
+                    ? t('editor.timeline.audioTrack')
+                    : t('editor.timeline.effectTrack')}
             </span>
           </div>
         ))}

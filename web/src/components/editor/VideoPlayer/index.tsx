@@ -2,12 +2,14 @@ import React from 'react';
 import { Button } from '@douyinfe/semi-ui';
 import { IconPlay, IconPause, IconMute, IconVolume2 } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useTranslation } from 'react-i18next';
 import { formatTime } from '@/utils/format';
 import styles from './index.module.scss';
 
 const VideoPlayer: React.FC = () => {
   const { isPlaying, togglePlay, currentTime, duration, setCurrentTime } =
     useTimelineStore();
+  const { t } = useTranslation();
   const [muted, setMuted] = React.useState(false);
 
   React.useEffect(() => {
@@ -41,7 +43,7 @@ const VideoPlayer: React.FC = () => {
               theme="borderless"
               size="small"
               onClick={togglePlay}
-              aria-label={isPlaying ? 'Pause' : 'Play'}
+              aria-label={isPlaying ? t('editor.videoPlayer.pause') : t('editor.videoPlayer.play')}
               className={styles.controlBtn}
             />
             <span className={styles.timeDisplay}>
@@ -52,7 +54,7 @@ const VideoPlayer: React.FC = () => {
               theme="borderless"
               size="small"
               onClick={() => setMuted(!muted)}
-              aria-label={muted ? 'Unmute' : 'Mute'}
+              aria-label={muted ? t('editor.videoPlayer.unmute') : t('editor.videoPlayer.mute')}
               className={styles.controlBtn}
             />
           </div>

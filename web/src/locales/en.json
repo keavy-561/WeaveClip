@@ -1,0 +1,189 @@
+{
+  "common": {
+    "appName": "WeaveClip",
+    "appNameFull": "WeaveClip",
+    "brand": "WeaveClip",
+    "loading": "Loading...",
+    "undo": "Undo",
+    "redo": "Redo",
+    "settings": "Settings",
+    "share": "Share",
+    "exportVideo": "Export Video",
+    "export": "Export",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "reset": "Reset",
+    "seeAll": "See All",
+    "select": "Select",
+    "search": "Search",
+    "searchPlaceholder": "Search templates",
+    "import": "Import",
+    "importMedia": "Import media",
+    "help": "Help",
+    "user": "User"
+  },
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "drafts": "Drafts",
+    "templates": "Templates",
+    "media": "Media",
+    "record": "Record",
+    "content": "Content",
+    "aiTools": "AI Tools",
+    "text": "Text",
+    "brand": "Brand"
+  },
+  "home": {
+    "heroTitle": "Talk to your footage.",
+    "heroTitleAccent": "Get the video you want.",
+    "heroSubtitle": "Tell AI what you need. It will pick the best clips, arrange the timeline, and generate your video. You stay in control of the final cut.",
+    "ctaNewVideo": "+ New Video",
+    "recentProjects": "Recent Projects",
+    "durationUnit": "s",
+    "aspectRatio": "Aspect Ratio",
+    "statusDraft": "Draft",
+    "statusReady": "Ready",
+    "statusAnalyzing": "Analyzing",
+    "statusGenerating": "Generating",
+    "statusRendering": "Rendering"
+  },
+  "projects": {
+    "title": "Projects",
+    "newVideo": "+ New Video",
+    "empty": "No projects yet"
+  },
+  "editor": {
+    "header": {
+      "drafts": "Drafts",
+      "templates": "Templates",
+      "projectName": "Project Name",
+      "aspectRatio": "16:9"
+    },
+    "mediaPanel": {
+      "title": "Media",
+      "library": "Library",
+      "media": "Media",
+      "recentAssets": "Recent Assets",
+      "landscapeVideo": "Landscape Video",
+      "aiEnhancements": "AI Enhancements",
+      "styleTransfer": "Style Transfer",
+      "selectStyle": "Select Style",
+      "autoCaptions": "Auto-Captions",
+      "noiseReduction": "Noise Reduction",
+      "duration": "Duration",
+      "horizontalLabel": "Floral",
+      "quality4K": "4K"
+    },
+    "inspector": {
+      "adjustColors": "Adjust Colors",
+      "filters": "Filters",
+      "clipInfo": "Clip Info",
+      "whiteBalance": "White Balance",
+      "colorTemp": "Color Temp",
+      "tint": "Tint",
+      "tone": "Tone",
+      "brightness": "Brightness",
+      "contrast": "Contrast",
+      "saturation": "Saturation",
+      "exposure": "Exposure",
+      "creative": "Creative",
+      "hue": "Hue",
+      "sharpness": "Sharpness",
+      "blur": "Blur",
+      "quickFilters": "Quick Filters",
+      "none": "None",
+      "vivid": "Vivid",
+      "charm": "Charm",
+      "sky": "Sky",
+      "start": "Start",
+      "durationLabel": "Duration",
+      "text": "Text",
+      "volume": "Volume",
+      "audio": "Audio",
+      "selectClip": "Select a clip to inspect"
+    },
+    "timeline": {
+      "toolHeader": "Timeline Tools",
+      "split": "Split",
+      "deleteClip": "Delete Clip",
+      "addMedia": "Add Media",
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom Out",
+      "videoTrack": "Video",
+      "audioTrack": "Audio",
+      "captionTrack": "Caption",
+      "effectTrack": "Effect",
+      "text": "Text",
+      "vividEffects": "Vivid Effects",
+      "clipDefault": "Clip",
+      "effectSubtitle": "H: 20% R: 05%",
+      "captionSubtitle": "Take the opportunity"
+    },
+    "videoPlayer": {
+      "preview": "Preview",
+      "play": "Play",
+      "pause": "Pause",
+      "mute": "Mute",
+      "unmute": "Unmute"
+    },
+    "sidebar": {
+      "filters": "Filters",
+      "adjustments": "Adjustments",
+      "effects": "Effects",
+      "captions": "Captions",
+      "speed": "Speed"
+    },
+    "aiChat": {
+      "title": "AI Chat",
+      "contextHintSelected": "Clip selected: {{id}}",
+      "contextHintNone": "No clip selected",
+      "loadingText": "Thinking...",
+      "inputPlaceholder": "Tell AI what to change... e.g. \"Make the first 5 seconds more impactful\""
+    },
+    "quickActions": {
+      "makeShorter": "Make shorter",
+      "changeStyle": "Change style",
+      "addCaptions": "Add captions",
+      "improveHook": "Improve hook",
+      "changeMusic": "Change music"
+    },
+    "assetPanel": {
+      "title": "Assets",
+      "importAsset": "Import asset",
+      "clips": "Clips",
+      "audio": "Audio",
+      "images": "Images",
+      "emptyNoTab": "No {{tab}} yet",
+      "duration": "Duration"
+    }
+  },
+  "create": {
+    "analyzeProgress": {
+      "title": "Understanding your footage...",
+      "clipsAnalyzed": "Clips analyzed",
+      "speakersDetected": "Speakers detected",
+      "transcriptGenerated": "Transcript generated",
+      "scenesIdentified": "Scenes identified",
+      "bestMomentsFound": "Best moments found",
+      "strongMoments": "strong moments",
+      "talkingHead": "talking-head clips",
+      "bRoll": "B-roll clips",
+      "duplicateScenes": "duplicate scenes",
+      "ready": "Your footage is ready."
+    }
+  },
+  "mockData": {
+    "projects": {
+      "proj_1": "NYC Travel Vlog",
+      "proj_2": "Product Teaser",
+      "proj_3": "Beach Day Video"
+    }
+  },
+  "theme": {
+    "lightLabel": "Switch to dark theme",
+    "darkLabel": "Switch to light theme"
+  }
+}

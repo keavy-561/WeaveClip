@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.scss';
 
 interface QuickActionsProps {
@@ -6,23 +7,25 @@ interface QuickActionsProps {
 }
 
 const QUICK_ACTIONS = [
-  { label: 'Make shorter', prompt: 'Make this video shorter and punchier.' },
-  { label: 'Change style', prompt: 'Change the overall style of this video.' },
-  { label: 'Add captions', prompt: 'Add clean, minimal captions to this video.' },
-  { label: 'Improve hook', prompt: 'Make the first 3 seconds more attention-grabbing.' },
-  { label: 'Change music', prompt: 'Use different background music with a better match.' },
+  { key: 'makeShorter', prompt: 'Make this video shorter and punchier.' },
+  { key: 'changeStyle', prompt: 'Change the overall style of this video.' },
+  { key: 'addCaptions', prompt: 'Add clean, minimal captions to this video.' },
+  { key: 'improveHook', prompt: 'Make the first 3 seconds more attention-grabbing.' },
+  { key: 'changeMusic', prompt: 'Use different background music with a better match.' },
 ];
 
 const QuickActions: React.FC<QuickActionsProps> = ({ onAction }) => {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.quickActions}>
       {QUICK_ACTIONS.map((action) => (
         <button
-          key={action.label}
+          key={action.key}
           className={styles.actionBtn}
           onClick={() => onAction(action.prompt)}
         >
-          {action.label}
+          {t(`editor.quickActions.${action.key}`)}
         </button>
       ))}
     </div>

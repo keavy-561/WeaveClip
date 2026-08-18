@@ -15,14 +15,18 @@ import VideoPlayer from '@/components/editor/VideoPlayer';
 import Timeline from '@/components/editor/Timeline';
 import InspectorPanel from '@/components/editor/InspectorPanel';
 import ToolSidebar from '@/components/editor/ToolSidebar';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useProjectStore } from '@/stores/projectStore';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAIChatStore } from '@/stores/aiChatStore';
+import { useTranslation } from 'react-i18next';
 import { mockProjects, mockAssets, mockTimelineDSL, mockChatMessages } from '@/utils/mockData';
 import styles from './index.module.scss';
 
 const Editor: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const { t } = useTranslation();
 
   const setCurrentProject = useProjectStore((s) => s.setCurrentProject);
   const setDSL = useTimelineStore((s) => s.setDSL);
@@ -63,48 +67,50 @@ const Editor: React.FC = () => {
         <div className={styles.headerLeft}>
           <Logo size="small" />
           <nav className={styles.navLinks}>
-            <button className={`${styles.navLink} ${styles.active}`}>Drafts</button>
-            <button className={styles.navLink}>Templates</button>
+            <button className={`${styles.navLink} ${styles.active}`}>{t('editor.header.drafts')}</button>
+            <button className={styles.navLink}>{t('editor.header.templates')}</button>
           </nav>
         </div>
         <div className={styles.headerCenter}>
           <span className={styles.projectName}>
-            {project?.name ?? 'Untitled Video'}
+            {project?.name ? t(project.name) : t('editor.header.projectName')}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
         </div>
         <div className={styles.headerRight}>
           <span className={styles.aspectBtn}>
-            16:9
+            {t('editor.header.aspectRatio')}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
+          <ThemeToggle />
+          <LanguageSwitcher />
           <Button
             icon={<IconUndo />}
             theme="borderless"
             size="small"
             className={styles.iconBtn}
-            aria-label="Undo"
+            aria-label={t('common.undo')}
           />
           <Button
             icon={<IconRedo />}
             theme="borderless"
             size="small"
             className={styles.iconBtn}
-            aria-label="Redo"
+            aria-label={t('common.redo')}
           />
           <Button
             icon={<IconSetting />}
             theme="borderless"
             size="small"
             className={styles.iconBtn}
-            aria-label="Settings"
+            aria-label={t('common.settings')}
           />
           <Button theme="borderless" size="small" className={styles.shareBtn}>
             <IconShare />
-            Share
+            {t('common.share')}
           </Button>
           <Button icon={<IconDownload />} theme="solid" size="small" className={styles.exportBtn}>
-            Export Video
+            {t('common.exportVideo')}
           </Button>
         </div>
       </header>

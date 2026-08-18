@@ -8,6 +8,7 @@ import {
 } from '@douyinfe/semi-icons';
 import type { Clip as ClipType } from '@/types/timeline';
 import { mockAssets } from '@/utils/mockData';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.scss';
 
 interface ClipProps {
@@ -25,14 +26,15 @@ const Clip: React.FC<ClipProps> = ({
   isSelected,
   onSelect,
 }) => {
+  const { t } = useTranslation();
   const asset = clip.assetId
     ? mockAssets.find((a) => a.id === clip.assetId)
     : null;
 
   const label =
     trackType === 'caption'
-      ? clip.text ?? 'Caption'
-      : asset?.fileName ?? 'Clip';
+      ? clip.text ?? t('editor.timeline.text')
+      : asset?.fileName ?? t('editor.timeline.clipDefault');
 
   const typeIcon =
     trackType === 'audio' ? (
@@ -89,10 +91,10 @@ const Clip: React.FC<ClipProps> = ({
           </span>
           <div className={styles.pillText}>
             <span className={styles.pillTitle}>
-              {trackType === 'effect' ? 'Vivid Effects' : 'Text'}
+              {trackType === 'effect' ? t('editor.timeline.vividEffects') : t('editor.timeline.text')}
             </span>
             <span className={styles.pillSub}>
-              {trackType === 'effect' ? 'H: 20% R: 05%' : (clip.text ?? 'Take the opportunity')}
+              {trackType === 'effect' ? t('editor.timeline.effectSubtitle') : (clip.text ?? t('editor.timeline.captionSubtitle'))}
             </span>
           </div>
         </div>

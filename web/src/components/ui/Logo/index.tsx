@@ -1,7 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.scss';
 
 const Logo: React.FC<{ size?: 'normal' | 'small' }> = ({ size = 'normal' }) => {
+  const { t } = useTranslation();
+
   return (
     <div className={`${styles.logo} ${styles[size]}`}>
       <svg viewBox="0 0 28 28" className={styles.icon} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -12,7 +15,7 @@ const Logo: React.FC<{ size?: 'normal' | 'small' }> = ({ size = 'normal' }) => {
           opacity="0.9"
         />
       </svg>
-      <span className={styles.name}>WeaveClip 织影</span>
+      <span className={styles.name}>{t('common.brand')}</span>
     </div>
   );
 };

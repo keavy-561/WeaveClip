@@ -6,16 +6,18 @@ import {
   IconLoopTextStroked,
   IconFastForward,
 } from '@douyinfe/semi-icons';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.scss';
 
 const ToolSidebar: React.FC = () => {
   const [active, setActive] = useState<string>('adjustments');
+  const { t } = useTranslation();
   const tools = [
-    { key: 'filters', icon: <IconFilter />, title: 'Filters' },
-    { key: 'adjustments', icon: <IconSetting />, title: 'Adjustments' },
-    { key: 'effects', icon: <IconAIWandLevel1 />, title: 'Effects' },
-    { key: 'captions', icon: <IconLoopTextStroked />, title: 'Captions' },
-    { key: 'speed', icon: <IconFastForward />, title: 'Speed' },
+    { key: 'filters', icon: <IconFilter />, title: t('editor.sidebar.filters') },
+    { key: 'adjustments', icon: <IconSetting />, title: t('editor.sidebar.adjustments') },
+    { key: 'effects', icon: <IconAIWandLevel1 />, title: t('editor.sidebar.effects') },
+    { key: 'captions', icon: <IconLoopTextStroked />, title: t('editor.sidebar.captions') },
+    { key: 'speed', icon: <IconFastForward />, title: t('editor.sidebar.speed') },
   ];
 
   return (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Switch } from '@douyinfe/semi-ui';
 import { IconPlus, IconSearch, IconArrowRight } from '@douyinfe/semi-icons';
 import type { Asset } from '@/types/asset';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.scss';
 
 const ASSET_IMAGES: Record<string, string> = {
@@ -19,6 +20,7 @@ interface MediaPanelProps {
 const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const [tab, setTab] = useState<string>('library');
   const [query, setQuery] = useState<string>('');
+  const { t } = useTranslation();
 
   const videos = assets.filter((a) => a.type === 'video');
   const filtered = videos.filter((a) =>
@@ -28,8 +30,8 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <span className={styles.title}>Media</span>
-        <Button size="small" theme="borderless" icon={<IconPlus />} aria-label="Import media" />
+        <span className={styles.title}>{t('editor.mediaPanel.title')}</span>
+        <Button size="small" theme="borderless" icon={<IconPlus />} aria-label={t('common.importMedia')} />
       </div>
 
       <div className={styles.tabBar}>
@@ -37,13 +39,13 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
           className={`${styles.segment} ${tab === 'library' ? styles.segmentActive : ''}`}
           onClick={() => setTab('library')}
         >
-          Library
+          {t('editor.mediaPanel.library')}
         </button>
         <button
           className={`${styles.segment} ${tab === 'media' ? styles.segmentActive : ''}`}
           onClick={() => setTab('media')}
         >
-          Media
+          {t('editor.mediaPanel.media')}
         </button>
       </div>
 
@@ -52,7 +54,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
         <input
           type="text"
           className={styles.searchInput}
-          placeholder="Search Templates"
+          placeholder={t('common.searchPlaceholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -61,7 +63,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       <div className={styles.content}>
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Recent Assets</h3>
+            <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.recentAssets')}</h3>
             <IconArrowRight className={styles.sectionArrow} />
           </div>
           <div className={styles.assetGrid}>
@@ -90,7 +92,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
 
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Landscape Video</h3>
+            <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.landscapeVideo')}</h3>
             <IconArrowRight className={styles.sectionArrow} />
           </div>
           <div className={styles.horizontalList}>
@@ -104,11 +106,11 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                     loading="lazy"
                   />
                   <div className={styles.horizontalOverlay}>
-                    <span className={styles.horizontalLabel}>Floral</span>
+                    <span className={styles.horizontalLabel}>{t('editor.mediaPanel.horizontalLabel')}</span>
                   </div>
                   {asset.duration && (
                     <span className={styles.durationBadge}>
-                      4K {Math.floor(asset.duration / 60)}:{String(Math.floor(asset.duration % 60)).padStart(2, '0')}
+                      {t('editor.mediaPanel.quality4K')} {Math.floor(asset.duration / 60)}:{String(Math.floor(asset.duration % 60)).padStart(2, '0')}
                     </span>
                   )}
                 </div>
@@ -118,18 +120,18 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
         </section>
 
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>AI Enhancements</h3>
+          <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.aiEnhancements')}</h3>
           <div className={styles.aiSection}>
             <div className={styles.aiRow}>
-              <span className={styles.aiLabel}>Style Transfer</span>
-              <Button size="small" theme="borderless">Select Style</Button>
+              <span className={styles.aiLabel}>{t('editor.mediaPanel.styleTransfer')}</span>
+              <Button size="small" theme="borderless">{t('editor.mediaPanel.selectStyle')}</Button>
             </div>
             <div className={styles.aiRow}>
-              <span className={styles.aiLabel}>Auto-Captions</span>
+              <span className={styles.aiLabel}>{t('editor.mediaPanel.autoCaptions')}</span>
               <Switch size="small" checked={true} />
             </div>
             <div className={styles.aiRow}>
-              <span className={styles.aiLabel}>Noise Reduction</span>
+              <span className={styles.aiLabel}>{t('editor.mediaPanel.noiseReduction')}</span>
               <div className={styles.sliderRow}>
                 <input type="range" min="0" max="100" defaultValue="40" className={styles.range} />
                 <span className={styles.sliderValue}>40%</span>
