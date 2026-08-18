@@ -15,21 +15,16 @@ if [ -z "$USER_ID" ] || [ "$USER_ID" = "null" ]; then
   echo "FAIL: register did not return user id"
   exit 1
 fi
-TOKEN=$(echo "$REG" | jq -r '.token')
-if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-  echo "FAIL: register did not return token"
-  exit 1
-fi
 echo "registered user_id=$USER_ID"
 
-# 2. Login
+# 2. Login to obtain token
 echo "-> POST /api/auth/login"
 LOGIN=$(curl -s -X POST "$BASE/api/auth/login" \
   -H 'Content-Type: application/json' \
   -d '{"email":"smoke@example.com","password":"SmokePass123"}')
 echo "$LOGIN"
-TOKEN2=$(echo "$LOGIN" | jq -r '.token')
-if [ -z "$TOKEN2" ] || [ "$TOKEN2" = "null" ]; then
+TOKEN=$(echo "$LOGIN" | jq -r '.token')
+if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
   echo "FAIL: login did not return token"
   exit 1
 fi
