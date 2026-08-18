@@ -53,3 +53,7 @@ Get-ChildItem web/src/components/create -Recurse -Filter *.tsx | Select-String "
 Get-ChildItem web/src/components/create -Recurse -Filter *.tsx | Select-String "\.map\("
 ```
 第 1 条有输出不一定是违规（删除按钮等 Semi 组件也带 onClick），但逐条看一眼只要 30 秒；第 2、3 条没输出才是危险信号。
+
+## TODO / Deferred
+- Generate 屏：不在本轮实现独立路由与进度 UI。待后端 Phase E 前端联调时，
+  按真实契约（generationId + 轮询）实现 `/projects/new/generate` 路由与进度状态。

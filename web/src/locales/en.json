@@ -225,5 +225,23 @@
   "theme": {
     "lightLabel": "Switch to dark theme",
     "darkLabel": "Switch to light theme"
+  },
+  "login": {
+    "title": "Sign in",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "submit": "Sign in",
+    "registerSubmit": "Create account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "switchRegister": "Register",
+    "switchLogin": "Sign in",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "success": "Signed in",
+    "registerSuccess": "Account created",
+    "error": "Something went wrong"
   }
 }

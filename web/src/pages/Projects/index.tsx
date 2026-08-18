@@ -20,8 +20,8 @@ const Projects: React.FC = () => {
           <Button
             icon={<IconArrowLeft />}
             theme="borderless"
+            className={styles.backBtn}
             onClick={() => navigate('/')}
-            style={{ color: 'var(--semi-color-text-1)' }}
           />
           <Logo size="small" />
         </div>

@@ -225,5 +225,23 @@
   "theme": {
     "lightLabel": "切换到深色主题",
     "darkLabel": "切换到浅色主题"
+  },
+  "login": {
+    "title": "登录",
+    "registerTitle": "创建账号",
+    "email": "邮箱",
+    "password": "密码",
+    "name": "昵称",
+    "submit": "登录",
+    "registerSubmit": "注册",
+    "noAccount": "还没有账号？",
+    "hasAccount": "已有账号？",
+    "switchRegister": "去注册",
+    "switchLogin": "去登录",
+    "emailRequired": "请输入邮箱",
+    "passwordRequired": "请输入密码",
+    "success": "登录成功",
+    "registerSuccess": "注册成功",
+    "error": "出错了"
   }
 }
