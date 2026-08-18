@@ -88,7 +88,7 @@
 }
 
 .heroAccent {
-  color: #2563eb;
+  color: var(--semi-color-primary);
 }
 
 .heroSubtitle {
@@ -129,7 +129,7 @@
 .projectCard {
   background: var(--semi-color-bg-1);
   border: 1px solid var(--semi-color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px;
   cursor: pointer;
   transition: border-color 0.2s;
