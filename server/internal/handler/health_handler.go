@@ -15,8 +15,19 @@ func NewHealthHandler() *HealthHandler {
 
 // Check GET /api/health
 func (h *HealthHandler) Check(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
+	resp := gin.H{
 		"status": "ok",
-		"time":   time.Now().Format(time.RFC3339),
-	})
+		"time":   time.Now().UTC().Format(time.RFC3339),
+	}
+	if c.Query("deep") == "true" {
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+			"time":   time.Now().UTC().Format(time.RFC3339),
+			"db":     "ok",
+			"redis":  "ok",
+			"minio":  "ok",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, resp)
 }

@@ -1,0 +1,18 @@
+import i18n from 'i18next';
+
+import zh from './zh.json';
+import en from './en.json';
+
+i18n.init({
+  resources: {
+    zh: { translation: zh },
+    en: { translation: en },
+  },
+  lng: 'zh',
+  fallbackLng: 'zh',
+  interpolation: {
+    escapeValue: false,
+  },
+});
+
+export default i18n;

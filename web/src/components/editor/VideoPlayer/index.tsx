@@ -1,17 +1,18 @@
-import React from 'react';
-import { Button, Slider } from '@douyinfe/semi-ui';
-import { IconPlay, IconPause, IconVolume2, IconMute } from '@douyinfe/semi-icons';
+import React, { useState, useEffect } from 'react';
+import { Button } from '@douyinfe/semi-ui';
+import { IconPlay, IconPause, IconMute, IconVolume2 } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { formatTime } from '@/utils/format';
 import styles from './index.module.scss';
 
 const VideoPlayer: React.FC = () => {
   const { isPlaying, togglePlay, currentTime, duration, setCurrentTime } =
     useTimelineStore();
-  const [muted, setMuted] = React.useState(false);
+  const { t } = useAppTranslation();
+  const [muted, setMuted] = useState(false);
 
-  // Phase 0: Mock 播放——播放时每 100ms 推进时间
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isPlaying) return;
     const timer = setInterval(() => {
       const next = currentTime + 0.1;
@@ -27,50 +28,37 @@ const VideoPlayer: React.FC = () => {
 
   return (
     <div className={styles.player}>
-      {/* 预览画面（Mock 占位） */}
-      <div
-        className={styles.screen}
-        onClick={togglePlay}
-        style={{ aspectRatio: '9/16', maxHeight: '100%' }}
-      >
-        <div className={styles.mockFrame}>
-          <span className={styles.mockLabel}>Preview</span>
-          <span className={styles.mockTime}>{formatTime(currentTime)}</span>
-        </div>
-      </div>
-
-      {/* 控制条 */}
-      <div className={styles.controls}>
-        <Button
-          icon={isPlaying ? <IconPause /> : <IconPlay />}
-          theme="borderless"
-          size="small"
-          onClick={togglePlay}
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-          style={{ color: 'var(--semi-color-text-0)' }}
+      <div className={styles.screen}>
+        <img
+          className={styles.previewImage}
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5JApBOE5ibho-CY0MmltucxXxPsymmJ6TbumNUrcbSQzXrrZp5S_P6IIWygvuAlf9vDdLscZo8bsbvzB-hRab_TmD4YficAjetaLisUEdrNMKJDJW0t_wLF4PbeqjVtXPnCRN8UTKyPKzdw8Hy6Hahq5KUDhOW3MzoayX5MYg16-q0WB-KKycLfYgOkPyM_L-YDsIE1eCxZvcal4h9K4m-yMqE6tpqmghg9eEcoA71q8ka_DX_SOF9d9TiL9tvoq4yuQ"
+          alt="Video preview"
         />
+        <div className={styles.mockTime}>{formatTime(currentTime)}</div>
 
-        <span className={styles.timeDisplay}>
-          {formatTime(currentTime)} / {formatTime(duration)}
-        </span>
-
-        <div className={styles.progressWrap}>
-          <Slider
-            value={(currentTime / duration) * 100}
-            onChange={(v) => setCurrentTime(((v as number) / 100) * duration)}
-            tooltipVisible={false}
-            className={styles.slider}
-          />
+        <div className={styles.overlay}>
+          <div className={styles.controls}>
+            <Button
+              icon={isPlaying ? <IconPause /> : <IconPlay />}
+              theme="borderless"
+              size="small"
+              onClick={togglePlay}
+              aria-label={isPlaying ? t('editor.videoPlayer.pause') : t('editor.videoPlayer.play')}
+              className={styles.controlBtn}
+            />
+            <span className={styles.timeDisplay}>
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+            <Button
+              icon={muted ? <IconMute /> : <IconVolume2 />}
+              theme="borderless"
+              size="small"
+              onClick={() => setMuted(!muted)}
+              aria-label={muted ? t('editor.videoPlayer.unmute') : t('editor.videoPlayer.mute')}
+              className={styles.controlBtn}
+            />
+          </div>
         </div>
-
-        <Button
-          icon={muted ? <IconMute /> : <IconVolume2 />}
-          theme="borderless"
-          size="small"
-          onClick={() => setMuted(!muted)}
-          aria-label={muted ? 'Unmute' : 'Mute'}
-          style={{ color: 'var(--semi-color-text-1)' }}
-        />
       </div>
     </div>
   );

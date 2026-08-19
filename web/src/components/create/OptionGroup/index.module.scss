@@ -1,0 +1,13 @@
+.optionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.optionLabel {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--semi-color-text-1);
+  letter-spacing: 0.02em;
+}

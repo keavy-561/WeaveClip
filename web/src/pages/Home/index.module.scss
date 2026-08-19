@@ -1,3 +1,5 @@
+@use "@/styles/variables" as *;
+
 .page {
   min-height: 100vh;
   background: var(--semi-color-bg-0);
@@ -8,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  height: 56px;
+  height: 48px;
   border-bottom: 1px solid var(--semi-color-border);
   background: var(--semi-color-bg-1);
 }
@@ -16,6 +18,16 @@
 .navLeft {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.logoText {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+  color: var(--semi-color-text-0);
 }
 
 .navLinks {
@@ -25,23 +37,32 @@
 }
 
 .navLink {
-  padding: 6px 14px;
+  padding: 6px 12px;
   border: none;
   background: transparent;
   border-radius: 8px;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 14px;
+  font-weight: 500;
   color: var(--semi-color-text-1);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
+  outline: none;
 
   &:hover {
     color: var(--semi-color-text-0);
-    background: var(--semi-color-bg-2);
+    background: var(--color-surface-container-high);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-ai-glow);
+    color: var(--semi-color-primary);
   }
 
   &.active {
     color: var(--semi-color-primary);
     font-weight: 600;
+    background: var(--color-surface-container-high);
   }
 }
 
@@ -54,122 +75,67 @@
 .avatar {
   width: 32px;
   height: 32px;
-  border-radius: 9999px;
-  background: var(--semi-color-primary);
-  color: #fff;
+  border-radius: 50%;
+  background: var(--semi-color-bg-3);
+  color: var(--semi-color-text-1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-}
-
-// Hero
-.hero {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 80px 24px 48px;
-  text-align: center;
-}
-
-.heroTitle {
-  font-size: 42px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  color: var(--semi-color-text-0);
-}
-
-.heroAccent {
-  color: var(--semi-color-primary);
-}
-
-.heroSubtitle {
-  margin-top: 16px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--semi-color-text-1);
-}
-
-.ctaButton {
-  margin-top: 32px;
-  font-size: 16px;
-  padding: 12px 32px;
-  border-radius: 10px;
-  font-weight: 600;
 }
 
 // Projects
 .projects {
   max-width: 960px;
   margin: 0 auto;
-  padding: 24px 24px 80px;
+  padding: 0 24px 24px;
 }
 
 .sectionTitle {
-  font-size: 20px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 18px;
   font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.01em;
   color: var(--semi-color-text-0);
-  margin-bottom: 20px;
+  margin: 0 0 16px;
 }
 
 .projectGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
 }
 
-.projectCard {
-  cursor: pointer;
-  background: var(--semi-color-bg-1) !important;
-  border: 1px solid var(--semi-color-border) !important;
-  border-radius: 12px !important;
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: var(--semi-color-primary) !important;
-  }
-
-  :global(.semi-card-title) {
-    color: var(--semi-color-text-0) !important;
-    font-weight: 600;
-  }
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
-.projectMeta {
+.skeletonCard {
+  height: 200px;
+  border-radius: 8px;
+}
+
+.empty {
+  padding: 64px 24px;
+}
+
+.emptyState {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.projectInfo {
-  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
+  padding: 64px 24px;
 }
 
-.badge {
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--semi-color-bg-3);
-  color: var(--semi-color-text-1);
-  font-size: 12px;
-}
-
-.duration {
-  font-size: 13px;
-  color: var(--semi-color-text-1);
-}
-
-.style {
-  font-size: 13px;
-  color: var(--semi-color-text-2);
-  text-transform: capitalize;
-}
-
-.projectStatus {
-  font-size: 13px;
-  color: var(--semi-color-text-2);
-  text-transform: capitalize;
+.emptyCta {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0 24px;
+  height: 40px;
 }

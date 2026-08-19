@@ -73,3 +73,35 @@ cd web && pnpm dev                # 前端 :3000
 | 6 | 体验优化（Undo/版本历史） | ⬜ |
 
 详细计划见 [doc/development-plan.md](doc/development-plan.md)。
+
+## 测试
+
+本地开发不强制跑测试，push 到远程时 CI 会自动执行全量测试门禁。
+
+### 本地运行测试（可选）
+
+```bash
+# 前端测试
+cd web
+pnpm install
+pnpm test:run          # 单次运行
+pnpm test:coverage     # 带覆盖率
+
+# 后端测试
+cd server
+go test ./...                          # 基础测试
+make test-race                         # 竞态检测
+make test-coverage                     # 覆盖率报告（生成 coverage.html）
+make smoke                             # 冒烟测试（需先 docker-compose up -d）
+```
+
+### CI 测试流程
+
+push 到 `main` 或 `feat/**` 分支、或提交 PR 时，CI 会自动执行：
+
+1. **后端**：`go vet` → `go test -race -coverprofile` → `go build`
+2. **前端**：`pnpm test:run` → `pnpm build` → `pnpm run check:i18n`
+3. **Lint**：`golangci-lint` + `eslint`
+4. **冒烟测试**：health → auth → assets 全流程
+
+详细测试策略见 [TEST_PLAN.md](TEST_PLAN.md)。

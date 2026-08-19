@@ -1,86 +1,87 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Card } from '@douyinfe/semi-ui';
-import { IconPlus } from '@douyinfe/semi-icons';
-import Logo from '@/components/ui/Logo';
+import { Skeleton, Empty, Button } from '@douyinfe/semi-ui';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import HeroSection from '@/components/home/HeroSection';
+import ProjectCard from '@/components/home/ProjectCard';
+import ExamplePrompts from '@/components/home/ExamplePrompts';
+import type { ExamplePrompt } from '@/components/home/ExamplePrompts';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { projectService } from '@/services/projectService';
 import { mockProjects } from '@/utils/mockData';
 import styles from './index.module.scss';
 
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
+
 const Home: React.FC = () => {
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: projectService.list,
+    staleTime: 1000 * 60,
+    enabled: !isMockMode,
+  });
+
+  const projects = isMockMode ? mockProjects : (data || []);
+
+  const examplePrompts: ExamplePrompt[] = [
+    { id: '1', text: '帮我剪一个 45 秒的纽约旅行 vlog，节奏轻快', labelKey: 'home.examplePrompt1' },
+    { id: '2', text: '做一个产品预告片，突出科技感', labelKey: 'home.examplePrompt2' },
+    { id: '3', text: '把这段海滩 footage 剪成 30 秒的治愈短片', labelKey: 'home.examplePrompt3' },
+  ];
 
   return (
     <div className={styles.page}>
-      {/* Navbar */}
       <header className={styles.navbar}>
         <div className={styles.navLeft}>
-          <Logo />
+          <span className={styles.logoText}>WeaveClip</span>
         </div>
         <nav className={styles.navLinks}>
-          <button
-            className={`${styles.navLink} ${styles.active}`}
-            onClick={() => navigate('/')}
-          >
-            Home
+          <button className={`${styles.navLink} ${styles.active}`} type="button">
+            {t('nav.home')}
           </button>
-          <button className={styles.navLink} onClick={() => navigate('/projects')}>
-            Projects
-          </button>
+          <Link to="/projects" className={styles.navLink}>
+            {t('nav.projects')}
+          </Link>
         </nav>
         <div className={styles.navRight}>
           <ThemeToggle />
+          <LanguageSwitcher />
           <div className={styles.avatar}>U</div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>
-          Talk to your footage.
-          <br />
-          <span className={styles.heroAccent}>Get the video you mean.</span>
-        </h1>
-        <p className={styles.heroSubtitle}>
-          Tell AI what you want. It picks the best clips, arranges the timeline,
-          and generates your video. You control the final cut.
-        </p>
-        <Button
-          theme="solid"
-          size="large"
-          icon={<IconPlus />}
-          className={styles.ctaButton}
-          onClick={() => navigate('/projects/new')}
-        >
-          New Video
-        </Button>
+      <HeroSection />
+
+      <section className={styles.projects}>
+        <h2 className={styles.sectionTitle}>{t('home.recentProjects')}</h2>
+        {isLoading ? (
+          <div className={styles.skeletonGrid}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className={styles.skeletonCard} />
+            ))}
+          </div>
+        ) : projects.length === 0 ? (
+          <div className={styles.emptyState}>
+            <Empty description={t('projects.empty')} />
+            <Button theme="solid" className={styles.emptyCta} onClick={() => navigate('/projects/new')}>
+              {t('home.ctaNewVideo')}
+            </Button>
+          </div>
+        ) : (
+          <div className={styles.projectGrid}>
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* Recent Projects */}
-      <section className={styles.projects}>
-        <h2 className={styles.sectionTitle}>Recent Projects</h2>
-        <div className={styles.projectGrid}>
-          {mockProjects.map((project) => (
-            <Card
-              key={project.id}
-              className={styles.projectCard}
-              title={project.name}
-              onClick={() => navigate(`/editor/${project.id}`)}
-            >
-              <div className={styles.projectMeta}>
-                <div className={styles.projectInfo}>
-                  <span className={styles.badge}>{project.aspectRatio}</span>
-                  <span className={styles.duration}>
-                    {project.duration ? `${project.duration}s` : '—'}
-                  </span>
-                  <span className={styles.style}>{project.style}</span>
-                </div>
-                <div className={styles.projectStatus}>{project.status}</div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
+      <ExamplePrompts prompts={examplePrompts} />
     </div>
   );
 };

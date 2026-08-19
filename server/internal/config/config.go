@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -10,8 +11,9 @@ import (
 
 type Config struct {
 	Server struct {
-		Port int    `yaml:"port"`
-		Mode string `yaml:"mode"` // debug | release
+		Port         int           `yaml:"port"`
+		Mode         string        `yaml:"mode"` // debug | release
+		RequestTimeout time.Duration `yaml:"request_timeout"`
 	} `yaml:"server"`
 
 	Database struct {
@@ -52,6 +54,10 @@ type Config struct {
 		BinaryPath  string `yaml:"binary_path"`
 		FFprobePath string `yaml:"ffprobe_path"`
 	} `yaml:"ffmpeg"`
+
+	CORS struct {
+		AllowedOrigins []string `yaml:"allowed_origins"`
+	} `yaml:"cors"`
 }
 
 // Load 读取指定环境的配置文件（dev/prod）
@@ -75,7 +81,14 @@ func Load(env string) (*Config, error) {
 
 func overrideFromEnv(cfg *Config) {
 	if v := os.Getenv("SERVER_PORT"); v != "" {
-		fmt.Sscanf(v, "%d", &cfg.Server.Port)
+		if _, err := fmt.Sscanf(v, "%d", &cfg.Server.Port); err != nil {
+			fmt.Printf("invalid SERVER_PORT %q: %v\n", v, err)
+		}
+	}
+	if v := os.Getenv("SERVER_REQUEST_TIMEOUT"); v != "" {
+		if d, err := time.ParseDuration(v); err == nil {
+			cfg.Server.RequestTimeout = d
+		}
 	}
 	if v := os.Getenv("DATABASE_HOST"); v != "" {
 		cfg.Database.Host = v
@@ -89,8 +102,19 @@ func overrideFromEnv(cfg *Config) {
 	if v := os.Getenv("JWT_SECRET"); v != "" {
 		cfg.JWT.Secret = v
 	}
+	if v := os.Getenv("JWT_EXPIRY"); v != "" {
+		if d, err := time.ParseDuration(v); err == nil {
+			cfg.JWT.Expiry = d
+		}
+	}
 	if v := os.Getenv("OPENAI_API_KEY"); v != "" {
 		cfg.AI.OpenAIKey = v
+	}
+	if v := os.Getenv("CORS_ALLOWED_ORIGINS"); v != "" {
+		cfg.CORS.AllowedOrigins = strings.Split(v, ",")
+		for i := range cfg.CORS.AllowedOrigins {
+			cfg.CORS.AllowedOrigins[i] = strings.TrimSpace(cfg.CORS.AllowedOrigins[i])
+		}
 	}
 }
 

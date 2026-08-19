@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>WeaveClip - AI Video Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#faf9f5',
+              dim: '#dbdad6',
+              bright: '#faf9f5',
+              'container-lowest': '#ffffff',
+              'container-low': '#f4f4f0',
+              container: '#eeebe7',
+              'container-high': '#e8e6e1',
+              'container-highest': '#e2e0dc',
+            },
+            primary: {
+              DEFAULT: '#476378',
+              container: '#cbe6ff',
+              content: '#ffffff',
+            },
+            on: {
+              surface: '#1a1c1e',
+              'surface-variant': '#42474e',
+              primary: '#ffffff',
+              'primary-container': '#001e30',
+            },
+            outline: {
+              DEFAULT: '#72787e',
+              variant: '#c2c7ce',
+            }
+          },
+          borderRadius: {
+            '4xl': '2rem',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-utilities">
+    body {
+      background-color: theme('colors.surface.DEFAULT');
+      color: theme('colors.on.surface');
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+<!-- BEGIN: MainHeader -->
+<header class="w-full bg-surface-container-lowest border-b border-outline-variant px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+<div class="flex items-center gap-2">
+<!-- CutPilot Logo -->
+<div class="w-10 h-10 overflow-hidden rounded-md"><img alt="织影 WeaveClip Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj0hQ3xOibNPeFwn3WRMAEprUstYaNKoLHDNimbT90tPdFF9vLi2I7Se_Fi7PIOjZ9oOAxy4s627Ow8d3P-xHZ6XvUnLBiv-gk7tc44P-WlVuSQzGgM8hPyWcms9RFxA9adNUc7MEtxAQwq7_-UpxwEea8XgYVIrMjMWSHjHsf2A9swR4MmPhzPktT03QLDnrnK2RWUB0AjcJ58IfgLcP46hQSNqbSM384f2oZFmteNaQIc0-yxtAaqg"></div>
+<span class="text-xl font-bold tracking-tight">WeaveClip 织影</span>
+</div>
+<div class="hidden lg:flex items-center relative max-w-xs w-full mx-4"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg">search</span><input class="w-full bg-surface-container-high border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="搜索项目..." type="text"></div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-primary font-semibold border-b-2 border-primary pb-1" href="#">首页</a>
+<a class="text-on-surface-variant hover:text-on-surface font-medium transition-colors" href="#">项目</a>
+<a class="text-on-surface-variant hover:text-on-surface font-medium transition-colors" href="#">社区</a>
+<a class="text-on-surface-variant hover:text-on-surface font-medium transition-colors" href="#">教程</a>
+<a class="text-on-surface-variant hover:text-on-surface font-medium transition-colors" href="#">价格</a>
+</nav>
+<div class="flex items-center">
+<!-- User Avatar Placeholder -->
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm cursor-pointer">
+        在
+      </div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="flex-grow flex flex-col pt-12 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+<!-- Hero Section -->
+<section class="w-full text-center mb-20 relative bg-gradient-to-b from-surface-container-low to-transparent rounded-4xl p-12">
+<h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-4 text-on-surface">
+        对着你的素材说话。<br>
+<span class="text-primary">得到你想要的视频。</span>
+</h1>
+<p class="text-lg md:text-xl text-on-surface-variant mb-10 max-w-2xl mx-auto leading-relaxed">
+        告诉人工智能你的需求。它会挑选最佳片段，排列时间线，并生成你的视频。最终剪辑由你掌控。
+      </p>
+<button class="bg-primary hover:bg-primary/90 text-on-primary font-semibold py-4 px-8 rounded-full shadow-md transition-all flex items-center gap-2 mx-auto text-lg">
+<svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<line x1="12" x2="12" y1="5" y2="19"></line>
+<line x1="5" x2="19" y1="12" y2="12"></line>
+</svg>
+        新视频
+      </button>
+<!-- Decorative AI Icon floating -->
+<div class="absolute -right-24 top-1/2 -translate-y-1/2 w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center border-4 border-surface shadow-sm text-primary opacity-50 hidden xl:flex">
+<svg fill="none" height="28" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+</svg>
+</div>
+</section>
+<!-- Trending Templates Section -->
+<section class="w-full mb-20">
+<h2 class="text-2xl font-bold mb-6 text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+    热门 AI 灵感模板
+  </h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="group relative rounded-2xl overflow-hidden aspect-video cursor-pointer bg-surface-container-high border border-outline-variant">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+<div class="absolute bottom-3 left-3 z-20 text-white">
+<span class="text-xs font-semibold px-2 py-1 bg-primary/80 rounded-md mb-1 inline-block">电影感</span>
+<h4 class="font-bold text-sm">赛博朋克都市</h4>
+</div>
+</div>
+<div class="group relative rounded-2xl overflow-hidden aspect-video cursor-pointer bg-surface-container-high border border-outline-variant">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+<div class="absolute bottom-3 left-3 z-20 text-white">
+<span class="text-xs font-semibold px-2 py-1 bg-[#D18E85]/80 rounded-md mb-1 inline-block">复古</span>
+<h4 class="font-bold text-sm">90年代胶片风</h4>
+</div>
+</div>
+<div class="group relative rounded-2xl overflow-hidden aspect-video cursor-pointer bg-surface-container-high border border-outline-variant">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+<div class="absolute bottom-3 left-3 z-20 text-white">
+<span class="text-xs font-semibold px-2 py-1 bg-[#A29EAD]/80 rounded-md mb-1 inline-block">短视频</span>
+<h4 class="font-bold text-sm">快节奏卡点</h4>
+</div>
+</div>
+<div class="group relative rounded-2xl overflow-hidden aspect-video cursor-pointer bg-surface-container-high border border-outline-variant">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+<div class="absolute bottom-3 left-3 z-20 text-white">
+<span class="text-xs font-semibold px-2 py-1 bg-[#899AAB]/80 rounded-md mb-1 inline-block">Vlog</span>
+<h4 class="font-bold text-sm">宁静日常</h4>
+</div>
+</div>
+</div>
+</section>
+<!-- Content Grid: Sidebar + Projects -->
+<div class="flex flex-col lg:flex-row gap-8 w-full">
+<!-- Sidebar Navigation -->
+<aside class="w-full lg:w-64 flex-shrink-0">
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant p-4 sticky top-24">
+<ul class="space-y-2">
+<li class="">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-container-low text-primary font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">folder</span>
+              所有项目
+            </a>
+</li>
+<li class="">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">cloud</span>
+              我的云端
+            </a>
+</li>
+<li class="">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+              团队协作
+            </a>
+</li>
+<li class="">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+              回收站
+            </a>
+</li>
+</ul>
+<div class="mt-8 pt-6 border-t border-outline-variant px-4">
+<div class="text-xs text-on-surface-variant font-semibold mb-3 uppercase tracking-wider">存储空间</div>
+<div class="w-full bg-surface-container-highest rounded-full h-2 mb-2">
+<div class="bg-primary h-2 rounded-full" style="width: 45%"></div>
+</div>
+<div class="text-xs text-on-surface-variant">已用 45GB / 100GB</div>
+<a class="text-xs text-primary font-semibold mt-2 inline-block hover:underline" href="#">升级方案</a>
+</div>
+</div>
+</aside>
+<!-- Recent Projects Section -->
+<section class="flex-grow">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-bold text-on-surface">近期项目</h2>
+<button class="text-primary text-sm font-semibold hover:underline">查看全部</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Project Card 1 -->
+<article class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col h-64">
+<div class="p-6 border-b border-outline-variant flex-grow"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold">在</div><span class="text-xs text-on-surface-variant">我</span></div><span class="text-xs text-on-surface-variant opacity-70">2小时前编辑</span></div>
+<h3 class="text-xl font-bold mb-2 text-on-surface line-clamp-2">纽约旅行Vlog</h3>
+<div class="flex flex-wrap gap-2 mt-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-on-surface-variant">1080p</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-on-surface-variant">60fps</span>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface-container-low text-sm text-on-surface-variant flex gap-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">crop_portrait</span> 9:16</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> 45秒</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">label</span> 精力充沛</span>
+</div>
+</article>
+<!-- Project Card 2 -->
+<article class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col h-64">
+<div class="p-6 border-b border-outline-variant flex-grow"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold">在</div><span class="text-xs text-on-surface-variant">我</span></div><span class="text-xs text-on-surface-variant opacity-70">昨天编辑</span></div>
+<h3 class="text-xl font-bold mb-2 text-on-surface line-clamp-2">产品预告</h3>
+<div class="flex flex-wrap gap-2 mt-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-on-surface-variant">4K</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-on-surface-variant">24fps</span>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface-container-low text-sm text-on-surface-variant flex gap-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">crop_16_9</span> 16:9</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> 30秒</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">label</span> 电影</span>
+</div>
+</article>
+<!-- Project Card 3 -->
+<article class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col h-64">
+<div class="p-6 border-b border-outline-variant flex-grow"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold">在</div><span class="text-xs text-on-surface-variant">我</span></div><span class="text-xs text-on-surface-variant opacity-70">3天前编辑</span></div>
+<h3 class="text-xl font-bold mb-2 text-on-surface line-clamp-2">海滩日录像</h3>
+<div class="flex flex-wrap gap-2 mt-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-on-surface-variant">1080p</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-on-surface-variant">30fps</span>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface-container-low text-sm text-on-surface-variant flex gap-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">crop_portrait</span> 9:16</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> 60秒</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">label</span> 最低限度</span>
+</div>
+</article>
+</div>
+</section>
+</div>
+</main>
+<!-- END: MainContent -->
+
+
+</body></html>

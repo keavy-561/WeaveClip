@@ -1,0 +1,14 @@
+.uploadStep {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.continueBtn {
+  min-width: 160px;
+}

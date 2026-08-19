@@ -17,6 +17,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+// 默认浅色 Morandi Minimal 主题
+:root {
+  color-scheme: light;
+}
+
 #root {
   width: 100%;
   height: 100%;

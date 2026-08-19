@@ -1,0 +1,21 @@
+.trigger {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--color-editor-border);
+  background: var(--semi-color-bg-1);
+  color: var(--semi-color-text-1);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--color-surface-container-high);
+    color: var(--semi-color-text-0);
+  }
+}

@@ -1,0 +1,103 @@
+.fileSection {
+  margin-top: 24px;
+}
+
+.fileSummary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.summaryCount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  color: var(--semi-color-text-1);
+  text-transform: uppercase;
+}
+
+.summaryDuration {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  color: var(--semi-color-text-2);
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--semi-color-border);
+  border-radius: 8px;
+  background: var(--semi-color-bg-1);
+  padding: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--semi-color-bg-2);
+  }
+}
+
+.fileIcon {
+  display: flex;
+  align-items: center;
+  color: var(--semi-color-primary);
+}
+
+.fileName {
+  flex: 1;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--semi-color-text-0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileSize {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--semi-color-text-2);
+}
+
+.progressWrapper {
+  width: 120px;
+}
+
+.progress {
+  margin: 0;
+}
+
+.removeBtn {
+  color: var(--semi-color-text-2);
+  border-radius: 4px;
+
+  &:hover {
+    color: var(--semi-color-danger);
+    background: var(--color-error-container);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}

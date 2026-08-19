@@ -1,35 +1,102 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Radio, RadioGroup, TextArea, Toast } from '@douyinfe/semi-ui';
-import { IconArrowLeft, IconSend } from '@douyinfe/semi-icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { Button, Toast } from '@douyinfe/semi-ui';
+import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { useMutation } from '@tanstack/react-query';
+import { projectService } from '@/services/projectService';
+import DescribeForm from '@/components/create/DescribeForm';
+import type { DescribeFormValues } from '@/components/create/DescribeForm';
+import { addMockProject } from '@/utils/mockData';
 import styles from './index.module.scss';
 
-const EXAMPLE_PROMPTS = [
-  'Create a 45-second travel vlog about my NYC trip. Make it energetic and cinematic. Focus on Times Square and Central Park.',
-  'Turn my interview footage into a 60s TikTok with captions.',
-  'Make a 30s product teaser with a strong hook.',
-];
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const Describe: React.FC = () => {
+  const { t } = useAppTranslation();
   const navigate = useNavigate();
-  const [prompt, setPrompt] = useState('');
-  const [duration, setDuration] = useState(45);
-  const [format, setFormat] = useState('9:16');
-  const [style, setStyle] = useState('energetic');
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [values, setValues] = useState<DescribeFormValues>({
+    prompt: '',
+    duration: 45,
+    format: '9:16',
+    style: 'energetic',
+  });
   const [isGenerating, setIsGenerating] = useState(false);
+  const [errors, setErrors] = useState<{ prompt?: string }>({});
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const queryPrompt = searchParams.get('prompt');
+    const statePrompt = (location.state as { draft?: { prompt?: string } } | null)?.draft?.prompt;
+    const prefill = queryPrompt || statePrompt || '';
+    setValues((prev) => ({ ...prev, prompt: prefill }));
+  }, [searchParams, location.state]);
+
+  const createMutation = useMutation({
+    mutationFn: (payload: { name: string; duration?: number; aspectRatio?: string; style?: string }) =>
+      projectService.create(payload),
+    onSuccess: (project) => {
+      navigate(`/editor/${project.id}`);
+    },
+    onError: () => {
+      Toast.error(t('create.describe.error', 'Failed to create project'));
+      setIsGenerating(false);
+    },
+  });
 
   const handleGenerate = () => {
-    if (!prompt.trim()) {
-      Toast.warning('Please describe what you want to create.');
+    const newErrors: { prompt?: string } = {};
+    if (!values.prompt.trim()) {
+      newErrors.prompt = t('create.describe.validation.required', 'Please describe what you want');
+    } else if (values.prompt.trim().length < 5) {
+      newErrors.prompt = t('create.describe.validation.minLength', 'At least 5 characters');
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    setIsGenerating(true);
+
+    if (isMockMode) {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = window.setTimeout(() => {
+        const projectId = `proj_${Date.now()}`;
+        addMockProject({
+          id: projectId,
+          name: values.prompt.slice(0, 30) || 'Untitled',
+          status: 'ready',
+          duration: values.duration,
+          aspectRatio: values.format,
+          style: values.style,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          thumbnailUrl: '/src/assets/project-thumb-1.png',
+        });
+        navigate(`/editor/${projectId}`);
+        timerRef.current = null;
+      }, 1500);
       return;
     }
-    setIsGenerating(true);
-    // Phase 0: Mock 生成，1.5s 后跳转 Editor
-    setTimeout(() => {
-      navigate('/editor/proj_new');
-    }, 1500);
+
+    createMutation.mutate({
+      name: values.prompt.slice(0, 30) || 'Untitled',
+      duration: values.duration,
+      aspectRatio: values.format,
+      style: values.style,
+    });
   };
 
   return (
@@ -39,17 +106,17 @@ const Describe: React.FC = () => {
           <Button
             icon={<IconArrowLeft />}
             theme="borderless"
+            className={styles.backBtn}
             onClick={() => navigate('/projects/new')}
-            style={{ color: 'var(--semi-color-text-1)' }}
           />
           <Logo size="small" />
         </div>
         <div className={styles.steps}>
-          <span className={styles.step}>1 Upload</span>
+          <span className={styles.step}>1 {t('create.upload.step', 'Upload')}</span>
           <span className={styles.stepDivider}>—</span>
-          <span className={`${styles.step} ${styles.active}`}>2 Describe</span>
+          <span className={`${styles.step} ${styles.active}`}>2 {t('create.describe.step', 'Describe')}</span>
           <span className={styles.stepDivider}>—</span>
-          <span className={styles.step}>3 Generate</span>
+          <span className={styles.step}>3 {t('create.generate.step', 'Generate')}</span>
         </div>
         <div className={styles.navRight}>
           <ThemeToggle />
@@ -57,86 +124,14 @@ const Describe: React.FC = () => {
       </header>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>What should we make?</h1>
-
-        <div className={styles.form}>
-          <label className={styles.label}>Describe your video</label>
-          <TextArea
-            value={prompt}
-            onChange={(v) => setPrompt(v)}
-            placeholder='e.g. "Create a 45-second travel vlog about my NYC trip..."'
-            rows={4}
-            maxCount={500}
-            className={styles.textarea}
-          />
-
-          <div className={styles.examples}>
-            <span className={styles.examplesLabel}>Examples:</span>
-            {EXAMPLE_PROMPTS.map((p) => (
-              <button
-                key={p}
-                className={styles.exampleItem}
-                onClick={() => setPrompt(p)}
-              >
-                "{p.length > 60 ? p.slice(0, 60) + '...' : p}"
-              </button>
-            ))}
-          </div>
-
-          <div className={styles.optionRow}>
-            <div className={styles.optionGroup}>
-              <label className={styles.label}>Duration</label>
-              <RadioGroup
-                type="button"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value as number)}
-              >
-                <Radio value={15}>15s</Radio>
-                <Radio value={30}>30s</Radio>
-                <Radio value={45}>45s</Radio>
-                <Radio value={60}>60s</Radio>
-              </RadioGroup>
-            </div>
-
-            <div className={styles.optionGroup}>
-              <label className={styles.label}>Format</label>
-              <RadioGroup
-                type="button"
-                value={format}
-                onChange={(e) => setFormat(e.target.value as string)}
-              >
-                <Radio value="9:16">9:16</Radio>
-                <Radio value="16:9">16:9</Radio>
-                <Radio value="1:1">1:1</Radio>
-              </RadioGroup>
-            </div>
-
-            <div className={styles.optionGroup}>
-              <label className={styles.label}>Style</label>
-              <RadioGroup
-                type="button"
-                value={style}
-                onChange={(e) => setStyle(e.target.value as string)}
-              >
-                <Radio value="cinematic">Cinematic</Radio>
-                <Radio value="energetic">Energetic</Radio>
-                <Radio value="minimal">Minimal</Radio>
-                <Radio value="storytelling">Storytelling</Radio>
-              </RadioGroup>
-            </div>
-          </div>
-
-          <Button
-            theme="solid"
-            size="large"
-            icon={<IconSend />}
-            loading={isGenerating}
-            onClick={handleGenerate}
-            className={styles.generateBtn}
-          >
-            {isGenerating ? 'Generating...' : 'Generate'}
-          </Button>
-        </div>
+        <h1 className={styles.title}>{t('create.describe.title', 'What should we make?')}</h1>
+        <DescribeForm
+          values={values}
+          errors={errors}
+          isGenerating={isGenerating}
+          onChange={setValues}
+          onGenerate={handleGenerate}
+        />
       </main>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { IconTick, IconClose } from '@douyinfe/semi-icons';
+import { IconTick } from '@douyinfe/semi-icons';
 import { mockAnalyzeResult } from '@/utils/mockData';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface AnalyzeProgressProps {
@@ -13,12 +14,13 @@ type CheckItem = {
 };
 
 const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete }) => {
+  const { t } = useAppTranslation();
   const [steps, setSteps] = useState<CheckItem[]>([
-    { label: 'Clips analyzed', done: false },
-    { label: 'Speakers detected', done: false },
-    { label: 'Transcript generated', done: false },
-    { label: 'Scenes identified', done: false },
-    { label: 'Best moments found', done: false },
+    { label: t('create.analyzeProgress.clipsAnalyzed'), done: false },
+    { label: t('create.analyzeProgress.speakersDetected'), done: false },
+    { label: t('create.analyzeProgress.transcriptGenerated'), done: false },
+    { label: t('create.analyzeProgress.scenesIdentified'), done: false },
+    { label: t('create.analyzeProgress.bestMomentsFound'), done: false },
   ]);
   const [allDone, setAllDone] = useState(false);
 
@@ -50,7 +52,7 @@ const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete }) => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Understanding your footage...</h2>
+      <h2 className={styles.title}>{t('create.analyzeProgress.title')}</h2>
 
       <div className={styles.checklist}>
         {steps.map((step) => (
@@ -63,7 +65,7 @@ const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete }) => {
             <span
               className={`${styles.checkLabel} ${step.done ? styles.labelDone : ''}`}
             >
-              {step.done ? step.label : 'Analyzing...'}
+              {step.done ? step.label : t('create.analyzeProgress.ready')}
             </span>
           </div>
         ))}
@@ -71,23 +73,23 @@ const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete }) => {
 
       {allDone && (
         <div className={styles.result}>
-          <p className={styles.readyText}>Your footage is ready.</p>
+          <p className={styles.readyText}>{t('create.analyzeProgress.ready')}</p>
           <div className={styles.summaryGrid}>
             <div className={styles.summaryItem}>
               <span className={styles.summaryNum}>{summary.strongMoments}</span>
-              <span className={styles.summaryLabel}>strong moments</span>
+              <span className={styles.summaryLabel}>{t('create.analyzeProgress.strongMoments')}</span>
             </div>
             <div className={styles.summaryItem}>
               <span className={styles.summaryNum}>{summary.talkingHead}</span>
-              <span className={styles.summaryLabel}>talking-head clips</span>
+              <span className={styles.summaryLabel}>{t('create.analyzeProgress.talkingHead')}</span>
             </div>
             <div className={styles.summaryItem}>
               <span className={styles.summaryNum}>{summary.bRoll}</span>
-              <span className={styles.summaryLabel}>B-roll clips</span>
+              <span className={styles.summaryLabel}>{t('create.analyzeProgress.bRoll')}</span>
             </div>
             <div className={styles.summaryItem}>
               <span className={styles.summaryNum}>{summary.duplicates}</span>
-              <span className={styles.summaryLabel}>duplicate scenes</span>
+              <span className={styles.summaryLabel}>{t('create.analyzeProgress.duplicateScenes')}</span>
             </div>
           </div>
         </div>

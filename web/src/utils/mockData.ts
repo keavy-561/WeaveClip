@@ -8,33 +8,36 @@ import type { ChatMessage } from '@/types/ai';
 export const mockProjects: Project[] = [
   {
     id: 'proj_1',
-    name: 'NYC Travel Vlog',
+    name: '纽约旅行Vlog',
     status: 'ready',
     duration: 45,
     aspectRatio: '9:16',
     style: 'energetic',
     createdAt: '2026-08-10T08:00:00Z',
     updatedAt: '2026-08-10T12:00:00Z',
+    thumbnailUrl: '/src/assets/project-thumb-1.png',
   },
   {
     id: 'proj_2',
-    name: 'Product Teaser',
+    name: '产品预告',
     status: 'draft',
     duration: 30,
     aspectRatio: '16:9',
     style: 'cinematic',
     createdAt: '2026-08-08T14:00:00Z',
     updatedAt: '2026-08-08T14:00:00Z',
+    thumbnailUrl: '/src/assets/project-thumb-2.png',
   },
   {
     id: 'proj_3',
-    name: 'Beach Day Reel',
+    name: '海滩日记录像',
     status: 'ready',
     duration: 60,
     aspectRatio: '9:16',
     style: 'minimal',
     createdAt: '2026-08-05T10:00:00Z',
     updatedAt: '2026-08-05T16:00:00Z',
+    thumbnailUrl: '/src/assets/project-thumb-3.png',
   },
 ];
 
@@ -201,4 +204,21 @@ export const mockAnalyzeResult = {
     bRoll: 12,
     duplicates: 3,
   },
+};
+
+// ============ Mock Styles ============
+
+export const mockStyles = [
+  { value: 'cinematic', labelKey: 'create.describe.styleCinematic' },
+  { value: 'energetic', labelKey: 'create.describe.styleEnergetic' },
+  { value: 'minimal', labelKey: 'create.describe.styleMinimal' },
+  { value: 'storytelling', labelKey: 'create.describe.styleStorytelling' },
+];
+
+// ============ In-memory project store for mock generation ============
+
+export const mockProjectStore: Project[] = [...mockProjects];
+
+export const addMockProject = (project: Project) => {
+  mockProjectStore.unshift(project);
 };

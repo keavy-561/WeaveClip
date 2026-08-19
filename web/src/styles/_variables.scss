@@ -1,18 +1,23 @@
 // SCSS 公共变量
 // 路径别名变量（Vite additionalData 会自动注入）
 
-$radius-card: 12px;
+$radius-card: 8px;
 $radius-button: 8px;
-$radius-input: 10px;
-$radius-dialog: 16px;
+$radius-input: 8px;
+$radius-dialog: 12px;
+$radius-timeline-clip: 6px;
 
-$font-sans: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+$font-sans: 'Manrope', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
 $font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
 // Editor layout
 $editor-assets-width: 240px;
 $editor-chat-width: 320px;
 $editor-timeline-height: 200px;
+$editor-media-width: 320px;
+$editor-inspector-width: 280px;
+$editor-tool-sidebar-width: 48px;
+$editor-toolbar-height: 48px;
 
 // z-index layers
 $z-timeline-clip: 1;
