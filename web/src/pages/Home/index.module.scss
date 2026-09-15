@@ -87,6 +87,48 @@
   cursor: pointer;
 }
 
+// Hero
+.hero {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 80px 24px 48px;
+  text-align: center;
+
+  // 品牌色微光，避免大片平面显得"灰"
+  background: radial-gradient(
+    60% 50% at 50% 0%,
+    var(--color-ai-glow),
+    transparent 70%
+  );
+}
+
+.heroTitle {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--semi-color-text-0);
+}
+
+.heroAccent {
+  color: var(--semi-color-primary);
+}
+
+.heroSubtitle {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--semi-color-text-1);
+}
+
+.ctaButton {
+  margin-top: 32px;
+  font-size: 16px;
+  padding: 12px 32px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
 // Projects
 .projects {
   max-width: 960px;

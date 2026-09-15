@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@douyinfe/semi-ui';
-import { IconSun, IconMoon } from '@douyinfe/semi-icons';
+import { IconMoon, IconSun } from '@douyinfe/semi-icons';
 import { useThemeStore } from '@/stores/themeStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
