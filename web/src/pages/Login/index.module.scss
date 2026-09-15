@@ -21,6 +21,23 @@
   font-weight: 600;
 }
 
+.demoRow {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--semi-color-fill-0);
+}
+
+.demoHint {
+  color: var(--semi-color-text-2);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .footer {
   margin-top: 16px;
   display: flex;

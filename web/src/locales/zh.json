@@ -251,6 +251,9 @@
     "passwordRequired": "请输入密码",
     "success": "登录成功",
     "registerSuccess": "注册成功",
-    "error": "出错了"
+    "error": "出错了",
+    "demoHint": "演示环境：填演示账号",
+    "demoFill": "填入演示账号",
+    "badCredentials": "邮箱或密码不正确"
   }
 }

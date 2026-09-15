@@ -251,6 +251,9 @@
     "passwordRequired": "Password is required",
     "success": "Signed in",
     "registerSuccess": "Account created",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "demoHint": "Demo mode: fill demo account",
+    "demoFill": "Fill demo account",
+    "badCredentials": "Email or password is incorrect"
   }
 }

@@ -97,108 +97,15 @@ class MockCanvasRenderingContext2D {
   roundRect() {}
 }
 
-(globalThis as any).HTMLCanvasElement = class HTMLCanvasElement {
-  width = 300;
-  height = 150;
-  style = {} as CSSStyleDeclaration;
-  nodeName = 'CANVAS';
-  nodeType = 1;
-
-  getContext() {
+// jsdom 的 HTMLCanvasElement.getContext 依赖原生 canvas 包才返回 2d context。
+// 在原型层替换 getContext，让 document.createElement('canvas') 创建的元素
+// 也走 mock（替换 globalThis.HTMLCanvasElement 不影响 jsdom 内部实现）。
+const CanvasElementProto = (globalThis as any).HTMLCanvasElement?.prototype;
+if (CanvasElementProto && typeof CanvasElementProto.getContext === 'function') {
+  CanvasElementProto.getContext = function () {
     return new MockCanvasRenderingContext2D() as unknown as CanvasRenderingContext2D;
-  }
-
-  toDataURL() {
-    return '';
-  }
-  toBlob() {}
-  getBoundingClientRect() {
-    return { x: 0, y: 0, width: 300, height: 150, top: 0, bottom: 150, left: 0, right: 300 } as unknown as DOMRect;
-  }
-  addEventListener() {}
-  removeEventListener() {}
-  getAttribute() {
-    return null;
-  }
-  setAttribute() {}
-  removeAttribute() {}
-  getClientRects() {
-    return [] as unknown as DOMRectList;
-  }
-  getElementsByTagName() {
-    return [] as unknown as HTMLCollection;
-  }
-  hasAttribute() {
-    return false;
-  }
-  querySelector() {
-    return null;
-  }
-  querySelectorAll() {
-    return [] as unknown as NodeListOf<Element>;
-  }
-  removeChild() {
-    return null;
-  }
-  replaceChild() {
-    return null;
-  }
-  insertBefore() {
-    return null;
-  }
-  appendChild() {
-    return null;
-  }
-  cloneNode() {
-    return this;
-  }
-  compareDocumentPosition() {
-    return 0;
-  }
-  contains() {
-    return false;
-  }
-  hasChildNodes() {
-    return false;
-  }
-  insertAdjacentElement() {
-    return null;
-  }
-  insertAdjacentHTML() {}
-  insertAdjacentText() {}
-  matches() {
-    return false;
-  }
-  closest() {
-    return null;
-  }
-  getAttributeNode() {
-    return null;
-  }
-  getAttributeNodeNS() {
-    return null;
-  }
-  getElementsByClassName() {
-    return [] as unknown as HTMLCollection;
-  }
-  getElementsByTagNameNS() {
-    return [] as unknown as HTMLCollection;
-  }
-  hasAttributeNS() {
-    return false;
-  }
-  removeAttributeNS() {}
-  setAttributeNS() {}
-  toggleAttribute() {
-    return false;
-  }
-  webkitMatchesSelector() {
-    return false;
-  }
-  msMatchesSelector() {
-    return false;
-  }
-};
+  };
+}
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
