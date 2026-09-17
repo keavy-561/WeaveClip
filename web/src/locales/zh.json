@@ -254,6 +254,10 @@
     "error": "出错了",
     "demoHint": "演示环境：填演示账号",
     "demoFill": "填入演示账号",
-    "badCredentials": "邮箱或密码不正确"
+    "badCredentials": "邮箱或密码不正确",
+    "invalidEmail": "邮箱格式不正确",
+    "passwordTooShort": "密码长度至少 8 位",
+    "nameTooLong": "昵称不能超过 255 个字符",
+    "emailRegistered": "该邮箱已被注册"
   }
 }

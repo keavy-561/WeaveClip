@@ -34,10 +34,29 @@ const Login: React.FC = () => {
         setMode('login');
       }
     } catch (e: any) {
-      Toast.error(e?.message === 'Invalid email or password' ? t('login.badCredentials') : e?.message || t('login.error'));
+      Toast.error(mapAuthError(e));
     } finally {
       setLoading(false);
     }
+  };
+
+  // 后端错误消息（已由 api 拦截器透传）映射为本地化文案，未知错误回退到原始消息便于诊断
+  const mapAuthError = (e: any): string => {
+    const known: Record<string, string> = {
+      'invalid email format': t('login.invalidEmail'),
+      'password must be at least 8 characters': t('login.passwordTooShort'),
+      'name must be at most 255 characters': t('login.nameTooLong'),
+      'email already registered': t('login.emailRegistered'),
+      'invalid email or password': t('login.badCredentials'),
+    };
+    const raw = typeof e?.message === 'string' ? e.message.toLowerCase() : '';
+    if (known[raw]) {
+      return known[raw];
+    }
+    if (e?.message && e.message !== 'Request failed with status code 400') {
+      return e.message;
+    }
+    return t('login.error');
   };
 
   const fillDemoAccount = () => {

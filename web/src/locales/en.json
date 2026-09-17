@@ -254,6 +254,10 @@
     "error": "Something went wrong",
     "demoHint": "Demo mode: fill demo account",
     "demoFill": "Fill demo account",
-    "badCredentials": "Email or password is incorrect"
+    "badCredentials": "Email or password is incorrect",
+    "invalidEmail": "Invalid email format",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "nameTooLong": "Name must be at most 255 characters",
+    "emailRegistered": "This email is already registered"
   }
 }
