@@ -1,15 +1,17 @@
-import React from 'react';
-import { Skeleton, Empty, Button } from '@douyinfe/semi-ui';
+import React, { useState } from 'react';
+import { Skeleton, Empty, Button, Input, Toast, Avatar } from '@douyinfe/semi-ui';
+import { IconSearch } from '@douyinfe/semi-icons';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import HeroSection from '@/components/home/HeroSection';
-import ProjectCard from '@/components/home/ProjectCard';
-import ExamplePrompts from '@/components/home/ExamplePrompts';
-import type { ExamplePrompt } from '@/components/home/ExamplePrompts';
+import Logo from '@/components/ui/Logo';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import HeroSection from '@/components/home/HeroSection';
+import TemplateGrid from '@/components/home/TemplateGrid';
+import SidebarNav, { type ProjectFilter } from '@/components/home/SidebarNav';
+import ProjectCard from '@/components/home/ProjectCard';
 import { projectService } from '@/services/projectService';
-import { mockProjects } from '@/utils/mockData';
+import { mockProjects, mockTemplates, mockStorage } from '@/utils/mockData';
 import styles from './index.module.scss';
 
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
@@ -17,6 +19,8 @@ const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 const Home: React.FC = () => {
   const { t } = useAppTranslation();
   const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<ProjectFilter>('all');
 
   const { data, isLoading } = useQuery({
     queryKey: ['projects'],
@@ -25,61 +29,117 @@ const Home: React.FC = () => {
     enabled: !isMockMode,
   });
 
-  const projects = isMockMode ? mockProjects : (data || []);
+  const baseProjects = isMockMode ? mockProjects : (data || []);
+  const visibleProjects =
+    filter === 'team' || filter === 'trash'
+      ? []
+      : baseProjects.filter((p) => p.name.toLowerCase().includes(query.trim().toLowerCase()));
 
-  const examplePrompts: ExamplePrompt[] = [
-    { id: '1', text: '帮我剪一个 45 秒的纽约旅行 vlog，节奏轻快', labelKey: 'home.examplePrompt1' },
-    { id: '2', text: '做一个产品预告片，突出科技感', labelKey: 'home.examplePrompt2' },
-    { id: '3', text: '把这段海滩 footage 剪成 30 秒的治愈短片', labelKey: 'home.examplePrompt3' },
-  ];
+  const handleNavClick = (path: string | null) => {
+    if (path) {
+      navigate(path);
+    } else {
+      Toast.info(t('home.comingSoon'));
+    }
+  };
 
   return (
     <div className={styles.page}>
+      {/* 顶部导航：品牌 + 搜索 + 导航 + 头像 */}
       <header className={styles.navbar}>
-        <div className={styles.navLeft}>
-          <span className={styles.logoText}>WeaveClip</span>
-        </div>
-        <nav className={styles.navLinks}>
-          <button className={`${styles.navLink} ${styles.active}`} type="button">
+        <Link to="/" className={styles.brand}>
+          <Logo size="small" />
+          <span className={styles.brandName}>{t('common.appNameFull')}</span>
+        </Link>
+
+        <Input
+          className={styles.search}
+          prefix={<IconSearch />}
+          placeholder={t('home.searchPlaceholder')}
+          value={query}
+          onChange={(value) => setQuery(value)}
+          aria-label={t('home.searchPlaceholder')}
+        />
+
+        <nav className={styles.nav}>
+          <Button
+            theme="borderless"
+            className={`${styles.navLink} ${styles.navLinkActive}`}
+            onClick={() => handleNavClick('/')}
+          >
             {t('nav.home')}
-          </button>
-          <Link to="/projects" className={styles.navLink}>
+          </Button>
+          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick('/projects')}>
             {t('nav.projects')}
-          </Link>
+          </Button>
+          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick(null)}>
+            {t('nav.community')}
+          </Button>
+          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick(null)}>
+            {t('nav.tutorials')}
+          </Button>
+          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick(null)}>
+            {t('nav.pricing')}
+          </Button>
         </nav>
+
         <div className={styles.navRight}>
           <LanguageSwitcher />
-          <div className={styles.avatar}>U</div>
+          <Avatar size="default" className={styles.avatar}>
+            {t('home.ownerMe').charAt(0)}
+          </Avatar>
         </div>
       </header>
 
-      <HeroSection />
+      <main className={styles.main}>
+        <HeroSection />
 
-      <section className={styles.projects}>
-        <h2 className={styles.sectionTitle}>{t('home.recentProjects')}</h2>
-        {isLoading ? (
-          <div className={styles.skeletonGrid}>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className={styles.skeletonCard} />
-            ))}
-          </div>
-        ) : projects.length === 0 ? (
-          <div className={styles.emptyState}>
-            <Empty description={t('projects.empty')} />
-            <Button theme="solid" className={styles.emptyCta} onClick={() => navigate('/projects/new')}>
-              {t('home.ctaNewVideo')}
-            </Button>
-          </div>
-        ) : (
-          <div className={styles.projectGrid}>
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-        )}
-      </section>
+        <TemplateGrid templates={mockTemplates} />
 
-      <ExamplePrompts prompts={examplePrompts} />
+        <div className={styles.content}>
+          <SidebarNav
+            active={filter}
+            onSelect={setFilter}
+            usedGB={mockStorage.usedGB}
+            totalGB={mockStorage.totalGB}
+          />
+
+          <section className={styles.recent}>
+            <div className={styles.recentHeader}>
+              <h2 className={styles.sectionTitle}>{t('home.recentProjects')}</h2>
+              <Button
+                theme="borderless"
+                size="small"
+                className={styles.seeAll}
+                onClick={() => navigate('/projects')}
+              >
+                {t('common.seeAll')}
+              </Button>
+            </div>
+
+            {isLoading ? (
+              <div className={styles.projectGrid}>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className={styles.skeletonCard} />
+                ))}
+              </div>
+            ) : visibleProjects.length === 0 ? (
+              <div className={styles.emptyState}>
+                <Empty description={t('home.noResults')} />
+                <Button theme="solid" className={styles.emptyCta} onClick={() => navigate('/projects/new')}>
+                  {t('home.ctaNewVideo')}
+                </Button>
+              </div>
+            ) : (
+              <div className={styles.projectGrid}>
+                {visibleProjects.map((project) => (
+                  <ProjectCard key={project.id} project={project} />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      </main>
     </div>
   );
 };

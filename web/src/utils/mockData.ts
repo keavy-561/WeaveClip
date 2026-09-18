@@ -2,6 +2,7 @@ import type { Project } from '@/types/project';
 import type { Asset } from '@/types/asset';
 import type { VideoDSL } from '@/types/timeline';
 import type { ChatMessage } from '@/types/ai';
+import type { Template } from '@/types/template';
 
 // ============ Mock Projects ============
 
@@ -13,8 +14,10 @@ export const mockProjects: Project[] = [
     duration: 45,
     aspectRatio: '9:16',
     style: 'energetic',
+    resolution: '1080p',
+    frameRate: '60fps',
     createdAt: '2026-08-10T08:00:00Z',
-    updatedAt: '2026-08-10T12:00:00Z',
+    updatedAt: '2026-09-18T10:00:00Z',
     thumbnailUrl: '/src/assets/project-thumb-1.png',
   },
   {
@@ -24,8 +27,10 @@ export const mockProjects: Project[] = [
     duration: 30,
     aspectRatio: '16:9',
     style: 'cinematic',
+    resolution: '4K',
+    frameRate: '24fps',
     createdAt: '2026-08-08T14:00:00Z',
-    updatedAt: '2026-08-08T14:00:00Z',
+    updatedAt: '2026-09-17T14:00:00Z',
     thumbnailUrl: '/src/assets/project-thumb-2.png',
   },
   {
@@ -35,11 +40,53 @@ export const mockProjects: Project[] = [
     duration: 60,
     aspectRatio: '9:16',
     style: 'minimal',
+    resolution: '1080p',
+    frameRate: '30fps',
     createdAt: '2026-08-05T10:00:00Z',
-    updatedAt: '2026-08-05T16:00:00Z',
+    updatedAt: '2026-09-14T16:00:00Z',
     thumbnailUrl: '/src/assets/project-thumb-3.png',
   },
 ];
+
+// ============ Mock Templates ============
+
+export const mockTemplates: Template[] = [
+  {
+    id: 'tpl_1',
+    titleKey: 'home.templateTitle1',
+    tagKey: 'home.templateTag1',
+    promptKey: 'home.templatePrompt1',
+    tone: 'slate',
+  },
+  {
+    id: 'tpl_2',
+    titleKey: 'home.templateTitle2',
+    tagKey: 'home.templateTag2',
+    promptKey: 'home.templatePrompt2',
+    tone: 'rose',
+  },
+  {
+    id: 'tpl_3',
+    titleKey: 'home.templateTitle3',
+    tagKey: 'home.templateTag3',
+    promptKey: 'home.templatePrompt3',
+    tone: 'sage',
+  },
+  {
+    id: 'tpl_4',
+    titleKey: 'home.templateTitle4',
+    tagKey: 'home.templateTag4',
+    promptKey: 'home.templatePrompt4',
+    tone: 'steel',
+  },
+];
+
+// ============ Mock Storage ============
+
+export const mockStorage = {
+  usedGB: 45,
+  totalGB: 100,
+};
 
 // ============ Mock Assets ============
 

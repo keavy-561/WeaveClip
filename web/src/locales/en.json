@@ -35,13 +35,16 @@
     "content": "Content",
     "aiTools": "AI Tools",
     "text": "Text",
-    "brand": "Brand"
+    "brand": "Brand",
+    "community": "Community",
+    "tutorials": "Tutorials",
+    "pricing": "Pricing"
   },
   "home": {
     "heroTitle": "Talk to your footage.",
     "heroTitleAccent": "Get the video you want.",
     "heroSubtitle": "Tell AI what you need. It will pick the best clips, arrange the timeline, and generate your video. You stay in control of the final cut.",
-    "ctaNewVideo": "+ New Video",
+    "ctaNewVideo": "New Video",
     "recentProjects": "Recent Projects",
     "durationUnit": "s",
     "aspectRatio": "Aspect Ratio",
@@ -50,10 +53,34 @@
     "statusAnalyzing": "Analyzing",
     "statusGenerating": "Generating",
     "statusRendering": "Rendering",
-    "examplePromptsTitle": "Try these",
-    "examplePrompt1": "Help me cut a 45-second energetic NYC travel vlog",
-    "examplePrompt2": "Make a product teaser with a strong tech feel",
-    "examplePrompt3": "Turn this beach footage into a 30-second relaxing short"
+    "searchPlaceholder": "Search projects…",
+    "templatesTitle": "Trending AI Templates",
+    "allProjects": "All projects",
+    "myCloud": "My cloud",
+    "teamWorkspaces": "Team workspaces",
+    "trash": "Trash",
+    "storageTitle": "Storage",
+    "storageUsage": "{{used}}GB of {{total}}GB used",
+    "upgradePlan": "Upgrade plan",
+    "upgradeSoon": "Upgrade is coming soon",
+    "ownerMe": "Me",
+    "comingSoon": "Coming soon",
+    "noResults": "No matching projects",
+    "editedJustNow": "Edited just now",
+    "editedHoursAgo": "Edited {{hours}}h ago",
+    "editedDaysAgo": "Edited {{days}}d ago",
+    "templateTitle1": "Cyberpunk City",
+    "templateTitle2": "90s Film Look",
+    "templateTitle3": "Beat-Synced Short",
+    "templateTitle4": "Everyday Calm",
+    "templateTag1": "Cinematic",
+    "templateTag2": "Retro",
+    "templateTag3": "Short-form",
+    "templateTag4": "Vlog",
+    "templatePrompt1": "Turn my footage into a 45-second cinematic cyberpunk city short",
+    "templatePrompt2": "Edit the footage into a retro 90s-film-look short",
+    "templatePrompt3": "Make a 30-second beat-synced vertical short",
+    "templatePrompt4": "Cut my daily life footage into a calm, healing vlog"
   },
   "projects": {
     "title": "Projects",
@@ -229,6 +256,11 @@
       "proj_1": "NYC Travel Vlog",
       "proj_2": "Product Teaser",
       "proj_3": "Beach Day Video"
+    },
+    "style": {
+      "energetic": "Energetic",
+      "cinematic": "Cinematic",
+      "minimal": "Minimal"
     }
   },
   "theme": {

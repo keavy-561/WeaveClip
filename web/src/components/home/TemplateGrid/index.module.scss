@@ -1,0 +1,32 @@
+.section {
+  margin-bottom: 64px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 30px;
+  letter-spacing: -0.01em;
+  color: var(--color-on-surface);
+}
+
+.titleIcon {
+  color: var(--color-primary-fixed-dim);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

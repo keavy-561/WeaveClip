@@ -1,54 +1,51 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Tag } from '@douyinfe/semi-ui';
+import { Avatar } from '@douyinfe/semi-ui';
 import type { Project } from '@/types/project';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface ProjectCardProps {
   project: Project;
 }
 
-const statusColorMap: Record<string, 'violet' | 'green' | 'orange' | 'blue' | 'red'> = {
-  draft: 'violet',
-  ready: 'green',
-  analyzing: 'orange',
-  generating: 'blue',
-  rendering: 'red',
+const getEditedLabel = (
+  t: (key: string, options?: Record<string, unknown>) => string,
+  iso: string,
+): string => {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diffMs / 86_400_000);
+  if (days >= 1) return t('home.editedDaysAgo', { days });
+  const hours = Math.floor(diffMs / 3_600_000);
+  if (hours >= 1) return t('home.editedHoursAgo', { hours });
+  return t('home.editedJustNow');
 };
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+  const { t } = useAppTranslation();
+
   return (
-    <Link
-      to={`/editor/${project.id}`}
-      className={styles.card}
-      tabIndex={0}
-    >
-      <div className={styles.thumb}>
-        {project.thumbnailUrl ? (
-          <img src={project.thumbnailUrl} alt={project.name} />
-        ) : (
-          <div className={styles.thumbPlaceholder}>{project.name[0]}</div>
-        )}
-      </div>
+    <Link to={`/editor/${project.id}`} className={styles.card} tabIndex={0}>
       <div className={styles.body}>
+        <div className={styles.caption}>
+          <div className={styles.owner}>
+            <Avatar size="extra-small" className={styles.ownerAvatar}>
+              {t('home.ownerMe').charAt(0)}
+            </Avatar>
+            <span className={styles.ownerName}>{t('home.ownerMe')}</span>
+          </div>
+          <span className={styles.edited}>{getEditedLabel(t, project.updatedAt)}</span>
+        </div>
         <h3 className={styles.name}>{project.name}</h3>
-        <div className={styles.meta}>
-          <span className={styles.info}>{project.aspectRatio}</span>
-          <span className={styles.separator}>·</span>
-          <span className={styles.info}>
-            {project.duration ? `${project.duration}s` : '—'}
-          </span>
-          <span className={styles.separator}>·</span>
-          <span className={styles.info}>{project.style}</span>
+        <div className={styles.chips}>
+          <span className={styles.chip}>{project.resolution ?? '1080p'}</span>
+          <span className={styles.chip}>{project.frameRate ?? '60fps'}</span>
         </div>
-        <div className={styles.footer}>
-          <Tag color={statusColorMap[project.status] || 'primary'} size="large" className={styles.statusTag}>
-            {project.status}
-          </Tag>
-          <span className={styles.updatedAt}>
-            {new Date(project.updatedAt).toLocaleDateString()}
-          </span>
-        </div>
+      </div>
+      <div className={styles.footer}>
+        <span>{project.aspectRatio}</span>
+        <span>{project.duration ? `${project.duration}${t('home.durationUnit')}` : '—'}</span>
+        <span>{t(`mockData.style.${project.style}`, project.style)}</span>
       </div>
     </Link>
   );

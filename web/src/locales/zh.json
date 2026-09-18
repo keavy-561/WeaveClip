@@ -35,13 +35,16 @@
     "content": "内容",
     "aiTools": "AI 工具",
     "text": "文本",
-    "brand": "品牌"
+    "brand": "品牌",
+    "community": "社区",
+    "tutorials": "教程",
+    "pricing": "价格"
   },
   "home": {
     "heroTitle": "对着你的素材说话。",
     "heroTitleAccent": "得到你想要的视频。",
     "heroSubtitle": "告诉人工智能你的需求。它会挑选最佳片段，排列时间线，并生成你的视频。最终剪辑由你掌控。",
-    "ctaNewVideo": "+ 新视频",
+    "ctaNewVideo": "新视频",
     "recentProjects": "近期项目",
     "durationUnit": "秒",
     "aspectRatio": "画幅比例",
@@ -50,10 +53,34 @@
     "statusAnalyzing": "分析中",
     "statusGenerating": "生成中",
     "statusRendering": "渲染中",
-    "examplePromptsTitle": "试试这些",
-    "examplePrompt1": "帮我剪一个 45 秒的纽约旅行 vlog，节奏轻快",
-    "examplePrompt2": "做一个产品预告片，突出科技感",
-    "examplePrompt3": "把这段海滩 footage 剪成 30 秒的治愈短片"
+    "searchPlaceholder": "搜索项目…",
+    "templatesTitle": "热门 AI 灵感模板",
+    "allProjects": "所有项目",
+    "myCloud": "我的云端",
+    "teamWorkspaces": "团队协作",
+    "trash": "回收站",
+    "storageTitle": "存储空间",
+    "storageUsage": "已用 {{used}}GB / {{total}}GB",
+    "upgradePlan": "升级方案",
+    "upgradeSoon": "升级功能即将上线，敬请期待",
+    "ownerMe": "我",
+    "comingSoon": "该功能即将上线，敬请期待",
+    "noResults": "没有找到匹配的项目",
+    "editedJustNow": "刚刚编辑",
+    "editedHoursAgo": "{{hours}} 小时前编辑",
+    "editedDaysAgo": "{{days}} 天前编辑",
+    "templateTitle1": "赛博朋克都市",
+    "templateTitle2": "90年代胶片风",
+    "templateTitle3": "快节奏卡点",
+    "templateTitle4": "宁静日常",
+    "templateTag1": "电影感",
+    "templateTag2": "复古",
+    "templateTag3": "短视频",
+    "templateTag4": "Vlog",
+    "templatePrompt1": "帮我把素材剪成 45 秒的赛博朋克都市短片，电影质感",
+    "templatePrompt2": "把素材剪成 90 年代胶片感的复古短片",
+    "templatePrompt3": "做一个 30 秒的快节奏卡点短视频",
+    "templatePrompt4": "把生活素材剪成一段宁静治愈的 Vlog"
   },
   "projects": {
     "title": "项目",
@@ -229,6 +256,11 @@
       "proj_1": "纽约旅行Vlog",
       "proj_2": "产品预告",
       "proj_3": "海滩日记录像"
+    },
+    "style": {
+      "energetic": "精力充沛",
+      "cinematic": "电影",
+      "minimal": "最低限度"
     }
   },
   "theme": {
