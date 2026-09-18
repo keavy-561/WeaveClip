@@ -78,11 +78,39 @@ func runMigrations(db *gorm.DB) error {
 
 // MustConnect is like Connect but exits the process on failure in non-mock mode.
 func MustConnect(cfg *config.Config) *gorm.DB {
-	db, err := Connect(cfg)
+	return MustConnectWithOptions(cfg, true)
+}
+
+// MustConnectWithOptions 连接数据库；migrate=false 时跳过迁移（worker 进程用，
+// 避免 server/worker 并发冷启动时在 pg 目录表上产生唯一约束冲突）。
+func MustConnectWithOptions(cfg *config.Config, migrate bool) *gorm.DB {
+	if migrate {
+		db, err := Connect(cfg)
+		if err != nil {
+			slog.Error("database connection required but failed", "error", err)
+			fmt.Fprintf(os.Stderr, "FATAL: %v\n", err)
+			os.Exit(1)
+		}
+		return db
+	}
+
+	if isMockMode() {
+		slog.Warn("MOCK_MODE enabled, skipping database connection")
+		return nil
+	}
+	db, err := gorm.Open(postgres.Open(cfg.DSN()), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Warn),
+	})
 	if err != nil {
 		slog.Error("database connection required but failed", "error", err)
 		fmt.Fprintf(os.Stderr, "FATAL: %v\n", err)
 		os.Exit(1)
+	}
+	sqlDB, dbErr := db.DB()
+	if dbErr == nil {
+		sqlDB.SetMaxOpenConns(20)
+		sqlDB.SetMaxIdleConns(5)
+		sqlDB.SetConnMaxLifetime(time.Hour)
 	}
 	return db
 }
