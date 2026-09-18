@@ -269,3 +269,14 @@ export const mockProjectStore: Project[] = [...mockProjects];
 export const addMockProject = (project: Project) => {
   mockProjectStore.unshift(project);
 };
+
+export const updateMockProject = (id: string, patch: Partial<Project>): Project | null => {
+  const index = mockProjectStore.findIndex((p) => p.id === id);
+  if (index === -1) return null;
+  mockProjectStore[index] = {
+    ...mockProjectStore[index],
+    ...patch,
+    updatedAt: new Date().toISOString(),
+  };
+  return mockProjectStore[index];
+};

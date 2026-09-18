@@ -214,6 +214,11 @@
       "duplicateScenes": "duplicate scenes",
       "ready": "Your footage is ready."
     },
+    "analyze": {
+      "degradedTip": "Analysis service unavailable, using local preview",
+      "failedTitle": "Analysis failed",
+      "retry": "Retry"
+    },
     "upload": {
       "step": "Upload",
       "title": "Create new video",

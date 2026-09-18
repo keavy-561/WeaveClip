@@ -73,6 +73,33 @@ type CreateProjectReq struct {
 	Style       string `json:"style"`
 }
 
+// UpdateProjectReq 仅更新传入的非空字段
+type UpdateProjectReq struct {
+	Name        *string `json:"name"`
+	Status      *string `json:"status"`
+	Duration    *int    `json:"duration"`
+	AspectRatio *string `json:"aspectRatio"`
+	Style       *string `json:"style"`
+}
+
+func applyProjectUpdate(p *model.Project, req UpdateProjectReq) {
+	if req.Name != nil {
+		p.Name = *req.Name
+	}
+	if req.Status != nil {
+		p.Status = *req.Status
+	}
+	if req.Duration != nil {
+		p.Duration = *req.Duration
+	}
+	if req.AspectRatio != nil {
+		p.AspectRatio = *req.AspectRatio
+	}
+	if req.Style != nil {
+		p.Style = *req.Style
+	}
+}
+
 // List GET /api/projects
 func (h *ProjectHandler) List(c *gin.Context) {
 	userID, _ := c.Get("user_id")
@@ -157,6 +184,53 @@ func (h *ProjectHandler) Get(c *gin.Context) {
 	}
 	if project.UserID != uid {
 		NotFound(c, "project not found")
+		return
+	}
+	OK(c, gin.H{"project": project})
+}
+
+// Update PATCH /api/projects/:id
+func (h *ProjectHandler) Update(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		BadRequest(c, "invalid project id")
+		return
+	}
+
+	var req UpdateProjectReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		BadRequest(c, "invalid request body")
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	uid, _ := userID.(uint)
+
+	if h.db == nil {
+		mockProjectOnce.Do(initMockProjectStore)
+		for i := range mockProjectStore {
+			if mockProjectStore[i].UserID == uid && uint64(mockProjectStore[i].ID) == id {
+				applyProjectUpdate(&mockProjectStore[i], req)
+				OK(c, gin.H{"project": mockProjectStore[i]})
+				return
+			}
+		}
+		NotFound(c, "project not found")
+		return
+	}
+
+	var project model.Project
+	if err := h.db.First(&project, id).Error; err != nil {
+		NotFound(c, "project not found")
+		return
+	}
+	if project.UserID != uid {
+		NotFound(c, "project not found")
+		return
+	}
+	applyProjectUpdate(&project, req)
+	if err := h.db.Save(&project).Error; err != nil {
+		InternalError(c, "failed to update project")
 		return
 	}
 	OK(c, gin.H{"project": project})

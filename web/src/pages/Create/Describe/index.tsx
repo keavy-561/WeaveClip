@@ -8,16 +8,19 @@ import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
 import DescribeForm from '@/components/create/DescribeForm';
 import type { DescribeFormValues } from '@/components/create/DescribeForm';
-import { addMockProject } from '@/utils/mockData';
+import { addMockProject, updateMockProject } from '@/utils/mockData';
 import styles from './index.module.scss';
 
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
+
+type ProjectPayload = { name: string; duration?: number; aspectRatio?: string; style?: string };
 
 const Describe: React.FC = () => {
   const { t } = useAppTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const projectId = searchParams.get('projectId');
   const [values, setValues] = useState<DescribeFormValues>({
     prompt: '',
     duration: 45,
@@ -44,10 +47,21 @@ const Describe: React.FC = () => {
   }, [searchParams, location.state]);
 
   const createMutation = useMutation({
-    mutationFn: (payload: { name: string; duration?: number; aspectRatio?: string; style?: string }) =>
-      projectService.create(payload),
+    mutationFn: (payload: ProjectPayload) => projectService.create(payload),
     onSuccess: (project) => {
       navigate(`/editor/${project.id}`);
+    },
+    onError: () => {
+      Toast.error(t('create.describe.error', 'Failed to create project'));
+      setIsGenerating(false);
+    },
+  });
+
+  // 从分析页进入时更新已创建的项目（描述阶段提交即保存项目资料）
+  const updateMutation = useMutation({
+    mutationFn: (payload: ProjectPayload) => projectService.update(projectId ?? '', payload),
+    onSuccess: () => {
+      navigate(`/editor/${projectId}`);
     },
     onError: () => {
       Toast.error(t('create.describe.error', 'Failed to create project'));
@@ -66,36 +80,54 @@ const Describe: React.FC = () => {
     if (Object.keys(newErrors).length > 0) return;
 
     setIsGenerating(true);
+    const payload: ProjectPayload = {
+      name: values.prompt.trim().slice(0, 30) || 'Untitled',
+      duration: values.duration,
+      aspectRatio: values.format,
+      style: values.style,
+    };
 
+    // 从分析页进入：更新已创建的项目，避免产生重复项目
+    if (projectId) {
+      if (isMockMode) {
+        const updated = updateMockProject(projectId, { ...payload, status: 'ready' });
+        if (!updated) {
+          Toast.error(t('create.describe.error', 'Failed to create project'));
+          setIsGenerating(false);
+          return;
+        }
+        navigate(`/editor/${projectId}`);
+        return;
+      }
+      updateMutation.mutate(payload);
+      return;
+    }
+
+    // 直达描述页（如模板卡片）：沿用本地创建流程
     if (isMockMode) {
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
       }
       timerRef.current = window.setTimeout(() => {
-        const projectId = `proj_${Date.now()}`;
+        const newProjectId = `proj_${Date.now()}`;
         addMockProject({
-          id: projectId,
-          name: values.prompt.slice(0, 30) || 'Untitled',
+          id: newProjectId,
+          name: payload.name ?? 'Untitled',
           status: 'ready',
-          duration: values.duration,
-          aspectRatio: values.format,
-          style: values.style,
+          duration: payload.duration ?? null,
+          aspectRatio: payload.aspectRatio ?? '9:16',
+          style: payload.style ?? 'energetic',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           thumbnailUrl: '/src/assets/project-thumb-1.png',
         });
-        navigate(`/editor/${projectId}`);
+        navigate(`/editor/${newProjectId}`);
         timerRef.current = null;
       }, 1500);
       return;
     }
 
-    createMutation.mutate({
-      name: values.prompt.slice(0, 30) || 'Untitled',
-      duration: values.duration,
-      aspectRatio: values.format,
-      style: values.style,
-    });
+    createMutation.mutate(payload);
   };
 
   return (
@@ -106,7 +138,7 @@ const Describe: React.FC = () => {
             icon={<IconArrowLeft />}
             theme="borderless"
             className={styles.backBtn}
-            onClick={() => navigate('/projects/new')}
+            onClick={() => (projectId ? navigate(-1) : navigate('/projects/new'))}
           />
           <Logo size="small" />
         </div>

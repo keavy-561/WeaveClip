@@ -203,3 +203,89 @@ func TestProjectHandler_Delete(t *testing.T) {
 		assert.Equal(t, 404, w.Code)
 	})
 }
+
+func TestProjectHandler_Update(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	t.Run("update existing project", func(t *testing.T) {
+		ResetMockProjectStoreForTest()
+		h := setupProject(t)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request = JSONRequest(t, "PATCH", "/api/projects/1", map[string]any{
+			"name":        "Updated Name",
+			"status":      "ready",
+			"duration":    60,
+			"aspectRatio": "16:9",
+			"style":       "minimal",
+		})
+		c.Set("user_id", uint(1))
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+
+		h.Update(c)
+
+		assert.Equal(t, 200, w.Code)
+
+		var resp map[string]any
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("failed to parse response: %v", err)
+		}
+		project, ok := resp["project"].(map[string]any)
+		if !ok {
+			t.Fatal("expected project in response")
+		}
+		assert.Equal(t, "Updated Name", project["name"])
+		assert.Equal(t, "ready", project["status"])
+		assert.Equal(t, float64(60), project["duration"])
+		assert.Equal(t, "16:9", project["aspectRatio"])
+		assert.Equal(t, "minimal", project["style"])
+	})
+
+	t.Run("partial update only touches provided fields", func(t *testing.T) {
+		ResetMockProjectStoreForTest()
+		h := setupProject(t)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request = JSONRequest(t, "PATCH", "/api/projects/1", map[string]any{
+			"name": "Only Name Changed",
+		})
+		c.Set("user_id", uint(1))
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+
+		h.Update(c)
+
+		assert.Equal(t, 200, w.Code)
+
+		var resp map[string]any
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("failed to parse response: %v", err)
+		}
+		project, ok := resp["project"].(map[string]any)
+		if !ok {
+			t.Fatal("expected project in response")
+		}
+		assert.Equal(t, "Only Name Changed", project["name"])
+		// 未传入字段保持原值：seed 项目 1 初始状态为 ready
+		assert.Equal(t, "ready", project["status"])
+		assert.Equal(t, float64(45), project["duration"])
+	})
+
+	t.Run("update non-existent project", func(t *testing.T) {
+		ResetMockProjectStoreForTest()
+		h := setupProject(t)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request = JSONRequest(t, "PATCH", "/api/projects/999", map[string]any{
+			"name": "Ghost",
+		})
+		c.Set("user_id", uint(1))
+		c.Params = gin.Params{{Key: "id", Value: "999"}}
+
+		h.Update(c)
+
+		assert.Equal(t, 404, w.Code)
+	})
+}

@@ -18,6 +18,15 @@ export const projectService = {
     return data.project;
   },
 
+  /** PATCH /api/projects/:id */
+  update: async (
+    id: string,
+    payload: { name?: string; duration?: number; aspectRatio?: string; style?: string; status?: Project['status'] }
+  ): Promise<Project> => {
+    const { data } = await api.patch<{ project: Project }>(`/projects/${id}`, payload);
+    return data.project;
+  },
+
   /** GET /api/projects/:id */
   get: async (id: string): Promise<Project> => {
     const { data } = await api.get<{ project: Project }>(`/projects/${id}`);

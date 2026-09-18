@@ -4,71 +4,76 @@ import { mockAnalyzeResult } from '@/utils/mockData';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
-interface AnalyzeProgressProps {
-  onComplete: () => void;
+export interface AnalyzeControlledState {
+  /** 已完成的分析步骤数（0-5） */
+  doneSteps: number;
+  completed: boolean;
 }
 
-type CheckItem = {
-  label: string;
-  done: boolean;
-};
+interface AnalyzeProgressProps {
+  onComplete: () => void;
+  /** 受控模式：由真实分析引擎驱动进度；缺省时本地自动模拟 */
+  controlled?: AnalyzeControlledState;
+}
 
-const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete }) => {
+const STEP_TOTAL = 5;
+
+const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete, controlled }) => {
   const { t } = useAppTranslation();
-  const [steps, setSteps] = useState<CheckItem[]>([
-    { label: t('create.analyzeProgress.clipsAnalyzed'), done: false },
-    { label: t('create.analyzeProgress.speakersDetected'), done: false },
-    { label: t('create.analyzeProgress.transcriptGenerated'), done: false },
-    { label: t('create.analyzeProgress.scenesIdentified'), done: false },
-    { label: t('create.analyzeProgress.bestMomentsFound'), done: false },
-  ]);
-  const [allDone, setAllDone] = useState(false);
+  const [autoDone, setAutoDone] = useState(0);
 
-  // Mock 分析流程：每 600ms 完成一步
+  // 本地模拟：每 600ms 完成一步（仅非受控模式）
   useEffect(() => {
-    let step = 0;
+    if (controlled) return;
     const timer = setInterval(() => {
-      step += 1;
-      setSteps((prev) =>
-        prev.map((s, i) => (i < step ? { ...s, done: true } : s))
-      );
-      if (step >= steps.length) {
-        clearInterval(timer);
-        setAllDone(true);
-      }
+      setAutoDone((done) => {
+        if (done >= STEP_TOTAL) {
+          clearInterval(timer);
+          return done;
+        }
+        return done + 1;
+      });
     }, 600);
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [controlled]);
+
+  const doneSteps = controlled ? controlled.doneSteps : autoDone;
+  const allDone = controlled ? controlled.completed : autoDone >= STEP_TOTAL;
 
   useEffect(() => {
     if (allDone) {
-      const t = setTimeout(onComplete, 1200);
-      return () => clearTimeout(t);
+      const timer = setTimeout(onComplete, 1200);
+      return () => clearTimeout(timer);
     }
   }, [allDone, onComplete]);
 
   const summary = mockAnalyzeResult.summary;
+  const labels = [
+    t('create.analyzeProgress.clipsAnalyzed'),
+    t('create.analyzeProgress.speakersDetected'),
+    t('create.analyzeProgress.transcriptGenerated'),
+    t('create.analyzeProgress.scenesIdentified'),
+    t('create.analyzeProgress.bestMomentsFound'),
+  ];
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>{t('create.analyzeProgress.title')}</h2>
 
       <div className={styles.checklist}>
-        {steps.map((step) => (
-          <div key={step.label} className={styles.checkItem}>
-            <span
-              className={`${styles.checkIcon} ${step.done ? styles.done : styles.pending}`}
-            >
-              {step.done ? <IconTick /> : <span className={styles.dot} />}
-            </span>
-            <span
-              className={`${styles.checkLabel} ${step.done ? styles.labelDone : ''}`}
-            >
-              {step.done ? step.label : t('create.analyzeProgress.ready')}
-            </span>
-          </div>
-        ))}
+        {labels.map((label, index) => {
+          const done = index < doneSteps;
+          return (
+            <div key={label} className={styles.checkItem}>
+              <span className={`${styles.checkIcon} ${done ? styles.done : styles.pending}`}>
+                {done ? <IconTick /> : <span className={styles.dot} />}
+              </span>
+              <span className={`${styles.checkLabel} ${done ? styles.labelDone : ''}`}>
+                {label}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {allDone && (

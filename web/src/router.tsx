@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Projects from '@/pages/Projects';
 import Upload from '@/pages/Create/Upload';
+import Analyze from '@/pages/Create/Analyze';
 import Describe from '@/pages/Create/Describe';
 import Editor from '@/pages/Editor/[projectId]';
 import Login from '@/pages/Login';
@@ -21,6 +22,11 @@ const Router: React.FC = () => {
       <Route path="/projects/new" element={
         <RequireAuth>
           <Upload />
+        </RequireAuth>
+      } />
+      <Route path="/projects/new/analyze" element={
+        <RequireAuth>
+          <Analyze />
         </RequireAuth>
       } />
       <Route path="/projects/new/describe" element={

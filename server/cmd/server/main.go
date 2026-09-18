@@ -87,6 +87,7 @@ func main() {
 			projects.GET("", projectHandler.List)
 			projects.POST("", projectHandler.Create)
 			projects.GET("/:id", projectHandler.Get)
+			projects.PATCH("/:id", projectHandler.Update)
 			projects.DELETE("/:id", projectHandler.Delete)
 			projects.GET("/:id/assets", assetHandler.List)
 			projects.POST("/:id/assets", assetHandler.Create)

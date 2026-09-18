@@ -214,6 +214,11 @@
       "duplicateScenes": "重复场景",
       "ready": "素材已就绪"
     },
+    "analyze": {
+      "degradedTip": "分析服务暂时不可用，已切换为本地模拟",
+      "failedTitle": "分析失败",
+      "retry": "重试"
+    },
     "upload": {
       "step": "上传",
       "title": "创建新视频",

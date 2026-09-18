@@ -8,7 +8,10 @@ import type { FileItemData } from '@/components/create/FileList';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
+import { addMockProject } from '@/utils/mockData';
 import styles from './index.module.scss';
+
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const Upload: React.FC = () => {
   const { t } = useAppTranslation();
@@ -18,7 +21,7 @@ const Upload: React.FC = () => {
     mutationFn: (payload: { name: string; duration?: number; aspectRatio?: string; style?: string }) =>
       projectService.create(payload),
     onSuccess: (project) => {
-      navigate(`/editor/${project.id}`);
+      navigate(`/projects/new/analyze?projectId=${project.id}`);
     },
     onError: () => {
       Toast.error(t('create.upload.error', 'Failed to create project'));
@@ -27,12 +30,31 @@ const Upload: React.FC = () => {
 
   const handleContinue = (files: FileItemData[]) => {
     const totalDuration = files.reduce((sum, f) => sum + (f.duration ?? 0), 0);
-    createMutation.mutate({
+    const payload = {
       name: files[0]?.fileName ?? 'Untitled Project',
       duration: totalDuration > 0 ? Math.round(totalDuration) : undefined,
       aspectRatio: '9:16',
       style: 'energetic',
-    });
+    };
+
+    // 后端未就绪时降级为本地项目创建，之后统一进分析页
+    if (isMockMode) {
+      const projectId = `proj_${Date.now()}`;
+      addMockProject({
+        id: projectId,
+        name: payload.name,
+        status: 'analyzing',
+        duration: payload.duration ?? null,
+        aspectRatio: payload.aspectRatio,
+        style: payload.style,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      navigate(`/projects/new/analyze?projectId=${projectId}`);
+      return;
+    }
+
+    createMutation.mutate(payload);
   };
 
   return (
