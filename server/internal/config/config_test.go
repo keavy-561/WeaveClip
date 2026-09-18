@@ -36,7 +36,9 @@ database:
   password: ${DB_PASSWORD}
 `)
 	// 隔离 CI 环境变量（overrideFromEnv 会覆盖同名字段）
-	t.Setenv("DATABASE_HOST", "")
+	for _, key := range []string{"DATABASE_HOST", "DATABASE_PORT", "DATABASE_USER", "DATABASE_PASSWORD", "DATABASE_DBNAME", "DATABASE_SSLMODE"} {
+		t.Setenv(key, "")
+	}
 	t.Setenv("DB_HOST", "db.example.com")
 	t.Setenv("DB_PORT", "6543")
 	t.Setenv("DB_PASSWORD", "p@ss:word")
@@ -50,6 +52,7 @@ database:
 
 func TestLoad_UnsetPlaceholderKeptLiteral(t *testing.T) {
 	t.Setenv("DATABASE_HOST", "")
+	t.Setenv("DATABASE_PORT", "")
 	writeTestConfig(t, `
 server:
   port: 8080

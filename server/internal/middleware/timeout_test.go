@@ -48,6 +48,8 @@ func TestRequestTimeout_SlowHandler(t *testing.T) {
 func TestRequestTimeout_PanicRecovered(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
+	// 模拟真实装配：Recovery 在超时中间件之上，panic 仍能被恢复
+	r.Use(gin.Recovery())
 	r.Use(RequestTimeout(time.Second))
 	r.GET("/panic", func(c *gin.Context) {
 		panic("boom")
