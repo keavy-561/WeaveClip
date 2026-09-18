@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/weaveclip/server/internal/queue"
 	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/storage"
+	"github.com/weaveclip/server/internal/ws"
 )
 
 // worker 独立进程：消费 Asynq 队列中的分析/渲染任务（工单 B14/B16）。
@@ -58,6 +60,17 @@ func main() {
 		Tools:   tools,
 		ToolsOK: toolsOK,
 		LLM:     llmClient,
+	})
+	// 渲染任务：进度经 Redis pub/sub 推给 server 的 WebSocket Hub
+	jobs.HandleRender(q, jobs.RenderDeps{
+		Renders:  repository.NewGormRenderRepo(db),
+		Store:    store,
+		Tools:    tools,
+		ToolsOK:  toolsOK,
+		Notify:   ws.RedisNotifier(cfg.Redis.Addr),
+		LoadTimeline: func(projectID uint, version int) ([]byte, error) {
+			return nil, fmt.Errorf("timeline not in payload")
+		},
 	})
 
 	slog.Info("worker starting", "redis", cfg.Redis.Addr, "env", env)

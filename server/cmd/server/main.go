@@ -18,6 +18,7 @@ import (
 	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
 	"github.com/weaveclip/server/internal/storage"
+	"github.com/weaveclip/server/internal/ws"
 )
 
 func main() {
@@ -163,6 +164,41 @@ func main() {
 	analyzeService := service.NewAnalyzeService(taskRepo, projectService, assetRepo, taskQueue)
 	analyzeHandler := handler.NewAnalyzeHandler(analyzeService)
 
+	// 渲染链路 + WebSocket（B18/B19）
+	hub := ws.NewHub()
+	var renderRepo repository.RenderRepository
+	if db != nil {
+		renderRepo = repository.NewGormRenderRepo(db)
+	} else {
+		renderRepo = repository.NewMockRenderRepo()
+	}
+	var renderNotifier ws.RenderNotifier
+	if database.IsMockMode() {
+		// mock 内联执行：Hub 本进程直推
+		renderNotifier = hub.Broadcast
+	} else {
+		// worker 跨进程执行：Redis pub/sub → 桥接 → Hub
+		renderNotifier = ws.RedisNotifier(cfg.Redis.Addr)
+		go ws.StartRedisBridge(cfg.Redis.Addr, hub)
+	}
+	jobs.HandleRender(taskQueue, jobs.RenderDeps{
+		Renders: renderRepo,
+		Store:   store,
+		Tools:   tools,
+		ToolsOK: toolsOK,
+		Notify:  renderNotifier,
+		LoadTimeline: func(projectID uint, version int) ([]byte, error) {
+			t, err := timelineService.GetVersionInternal(projectID, version)
+			if err != nil {
+				return nil, err
+			}
+			return []byte(t.TimelineJSON), nil
+		},
+	})
+	renderService := service.NewRenderService(renderRepo, projectService, timelineService, assetRepo, taskQueue)
+	renderHandler := handler.NewRenderHandler(renderService)
+	wsHandler := handler.NewWSHandler(hub, renderRepo, projectService)
+
 	// 路由注册
 	api := r.Group("/api")
 	{
@@ -200,13 +236,16 @@ func main() {
 			projects.POST("/:id/chat", chatHandler.Chat)
 			projects.POST("/:id/analyze", analyzeHandler.Start)
 			projects.GET("/:id/analysis", analyzeHandler.Status)
-
-			// Phase 4: analyze / Phase 5: render 接入后补充
+			projects.POST("/:id/render", renderHandler.Start)
 		}
 		api.GET("/assets/:id", middleware.Auth(), assetHandler.Get)
 		api.DELETE("/assets/:id", middleware.Auth(), assetHandler.Delete)
 		api.GET("/generations/:id", middleware.Auth(), generateHandler.Get)
+		api.GET("/renders/:id", middleware.Auth(), renderHandler.Get)
 	}
+
+	// WebSocket 渲染进度（D2 裁定路径）
+	r.GET("/ws/render/:renderId", middleware.WSQueryAuth(), wsHandler.Render)
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	slog.Info("server starting", "addr", addr, "env", env, "mode", cfg.Server.Mode)

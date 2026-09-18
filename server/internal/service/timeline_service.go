@@ -47,6 +47,11 @@ func (s *TimelineService) GetVersion(projectID, userID uint, version int) (*mode
 	if _, err := s.proj.GetProject(projectID, userID); err != nil {
 		return nil, ErrProjectNotFound
 	}
+	return s.GetVersionInternal(projectID, version)
+}
+
+// GetVersionInternal 内部按版本取时间线（渲染管线使用，已在上层校验属主）。
+func (s *TimelineService) GetVersionInternal(projectID uint, version int) (*model.Timeline, error) {
 	timeline, err := s.timelines.GetVersion(projectID, version)
 	if err != nil {
 		return nil, ErrTimelineNotFound

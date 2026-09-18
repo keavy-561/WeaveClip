@@ -43,6 +43,7 @@ type DSLClip struct {
 	Volume     *float64       `json:"volume,omitempty"`
 	Brightness *float64       `json:"brightness,omitempty"`
 	Contrast   *float64       `json:"contrast,omitempty"`
+	Transition string         `json:"transition,omitempty"` // 与下一片段间的转场：fade|wipeleft|slideup 等（xfade）
 	Text       string         `json:"text,omitempty"`
 	Extra      map[string]any `json:"-"`
 }

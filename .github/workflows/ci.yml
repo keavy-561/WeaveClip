@@ -107,6 +107,7 @@ jobs:
           bash tests/smoke/timeline.sh
           bash tests/smoke/ai.sh
           bash tests/smoke/analyze.sh
+          bash tests/smoke/render.sh
           kill "$SERVER_PID" || true
           kill "$WORKER_PID" || true
           wait "$SERVER_PID" 2>/dev/null || true
