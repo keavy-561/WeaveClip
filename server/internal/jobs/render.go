@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -76,6 +77,7 @@ func HandleRender(q *queue.Queue, deps RenderDeps) {
 }
 
 func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
+	slog.Info("render task received", "payloadBytes", len(payload))
 	var p renderPayload
 	if err := json.Unmarshal(payload, &p); err != nil {
 		return fmt.Errorf("decode render payload: %w", err)

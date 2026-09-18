@@ -37,9 +37,9 @@ func NewMinioStorage(cfg config.StorageConfig) (*MinioStorage, error) {
 	s := &MinioStorage{client: client, bucket: cfg.Bucket, region: cfg.Region}
 	// bucket 就绪探测带重试：CI/容器编排里 MinIO 服务可能晚于本进程就绪
 	var lastErr error
-	for attempt := 0; attempt < 5; attempt++ {
+	for attempt := 0; attempt < 12; attempt++ {
 		if attempt > 0 {
-			time.Sleep(time.Duration(attempt) * time.Second)
+			time.Sleep(time.Duration(attempt%4+1) * time.Second)
 		}
 		if err := s.ensureBucket(context.Background()); err != nil {
 			lastErr = err

@@ -93,6 +93,14 @@ jobs:
           MOCK_MODE: false
         run: |
           set -euo pipefail
+          echo "Waiting for MinIO service..."
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:9000/minio/health/live > /dev/null; then
+              echo "MinIO ready"
+              break
+            fi
+            sleep 1
+          done
           ./bin/server &
           SERVER_PID=$!
           ./bin/worker &

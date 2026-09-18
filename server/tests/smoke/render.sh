@@ -58,7 +58,7 @@ fi
 
 echo "-> poll GET /api/renders/$RENDER_ID"
 STATUS="queued"
-for i in $(seq 1 90); do
+for i in $(seq 1 150); do
   poll=$(curl -s -X GET "$BASE/api/renders/$RENDER_ID" -H "$AUTH")
   STATUS=$(echo "$poll" | jq -r '.status')
   if [ "$STATUS" != "queued" ] && [ "$STATUS" != "pending" ] && [ "$STATUS" != "rendering" ]; then

@@ -28,6 +28,10 @@ func FetchObject(ctx context.Context, store storage.Storage, key string, maxByte
 		return "", nil, fmt.Errorf("fetch object %s: %w", key, err)
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
+		return "", nil, fmt.Errorf("fetch object %s: unexpected status %d", key, resp.StatusCode)
+	}
 
 	tmp, err := os.CreateTemp("", "weaveclip-obj-*"+filepath.Ext(key))
 	if err != nil {
