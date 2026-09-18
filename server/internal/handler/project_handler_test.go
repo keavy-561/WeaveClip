@@ -8,13 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/weaveclip/server/internal/repository"
 )
 
 func TestProjectHandler_List(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("list projects in mock mode for user 1", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -47,7 +48,7 @@ func TestProjectHandler_List(t *testing.T) {
 	})
 
 	t.Run("empty list for non-existent user", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -81,7 +82,7 @@ func TestProjectHandler_Create(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("create project successfully", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -111,7 +112,7 @@ func TestProjectHandler_Create(t *testing.T) {
 	})
 
 	t.Run("create project with missing name", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -129,7 +130,7 @@ func TestProjectHandler_Get(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("get existing seeded project", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -155,7 +156,7 @@ func TestProjectHandler_Get(t *testing.T) {
 	})
 
 	t.Run("get non-existent project", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -174,7 +175,7 @@ func TestProjectHandler_Delete(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("delete existing seeded project", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -189,7 +190,7 @@ func TestProjectHandler_Delete(t *testing.T) {
 	})
 
 	t.Run("delete non-existent project", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -208,7 +209,7 @@ func TestProjectHandler_Update(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("update existing project", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -243,7 +244,7 @@ func TestProjectHandler_Update(t *testing.T) {
 	})
 
 	t.Run("partial update only touches provided fields", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()
@@ -273,7 +274,7 @@ func TestProjectHandler_Update(t *testing.T) {
 	})
 
 	t.Run("update non-existent project", func(t *testing.T) {
-		ResetMockProjectStoreForTest()
+		repository.ResetMockProjectStore()
 		h := setupProject(t)
 
 		w := httptest.NewRecorder()

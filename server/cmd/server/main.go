@@ -45,11 +45,22 @@ func main() {
 
 	// HTTP 服务
 	r := gin.New()
-	r.Use(gin.Recovery(), middleware.Recover(), middleware.RequestID(), middleware.Logger(), middleware.CORS(cfg.CORS.AllowedOrigins), middleware.Security())
+	r.Use(gin.Recovery(), middleware.Recover(), middleware.RequestID(), middleware.Logger(),
+		middleware.CORS(cfg.CORS.AllowedOrigins), middleware.Security(),
+		middleware.RequestTimeout(cfg.EffectiveRequestTimeout()))
 
 	// Handlers
 	healthHandler := handler.NewHealthHandler()
-	projectHandler := handler.NewProjectHandler(db)
+
+	// Project 仓库 + 服务（分层治理：handler 不再直连 DB）
+	var projectRepo repository.ProjectRepository
+	if db != nil {
+		projectRepo = repository.NewGormProjectRepo(db)
+	} else {
+		projectRepo = repository.NewMockProjectRepo()
+	}
+	projectService := service.NewProjectService(projectRepo)
+	projectHandler := handler.NewProjectHandler(projectService)
 
 	var userRepo service.UserRepository
 	if db != nil {
@@ -66,7 +77,7 @@ func main() {
 	} else {
 		assetRepo = repository.NewMockAssetRepo(handler.MockAssets())
 	}
-	assetService := service.NewAssetService(assetRepo, projectHandler)
+	assetService := service.NewAssetService(assetRepo, projectService)
 	assetHandler := handler.NewAssetHandler(assetService)
 
 	// 路由注册

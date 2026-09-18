@@ -12,6 +12,7 @@ import (
 	"github.com/weaveclip/server/internal/config"
 	"github.com/weaveclip/server/internal/middleware"
 	"github.com/weaveclip/server/internal/model"
+	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
 )
 
@@ -62,7 +63,8 @@ func setupAuth(t *testing.T) *AuthHandler {
 
 func setupProject(t *testing.T) *ProjectHandler {
 	t.Helper()
-	return NewProjectHandler(nil) // nil db = mock mode
+	// mock 仓库 = 进程内存储，行为与 MOCK_MODE 下一致
+	return NewProjectHandler(service.NewProjectService(repository.NewMockProjectRepo()))
 }
 
 func JSONRequest(t *testing.T, method, url string, body any) *http.Request {
