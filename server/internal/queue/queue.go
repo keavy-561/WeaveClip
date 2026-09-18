@@ -91,7 +91,7 @@ func (q *Queue) RunWorker() error {
 	if q.mock {
 		return fmt.Errorf("queue: worker not available in mock mode")
 	}
-	srv := asynq.NewServer(q.redisOpt, asynq.ServerOpts{
+	srv := asynq.NewServer(q.redisOpt, asynq.Config{
 		Concurrency: 2,
 		Queues: map[string]int{
 			TypeAnalyze: 5,

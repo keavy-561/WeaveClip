@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"gorm.io/datatypes"
+
 	"github.com/weaveclip/server/internal/ai"
 	"github.com/weaveclip/server/internal/model"
 	"github.com/weaveclip/server/internal/repository"
@@ -97,9 +99,9 @@ func (s *ChatService) Chat(projectID, userID uint, message, selectedClipID strin
 	_ = s.edits.Create(&model.Edit{
 		ProjectID:  projectID,
 		Message:    message,
-		Operation:  opJSON,
-		BeforeJSON: json.RawMessage(latest.TimelineJSON),
-		AfterJSON:  raw,
+		Operation:  datatypes.JSON(opJSON),
+		BeforeJSON: datatypes.JSON(latest.TimelineJSON),
+		AfterJSON:  datatypes.JSON(raw),
 	})
 	return result, nil
 }
