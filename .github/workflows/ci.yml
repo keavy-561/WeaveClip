@@ -68,7 +68,9 @@ jobs:
         run: go test -race ./...
       - name: Build
         working-directory: server
-        run: go build -o bin/server ./cmd/server
+        run: |
+          go build -o bin/server ./cmd/server
+          go build -o bin/worker ./cmd/worker
       - name: Smoke tests
         working-directory: server
         env:
@@ -89,6 +91,8 @@ jobs:
           set -euo pipefail
           ./bin/server &
           SERVER_PID=$!
+          ./bin/worker &
+          WORKER_PID=$!
           for i in $(seq 1 60); do
             if curl -sf http://localhost:8080/api/health > /dev/null; then
               echo "Server ready"
@@ -102,8 +106,11 @@ jobs:
           bash tests/smoke/upload.sh
           bash tests/smoke/timeline.sh
           bash tests/smoke/ai.sh
+          bash tests/smoke/analyze.sh
           kill "$SERVER_PID" || true
+          kill "$WORKER_PID" || true
           wait "$SERVER_PID" 2>/dev/null || true
+          wait "$WORKER_PID" 2>/dev/null || true
 
   frontend:
     runs-on: ubuntu-latest

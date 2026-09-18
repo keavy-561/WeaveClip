@@ -11,7 +11,10 @@ import (
 	"github.com/weaveclip/server/internal/config"
 	"github.com/weaveclip/server/internal/database"
 	"github.com/weaveclip/server/internal/handler"
+	"github.com/weaveclip/server/internal/jobs"
+	"github.com/weaveclip/server/internal/media"
 	"github.com/weaveclip/server/internal/middleware"
+	"github.com/weaveclip/server/internal/queue"
 	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
 	"github.com/weaveclip/server/internal/storage"
@@ -46,28 +49,14 @@ func main() {
 	db := database.MustConnect(cfg)
 
 	// 对象存储（B05）：优先 MinIO；不可用或 mock 模式回落本地磁盘存储
-	var store storage.Storage
-	if db != nil && cfg.Storage.Endpoint != "" {
-		ms, err := storage.NewMinioStorage(cfg.Storage)
-		if err != nil {
-			slog.Warn("minio init failed, fallback to local disk storage", "error", err)
-		} else {
-			store = ms
-		}
+	mockRoot := os.Getenv("MOCK_STORAGE_DIR")
+	if mockRoot == "" {
+		mockRoot = "./.mock-storage"
 	}
-	var mockStorageRoot string
-	if store == nil {
-		root := os.Getenv("MOCK_STORAGE_DIR")
-		if root == "" {
-			root = "./.mock-storage"
-		}
-		ls, err := storage.NewLocalDiskStorage(root, os.Getenv("MOCK_STORAGE_PUBLIC_BASE"))
-		if err != nil {
-			slog.Error("local storage init failed", "error", err)
-			os.Exit(1)
-		}
-		store = ls
-		mockStorageRoot = ls.Root()
+	store, mockStorageRoot, err := storage.Init(cfg.Storage, mockRoot, os.Getenv("MOCK_STORAGE_PUBLIC_BASE"), slog.Default())
+	if err != nil {
+		slog.Error("storage init failed", "error", err)
+		os.Exit(1)
 	}
 
 	// HTTP 服务
@@ -149,6 +138,31 @@ func main() {
 	chatService := service.NewChatService(projectService, assetRepo, timelineService, editRepo, llmClient)
 	chatHandler := handler.NewChatHandler(chatService)
 
+	// 异步任务队列（B14/B15）：mock 模式内联执行，真实模式仅入队由 worker 消费
+	var taskQueue *queue.Queue
+	if database.IsMockMode() {
+		taskQueue = queue.New("") // 空地址 = 内联执行器
+	} else {
+		taskQueue = queue.New(cfg.Redis.Addr)
+	}
+	var taskRepo repository.TaskResultRepository
+	if db != nil {
+		taskRepo = repository.NewGormTaskResultRepo(db)
+	} else {
+		taskRepo = repository.NewMockTaskResultRepo()
+	}
+	tools, toolsOK := media.LookupTools(cfg.FFmpeg.FFprobePath, cfg.FFmpeg.BinaryPath)
+	jobs.Register(taskQueue, jobs.Deps{
+		Tasks:   taskRepo,
+		Assets:  assetRepo,
+		Store:   store,
+		Tools:   tools,
+		ToolsOK: toolsOK,
+		LLM:     llmClient,
+	})
+	analyzeService := service.NewAnalyzeService(taskRepo, projectService, assetRepo, taskQueue)
+	analyzeHandler := handler.NewAnalyzeHandler(analyzeService)
+
 	// 路由注册
 	api := r.Group("/api")
 	{
@@ -184,6 +198,8 @@ func main() {
 			projects.PUT("/:id/timeline", timelineHandler.Save)
 			projects.POST("/:id/generate", generateHandler.Start)
 			projects.POST("/:id/chat", chatHandler.Chat)
+			projects.POST("/:id/analyze", analyzeHandler.Start)
+			projects.GET("/:id/analysis", analyzeHandler.Status)
 
 			// Phase 4: analyze / Phase 5: render 接入后补充
 		}
