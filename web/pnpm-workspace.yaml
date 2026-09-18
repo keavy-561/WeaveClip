@@ -1,3 +1,9 @@
+# Single-package project (root importer = `.`). The `packages` field is
+# required by pnpm 9, otherwise `pnpm install` fails with
+# "packages field missing or empty".
+packages:
+  - '.'
+
 allowBuilds:
   '@parcel/watcher': true
   canvas: true
