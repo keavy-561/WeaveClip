@@ -48,6 +48,8 @@ jobs:
           go-version: '1.23'
       - name: Resolve server deps
         working-directory: server
+        env:
+          GOTOOLCHAIN: local
         run: go mod tidy
       - name: Vet
         working-directory: server
@@ -146,6 +148,8 @@ jobs:
           go-version: '1.23'
       - name: Resolve server deps
         working-directory: server
+        env:
+          GOTOOLCHAIN: local
         run: go mod tidy
       - name: Lint backend
         uses: golangci/golangci-lint-action@v6

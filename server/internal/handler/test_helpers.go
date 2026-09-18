@@ -6,10 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/weaveclip/server/internal/config"
 	"github.com/weaveclip/server/internal/middleware"
 	"github.com/weaveclip/server/internal/model"
 	"github.com/weaveclip/server/internal/repository"
@@ -96,23 +94,3 @@ func ParseResponse[T any](t *testing.T, w *httptest.ResponseRecorder) T {
 	return result
 }
 
-// TestConfig returns a test config
-func TestConfig() *config.Config {
-	return &config.Config{
-		Server: struct {
-			Port         int           `yaml:"port"`
-			Mode         string        `yaml:"mode"`
-			RequestTimeout time.Duration `yaml:"request_timeout"`
-		}{
-			Port:     8080,
-			Mode:     gin.TestMode,
-		},
-		JWT: struct {
-			Secret string        `yaml:"secret"`
-			Expiry time.Duration `yaml:"expiry"`
-		}{
-			Secret: "test_secret",
-			Expiry: 0,
-		},
-	}
-}
