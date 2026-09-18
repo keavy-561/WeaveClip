@@ -34,7 +34,8 @@ func main() {
 		return
 	}
 
-	db := database.MustConnect(cfg)
+	// worker 不跑迁移：迁移由 server 负责，避免并发冷启动冲突
+	db := database.MustConnectWithOptions(cfg, false)
 	store, _, err := storage.Init(cfg.Storage, "./.worker-storage", "", slog.Default())
 	if err != nil {
 		slog.Error("storage init failed", "error", err)
