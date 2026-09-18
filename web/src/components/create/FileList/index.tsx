@@ -31,7 +31,7 @@ const FileList: React.FC<FileListProps> = ({ files, onRemove }) => {
     <div className={styles.fileSection}>
       <div className={styles.fileSummary}>
         <span className={styles.summaryCount}>
-          {files.length} {t('create.fileList.count', files.length === 1 ? 'file' : 'files')}
+          {t('create.fileList.count', { count: files.length })}
         </span>
         {files.some((f) => f.duration) && (
           <span className={styles.summaryDuration}>

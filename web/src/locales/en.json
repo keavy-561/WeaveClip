@@ -99,6 +99,9 @@
       "projectName": "Project Name",
       "aspectRatio": "16:9"
     },
+    "panel": {
+      "developing": "{{tool}} is under development"
+    },
     "mediaPanel": {
       "title": "Media",
       "library": "Library",
@@ -140,6 +143,11 @@
       "text": "Text",
       "volume": "Volume",
       "audio": "Audio",
+      "effectType": "Effect Type",
+      "effectNone": "None",
+      "mono": "Mono",
+      "vintage": "Vintage",
+      "captionOnly": "Select a clip on the caption track",
       "selectClip": "Select a clip to inspect"
     },
     "timeline": {
@@ -227,6 +235,9 @@
       "formats": "MP4 / MOV / JPG / PNG",
       "continue": "Continue",
       "noFiles": "Please upload at least one file",
+      "rejectedFiles": "{{count}} file(s) rejected: {{details}}",
+      "unsupportedFormat": "unsupported format",
+      "exceedsSize": "exceeds 500MB",
       "error": "Failed to create project"
     },
     "describe": {
@@ -243,6 +254,9 @@
       "styleStorytelling": "Storytelling",
       "generate": "Generate",
       "generating": "Generating...",
+      "needUpload": "Please upload your footage first",
+      "goUpload": "Upload footage first",
+      "charCount": "{{count}}/500",
       "error": "Failed to create project",
       "validation": {
         "required": "Please describe what you want",
@@ -253,7 +267,7 @@
       "step": "Generate"
     },
     "fileList": {
-      "count": "{{count}} file",
+      "count": "{{count}} file(s)",
       "totalDuration": "Total duration"
     }
   },

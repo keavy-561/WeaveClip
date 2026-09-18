@@ -82,6 +82,15 @@
   border-radius: 1px;
 }
 
+// 片段真实缩略图（asset.thumbnailUrl 存在时铺满整段）
+.filmstripImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .waveform {
   position: absolute;
   inset: 0;

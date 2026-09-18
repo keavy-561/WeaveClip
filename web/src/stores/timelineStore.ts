@@ -1,5 +1,21 @@
 import { create } from 'zustand';
 import type { Clip, Track, VideoDSL } from '@/types/timeline';
+import { useAssetsStore } from '@/stores/assetsStore';
+import { mockAssets } from '@/utils/mockData';
+
+/** 历史快照：保存恢复时间轴所需的最小字段 */
+interface DSLSnapshot {
+  tracks: Track[];
+  duration: number;
+}
+
+/** 历史栈上限，防止长会话内存无限增长 */
+const HISTORY_LIMIT = 50;
+
+interface UpdateClipOptions {
+  /** 跳过历史快照（用于 Trim 拖拽等连续更新场景，拖拽开始时手动 push 一次即可） */
+  skipHistory?: boolean;
+}
 
 interface TimelineState {
   clips: Clip[];
@@ -9,6 +25,12 @@ interface TimelineState {
   currentTime: number;
   duration: number;
   zoom: number;
+  /** 撤销栈（过去快照，栈顶为最近一次变更前的状态） */
+  past: DSLSnapshot[];
+  /** 重做栈（未来快照，栈顶为最近一次撤销前的状态） */
+  future: DSLSnapshot[];
+  canUndo: boolean;
+  canRedo: boolean;
 
   // Actions
   setDSL: (dsl: VideoDSL) => void;
@@ -17,11 +39,23 @@ interface TimelineState {
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setZoom: (zoom: number) => void;
-  updateClip: (clipId: string, updates: Partial<Clip>) => void;
+  updateClip: (clipId: string, updates: Partial<Clip>, options?: UpdateClipOptions) => void;
   deleteClip: (clipId: string) => void;
   reorderClips: (clipIds: string[]) => void;
   splitClip: (clipId: string, splitPoint: number) => void;
+  /** 在视频轨道的指定时间点创建新 clip（素材拖入时间轴） */
+  addClip: (assetId: string, startTime: number) => void;
+  /** 手动压入一条快照（Trim 拖拽开始时调用，保证一次拖拽只占一条历史） */
+  pushHistory: () => void;
+  undo: () => void;
+  redo: () => void;
 }
+
+/** 生成当前状态的快照 */
+const takeSnapshot = (tracks: Track[], duration: number): DSLSnapshot => ({
+  tracks,
+  duration,
+});
 
 export const useTimelineStore = create<TimelineState>((set) => ({
   clips: [],
@@ -31,12 +65,24 @@ export const useTimelineStore = create<TimelineState>((set) => ({
   currentTime: 0,
   duration: 45,
   zoom: 1,
+  past: [],
+  future: [],
+  canUndo: false,
+  canRedo: false,
 
   setDSL: (dsl) =>
-    set({
-      tracks: dsl.tracks,
-      duration: dsl.duration,
-      clips: dsl.tracks.flatMap((t) => t.clips),
+    set((state) => {
+      // 变更前压入快照，支持撤销回加载前的时间轴
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
+      return {
+        past,
+        future: [],
+        canUndo: past.length > 0,
+        canRedo: false,
+        tracks: dsl.tracks,
+        duration: dsl.duration,
+        clips: dsl.tracks.flatMap((t) => t.clips),
+      };
     }),
 
   selectClip: (clipId) => set({ selectedClipId: clipId }),
@@ -49,8 +95,12 @@ export const useTimelineStore = create<TimelineState>((set) => ({
 
   setZoom: (zoom) => set({ zoom: Math.max(0.1, Math.min(5, zoom)) }),
 
-  updateClip: (clipId, updates) =>
+  updateClip: (clipId, updates, options) =>
     set((state) => {
+      // 连续拖拽场景由调用方在开始时手动 pushHistory，这里按需跳过
+      const past = options?.skipHistory
+        ? state.past
+        : [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
       const newTracks = state.tracks.map((track) => ({
         ...track,
         clips: track.clips.map((c) =>
@@ -58,6 +108,10 @@ export const useTimelineStore = create<TimelineState>((set) => ({
         ),
       }));
       return {
+        past,
+        future: [],
+        canUndo: past.length > 0,
+        canRedo: false,
         tracks: newTracks,
         clips: newTracks.flatMap((t) => t.clips),
       };
@@ -65,11 +119,16 @@ export const useTimelineStore = create<TimelineState>((set) => ({
 
   deleteClip: (clipId) =>
     set((state) => {
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
       const newTracks = state.tracks.map((track) => ({
         ...track,
         clips: track.clips.filter((c) => c.id !== clipId),
       }));
       return {
+        past,
+        future: [],
+        canUndo: past.length > 0,
+        canRedo: false,
         tracks: newTracks,
         clips: newTracks.flatMap((t) => t.clips),
         selectedClipId:
@@ -85,10 +144,23 @@ export const useTimelineStore = create<TimelineState>((set) => ({
       const clipMap = new Map(videoTrack.clips.map((c) => [c.id, c]));
       const reorderedClips = clipIds.map((id) => clipMap.get(id)!).filter(Boolean);
 
+      // 按新顺序从 0 开始连续重排 start，保证拖拽换位在时间轴上真正生效
+      let cursor = 0;
+      const packed = reorderedClips.map((clip) => {
+        const next = { ...clip, start: cursor };
+        cursor += clip.duration;
+        return next;
+      });
+
       const newTracks = state.tracks.map((track) =>
-        track.type === 'video' ? { ...track, clips: reorderedClips } : track
+        track.type === 'video' ? { ...track, clips: packed } : track
       );
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
       return {
+        past,
+        future: [],
+        canUndo: past.length > 0,
+        canRedo: false,
         tracks: newTracks,
         clips: newTracks.flatMap((t) => t.clips),
       };
@@ -96,6 +168,7 @@ export const useTimelineStore = create<TimelineState>((set) => ({
 
   splitClip: (clipId, splitPoint) =>
     set((state) => {
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
       const newTracks = state.tracks.map((track) => {
         const targetClip = track.clips.find((c) => c.id === clipId);
         if (!targetClip) return track;
@@ -120,8 +193,98 @@ export const useTimelineStore = create<TimelineState>((set) => ({
         return { ...track, clips };
       });
       return {
+        past,
+        future: [],
+        canUndo: past.length > 0,
+        canRedo: false,
         tracks: newTracks,
         clips: newTracks.flatMap((t) => t.clips),
+      };
+    }),
+
+  addClip: (assetId, startTime) =>
+    set((state) => {
+      const videoTrack = state.tracks.find((t) => t.type === 'video');
+      if (!videoTrack) return state;
+
+      // 优先从 assetsStore 查素材时长，查不到回退 mockAssets，最后给默认值
+      const storedAssets = useAssetsStore.getState().assets;
+      const asset =
+        storedAssets.find((a) => a.id === assetId) ??
+        mockAssets.find((a) => a.id === assetId);
+      const duration = asset?.duration ?? 5;
+
+      const newClip: Clip = {
+        id: `clip_${Date.now()}`,
+        assetId,
+        start: Math.max(0, startTime),
+        duration,
+        sourceStart: 0,
+        sourceDuration: duration,
+      };
+      // 插入后按开始时间排序，保持轨道内片段时序
+      const clips = [...videoTrack.clips, newClip].sort((a, b) => a.start - b.start);
+      const newTracks = state.tracks.map((track) =>
+        track.type === 'video' ? { ...track, clips } : track
+      );
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
+      return {
+        past,
+        future: [],
+        canUndo: past.length > 0,
+        canRedo: false,
+        tracks: newTracks,
+        clips: newTracks.flatMap((t) => t.clips),
+        selectedClipId: newClip.id,
+      };
+    }),
+
+  pushHistory: () =>
+    set((state) => {
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
+      return { past, future: [], canUndo: past.length > 0, canRedo: false };
+    }),
+
+  undo: () =>
+    set((state) => {
+      if (state.past.length === 0) return state;
+      const previous = state.past[state.past.length - 1];
+      const future = [takeSnapshot(state.tracks, state.duration), ...state.future].slice(0, HISTORY_LIMIT);
+      return {
+        past: state.past.slice(0, -1),
+        future,
+        canUndo: state.past.length > 1,
+        canRedo: true,
+        tracks: previous.tracks,
+        duration: previous.duration,
+        clips: previous.tracks.flatMap((t) => t.clips),
+        // 撤销后选中的片段可能已不存在，做一次兜底清理
+        selectedClipId: previous.tracks.some((t) =>
+          t.clips.some((c) => c.id === state.selectedClipId)
+        )
+          ? state.selectedClipId
+          : null,
+      };
+    }),
+
+  redo: () =>
+    set((state) => {
+      if (state.future.length === 0) return state;
+      const next = state.future[0];
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
+      return {
+        past,
+        future: state.future.slice(1),
+        canUndo: past.length > 0,
+        canRedo: state.future.length > 1,
+        tracks: next.tracks,
+        duration: next.duration,
+        clips: next.tracks.flatMap((t) => t.clips),
+        selectedClipId: next.tracks.some((t) =>
+          t.clips.some((c) => c.id === state.selectedClipId)
+        )
+          ? state.selectedClipId
+          : null,
       };
     }),
 }));

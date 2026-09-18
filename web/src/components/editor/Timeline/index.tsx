@@ -9,6 +9,7 @@ import {
 } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useEditorUIStore } from '@/stores/editorUIStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { formatTime } from '@/utils/format';
 import Track from './Track';
@@ -31,7 +32,12 @@ const Timeline: React.FC = () => {
     setZoom,
     deleteClip,
     splitClip,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useTimelineStore();
+  const setActiveTool = useEditorUIStore((s) => s.setActiveTool);
   const { t } = useAppTranslation();
 
   const pxPerSec = PX_PER_SEC * zoom;
@@ -59,8 +65,24 @@ const Timeline: React.FC = () => {
       {/* 工具头 */}
       <div className={styles.toolHeader}>
         <div className={styles.toolHeaderLeft}>
-          <Button icon={<IconUndo />} theme="borderless" size="small" className={styles.iconBtn} aria-label={t('common.undo')} />
-          <Button icon={<IconRedo />} theme="borderless" size="small" className={styles.iconBtn} aria-label={t('common.redo')} />
+          <Button
+            icon={<IconUndo />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            disabled={!canUndo}
+            onClick={undo}
+            aria-label={t('common.undo')}
+          />
+          <Button
+            icon={<IconRedo />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            disabled={!canRedo}
+            onClick={redo}
+            aria-label={t('common.redo')}
+          />
           <span className={styles.divider} />
           <Button
             icon={<IconScissors />}
@@ -80,11 +102,13 @@ const Timeline: React.FC = () => {
             onClick={handleDelete}
             aria-label={t('editor.timeline.deleteClip')}
           />
+          {/* 打开左侧媒体面板（与 SideNavBar 共用 editorUIStore 状态） */}
           <Button
             icon={<IconImage />}
             theme="borderless"
             size="small"
             className={styles.iconBtn}
+            onClick={() => setActiveTool('media')}
             aria-label={t('editor.timeline.addMedia')}
           />
         </div>
