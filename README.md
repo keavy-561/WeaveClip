@@ -4,7 +4,7 @@
 
 <br/>
 
-# WeaveClip <sub>CutPilot</sub>
+# WeaveClip · 织影
 
 ### 🎬 Talk to your footage. Get the video you mean.
 ### 对着你的素材说话，得到你想要的视频。
@@ -21,9 +21,9 @@
 
 ---
 
-**WeaveClip（CutPilot）** 是一个 **AI Native 视频剪辑助手**。用自然语言描述你想要的视频效果，AI 自动从原始素材中剪辑、拼接并渲染出成片。
+**WeaveClip（织影）** 是一个 **AI Native 视频剪辑助手**。用自然语言描述你想要的视频效果，AI 自动从原始素材中剪辑、拼接并渲染出成片。
 
-WeaveClip (CutPilot) is an **AI-native video editing assistant**. Describe your vision in plain language — AI automatically selects clips, assembles a timeline, and renders your final video.
+WeaveClip is an **AI-native video editing assistant**. Describe your vision in plain language — AI automatically selects clips, assembles a timeline, and renders your final video.
 
 <div align="center">
 <img src="doc/images/editor-mockup.png" alt="WeaveClip Editor Interface" width="90%" />
