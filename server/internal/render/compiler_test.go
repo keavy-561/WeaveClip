@@ -48,7 +48,7 @@ func TestCompile_Concat(t *testing.T) {
 	args := plan.Steps[0].Args
 	joined := strings.Join(args, " ")
 	// 三个输入：两个视频 + 一个循环背景音乐
-	assert.Equal(t, 6, countFlag(args, "-i"))
+	assert.Equal(t, 3, countFlag(args, "-i"))
 	assert.Contains(t, joined, "concat=n=2:v=1:a=0")
 	assert.Contains(t, joined, "eq:brightness") // c1 带 brightness 参数
 	assert.Contains(t, joined, "subtitles=")

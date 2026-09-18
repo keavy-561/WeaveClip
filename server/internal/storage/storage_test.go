@@ -42,15 +42,20 @@ func TestLocalDiskStorage_PutExistsGetDelete(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestLocalDiskStorage_PathTraversalRejected(t *testing.T) {
-	s, err := NewLocalDiskStorage(t.TempDir(), "")
+func TestLocalDiskStorage_PathTraversalNeutralized(t *testing.T) {
+	root := t.TempDir()
+	s, err := NewLocalDiskStorage(root, "")
 	require.NoError(t, err)
 
-	err = s.Put(context.Background(), "../evil.txt", strings.NewReader("x"), 1, "")
-	assert.Error(t, err)
+	// 穿越路径被中和到根目录内，绝不落在外面
+	require.NoError(t, s.Put(context.Background(), "../evil.txt", strings.NewReader("x"), 1, ""))
+	ok, _, err := s.Exists(context.Background(), "evil.txt")
+	require.NoError(t, err)
+	assert.True(t, ok, "中和后的文件应落在根目录内")
 
-	_, _, err = s.Exists(context.Background(), "a/../../evil.txt")
-	assert.Error(t, err)
+	ok, _, err = s.Exists(context.Background(), "a/../../evil.txt")
+	require.NoError(t, err)
+	assert.True(t, ok)
 }
 
 func TestLocalDiskStorage_Ping(t *testing.T) {

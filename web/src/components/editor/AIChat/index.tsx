@@ -76,7 +76,7 @@ const AIChat: React.FC = () => {
         });
         // 服务端已应用 operations 并落库新版本，这里同步本地时间轴
         if (resp.timeline?.timelineJson) {
-          setDSL(backendToFront(resp.timeline.timelineJson as Parameters<typeof backendToFront>[0]));
+          setDSL(backendToFront(resp.timeline.timelineJson as unknown as Parameters<typeof backendToFront>[0]));
         }
       })
       .catch((error) => {

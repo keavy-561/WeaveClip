@@ -122,7 +122,7 @@ const Upload: React.FC = () => {
               {t('create.upload.uploadingProgress', { done: uploadState.done, total: uploadState.total, pct: uploadState.pct })}
             </span>
             <div className={styles.uploadingBar}>
-              <Progress percent={uploadState.pct} showInput />
+              <Progress percent={uploadState.pct} />
             </div>
           </div>
         ) : (

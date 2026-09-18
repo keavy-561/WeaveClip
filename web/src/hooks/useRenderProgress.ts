@@ -23,10 +23,8 @@ export const useRenderProgress = (renderId: string | null): RenderProgressState 
     if (!renderId) return;
     let ws: WebSocket | null = null;
     let pollTimer = 0;
-    let stopped = false;
 
     const stopAll = () => {
-      stopped = true;
       if (pollTimer) window.clearInterval(pollTimer);
       ws?.close();
       ws = null;

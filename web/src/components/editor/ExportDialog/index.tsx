@@ -108,7 +108,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ projectId, visible, onClose
           ) : (
             <>
               <p className={styles.progressText}>{t('editor.export.rendering', 'Rendering...')}</p>
-              <Progress percent={progress} showInput />
+              <Progress percent={progress} />
             </>
           )}
         </div>
