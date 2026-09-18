@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,7 @@ func (h *WSHandler) Render(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	messages, cancel := h.hub.Subscribe(renderID)
+	messages, cancel := h.hub.Subscribe(fmt.Sprintf("%d", renderID))
 	defer cancel()
 
 	// 读泵：仅检测客户端断开

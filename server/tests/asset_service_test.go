@@ -41,6 +41,16 @@ func (r *fakeAssetRepo) Create(asset *model.Asset) error {
 	return nil
 }
 
+func (r *fakeAssetRepo) Update(asset *model.Asset) error {
+	for i := range r.assets {
+		if r.assets[i].ID == asset.ID {
+			r.assets[i] = *asset
+			return nil
+		}
+	}
+	return nil
+}
+
 func (r *fakeAssetRepo) Delete(id uint) error {
 	for i, a := range r.assets {
 		if a.ID == id {

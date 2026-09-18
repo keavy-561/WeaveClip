@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -56,7 +57,12 @@ func (h *MockStorageHandler) put(c *gin.Context, key string) {
 		InternalError(c, "failed to create directory")
 		return
 	}
-	if err := os.WriteFile(p, c.Request.Body, 0o644); err != nil {
+	data, readErr := io.ReadAll(io.LimitReader(c.Request.Body, 600<<20))
+	if readErr != nil {
+		InternalError(c, "failed to read request body")
+		return
+	}
+	if err := os.WriteFile(p, data, 0o644); err != nil {
 		InternalError(c, "failed to write object")
 		return
 	}
