@@ -20,6 +20,12 @@ body {
 // 默认浅色 Morandi Minimal 主题
 :root {
   color-scheme: light;
+  background-color: var(--color-background);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
 }
 
 #root {

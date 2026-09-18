@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import UploadStep from '@/components/create/UploadStep';
 import type { FileItemData } from '@/components/create/FileList';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -55,9 +54,7 @@ const Upload: React.FC = () => {
           <span className={styles.stepDivider}>—</span>
           <span className={styles.step}>3 {t('create.generate.step', 'Generate')}</span>
         </div>
-        <div className={styles.navRight}>
-          <ThemeToggle />
-        </div>
+        <div className={styles.navRight} />
       </header>
 
       <main className={styles.main}>

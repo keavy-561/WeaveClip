@@ -7,7 +7,6 @@ import HeroSection from '@/components/home/HeroSection';
 import ProjectCard from '@/components/home/ProjectCard';
 import ExamplePrompts from '@/components/home/ExamplePrompts';
 import type { ExamplePrompt } from '@/components/home/ExamplePrompts';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { projectService } from '@/services/projectService';
 import { mockProjects } from '@/utils/mockData';
@@ -49,7 +48,6 @@ const Home: React.FC = () => {
           </Link>
         </nav>
         <div className={styles.navRight}>
-          <ThemeToggle />
           <LanguageSwitcher />
           <div className={styles.avatar}>U</div>
         </div>

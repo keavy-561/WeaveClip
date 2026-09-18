@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Button, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
@@ -118,9 +117,7 @@ const Describe: React.FC = () => {
           <span className={styles.stepDivider}>—</span>
           <span className={styles.step}>3 {t('create.generate.step', 'Generate')}</span>
         </div>
-        <div className={styles.navRight}>
-          <ThemeToggle />
-        </div>
+        <div className={styles.navRight} />
       </header>
 
       <main className={styles.main}>

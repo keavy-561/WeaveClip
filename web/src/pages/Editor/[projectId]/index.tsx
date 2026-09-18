@@ -16,7 +16,6 @@ import VideoPlayer from '@/components/editor/VideoPlayer';
 import Timeline from '@/components/editor/Timeline';
 import InspectorPanel from '@/components/editor/InspectorPanel';
 import ToolSidebar from '@/components/editor/ToolSidebar';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useProjectStore } from '@/stores/projectStore';
 import { useTimelineStore } from '@/stores/timelineStore';
@@ -150,7 +149,6 @@ const Editor: React.FC = () => {
             {t('editor.header.aspectRatio')}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
-          <ThemeToggle />
           <LanguageSwitcher />
           <Button
             icon={<IconUndo />}

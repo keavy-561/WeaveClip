@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { IconArrowLeft, IconPlus, IconMore, IconDelete } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { projectService } from '@/services/projectService';
 import { mockProjects } from '@/utils/mockData';
@@ -63,7 +62,6 @@ const Projects: React.FC = () => {
           <h2 className={styles.title}>{t('projects.title')}</h2>
         </div>
         <div className={styles.navRight}>
-          <ThemeToggle />
           <LanguageSwitcher />
           <Button theme="solid" size="small" icon={<IconPlus />} onClick={() => navigate('/projects/new')}>
             {t('projects.newVideo')}

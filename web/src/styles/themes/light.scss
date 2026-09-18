@@ -1,58 +1,38 @@
-// 浅色主题
+// Light Morandi 主题（浅色唯一，doc/design-system.md §2.1）
 //
-// 与 dark.scss 同理：主题变量必须声明在 html + body 层级，
-// 才能覆盖 Semi Design base.css 声明在 body 上的默认浅色变量。
-:root[data-theme='light'],
-:root[data-theme='light'] body {
-  --semi-color-bg-0: #f6f7f9;
+// 主题变量必须声明在 html + body 层级，才能覆盖
+// Semi Design base.css 声明在 body 上的默认变量。
+:root,
+:root body {
+  --semi-color-bg-0: #f5f5f7;
   --semi-color-bg-1: #ffffff;
-  --semi-color-bg-2: #eef0f3;
-  --semi-color-bg-3: #e2e5e9;
-  --semi-color-bg-4: #d3d7dd;
+  --semi-color-bg-2: #f0f0f2;
+  --semi-color-bg-3: #e4e4e7;
+  --semi-color-bg-4: #d4d4d8;
 
-  --semi-color-border: #e2e5e9;
-  --semi-color-border-1: #d3d7dd;
+  --semi-color-border: #e4e4e7;
+  --semi-color-border-1: #d4d4d8;
   --semi-color-border-2: #a8aeb8;
 
-  --semi-color-primary: #7c3aed;
-  --semi-color-primary-hover: #6d28d9;
-  --semi-color-primary-active: #5b21b6;
-  --semi-color-primary-light-default: rgba(124, 58, 237, 0.08);
-  --semi-color-primary-light-hover: rgba(124, 58, 237, 0.14);
-  --semi-color-primary-light-active: rgba(124, 58, 237, 0.06);
+  --semi-color-primary: #506070;
+  --semi-color-primary-hover: #384857;
+  --semi-color-primary-active: #2d3a45;
+  --semi-color-primary-light-default: rgba(80, 96, 112, 0.1);
+  --semi-color-primary-light-hover: rgba(80, 96, 112, 0.16);
+  --semi-color-primary-light-active: rgba(80, 96, 112, 0.06);
 
-  --semi-color-text-0: #16161a;
-  --semi-color-text-1: #4c4c55;
-  --semi-color-text-2: #8a8a94;
-  --semi-color-text-3: #b6b6bf;
+  --semi-color-text-0: #1b1c1a;
+  --semi-color-text-1: #43474c;
+  --semi-color-text-2: #74777c;
+  --semi-color-text-3: #a1a1aa;
 
   --semi-color-success: #16a34a;
   --semi-color-warning: #d97706;
   --semi-color-danger: #dc2626;
   --semi-color-info: #0284c7;
 
-  --semi-color-focus-border: #7c3aed;
+  --semi-color-focus-border: #506070;
 
   --semi-color-shadow: rgba(0, 0, 0, 0.08);
-
-  // Custom semantic tokens
-  --color-ai-accent: #7c3aed;
-  --color-ai-glow: rgba(124, 58, 237, 0.20);
-
-  // Brand tokens（对齐设计稿 "织影 WeaveClip Logo"：slate 灰蓝徽章 + 亮色编织纹）
-  --color-logo-bg: #8899a7;
-  --color-logo-weave: #ffffff;
-
-  // Editor tokens
-  --color-editor-bg: #eef0f3;
-  --color-editor-surface: #ffffff;
-  --color-editor-border: #e2e5e9;
-
-  // Timeline tokens
-  --color-timeline-bg: #ffffff;
-  --color-timeline-clip-bg: #dcdfe5;
-  --color-timeline-clip-selected: rgba(124, 58, 237, 0.25);
-  --color-timeline-playhead: #16161a;
-  --color-timeline-ruler: #c8ccd4;
-  --color-timeline-track: #f0f2f5;
+  --semi-shadow-elevated: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
