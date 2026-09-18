@@ -108,6 +108,16 @@ func main() {
 		cfg.FFmpeg.FFprobePath, cfg.FFmpeg.BinaryPath)
 	assetHandler := handler.NewAssetHandler(assetService, uploadService)
 
+	// Timeline 版本化持久化（B09）
+	var timelineRepo repository.TimelineRepository
+	if db != nil {
+		timelineRepo = repository.NewGormTimelineRepo(db)
+	} else {
+		timelineRepo = repository.NewMockTimelineRepo()
+	}
+	timelineService := service.NewTimelineService(timelineRepo, projectService)
+	timelineHandler := handler.NewTimelineHandler(timelineService)
+
 	// 路由注册
 	api := r.Group("/api")
 	{
@@ -138,6 +148,9 @@ func main() {
 			projects.POST("/:id/assets", assetHandler.Create)
 			projects.POST("/:id/assets/presign", assetHandler.Presign)
 			projects.POST("/:id/assets/confirm", assetHandler.Confirm)
+			projects.GET("/:id/timeline", timelineHandler.Get)
+			projects.GET("/:id/timeline/versions", timelineHandler.ListVersions)
+			projects.PUT("/:id/timeline", timelineHandler.Save)
 
 			// Phase 1+: analyze / generate / chat / render
 		}

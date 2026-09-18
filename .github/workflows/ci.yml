@@ -105,6 +105,7 @@ jobs:
           bash tests/smoke/auth.sh
           bash tests/smoke/assets.sh
           bash tests/smoke/upload.sh
+          bash tests/smoke/timeline.sh
           kill "$SERVER_PID" || true
           wait "$SERVER_PID" 2>/dev/null || true
 
