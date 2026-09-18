@@ -1,224 +1,255 @@
-# WeaveClip (CutPilot)
+<div align="center">
 
-![Badge](https://img.shields.io/badge/status-Phase_0-active-green?style=flat-square)
-![Badge](https://img.shields.io/badge/frontend-React_18%20%2B%20TS%20%2B%20Vite-blue?style=flat-square)
+<img src="doc/images/hero-banner.png" alt="WeaveClip" width="100%" />
+
+<br/>
+
+# WeaveClip <sub>CutPilot</sub>
+
+### 🎬 Talk to your footage. Get the video you mean.
+### 对着你的素材说话，得到你想要的视频。
+
+<br/>
+
+![Badge](https://img.shields.io/badge/status-Phase_0-active-506070?style=flat-square)
+![Badge](https://img.shields.io/badge/frontend-React_18%20%2B%20TS%20%2B%20Vite-506070?style=flat-square)
 ![Badge](https://img.shields.io/badge/backend-Go%20%2B%20Gin-00ADD8?style=flat-square)
 ![Badge](https://img.shields.io/badge/design-Morandi_Minimal-899AAB?style=flat-square)
+![Badge](https://img.shields.io/badge/license-MIT-D18E85?style=flat-square)
 
-> **Talk to your footage. Get the video you mean.**
-
-WeaveClip（CutPilot）是一个 **AI Native 视频剪辑助手**。用自然语言描述你想要的视频效果，AI 自动从原始素材中剪辑、拼接并渲染出成片。项目采用前后端分离架构，前端基于 React + Semi Design 构建 Morandi 风格编辑器界面，后端基于 Go + Gin 提供媒体处理与 AI 编排能力。
-
----
-
-## ✨ 核心特性
-
-| 特性 | 说明 |
-|------|------|
-| 🤖 AI 对话式剪辑 | 用自然语言描述意图，AI 自动生成时间线与剪辑方案 |
-| 🎬 专业时间轴 | 可视化多轨道编辑：视频轨、音频轨、文字轨 |
-| 📤 智能素材管理 | 自动场景检测、ASR 语音转文字、视觉内容理解 |
-| 🔌 Mock 优先开发 | 后端未就绪时前端全程可用 Mock 数据跑通全流程 |
-| ⚡ 实时进度推送 | WebSocket 推送渲染进度，体验流畅不卡顿 |
-| 🎨 Morandi 设计语言 | 低饱和莫兰迪色板 + Slate Blue 主色，克制专业的编辑器界面 |
+</div>
 
 ---
 
-## 🛠 技术栈
+**WeaveClip（CutPilot）** 是一个 **AI Native 视频剪辑助手**。用自然语言描述你想要的视频效果，AI 自动从原始素材中剪辑、拼接并渲染出成片。
 
-### 前端
+WeaveClip (CutPilot) is an **AI-native video editing assistant**. Describe your vision in plain language — AI automatically selects clips, assembles a timeline, and renders your final video.
 
-| 技术 | 用途 |
-|------|------|
-| React 18 + TypeScript | 组件开发框架 |
-| Vite | 构建工具与开发服务器 |
-| Semi Design | 企业级组件库（Button、Modal、Table、Nav 等） |
-| CSS Modules | 样式隔离，严格遵循设计系统 Token |
-| Zustand | 客户端状态管理（时间轴、选中片段、播放状态） |
-| TanStack Query | 服务端数据获取与缓存 |
-| React Router | 页面路由与导航 |
-| i18next | 国际化文案管理 |
-
-### 后端
-
-| 技术 | 用途 |
-|------|------|
-| Go 1.22+ + Gin | HTTP 服务与路由 |
-| GORM + PostgreSQL | 数据持久化 |
-| Redis + Asynq | 异步任务队列（渲染任务调度） |
-| S3 兼容存储（MinIO） | 原始素材与成片存储 |
-| FFmpeg | 视频转码、拼接、渲染导出 |
-| WebSocket | 渲染进度实时推送 |
-
-### 开发基础设施
-
-| 技术 | 用途 |
-|------|------|
-| Docker Compose | PostgreSQL、Redis、MinIO 本地编排 |
-| Vitest + Testing Library | 前端单元与组件测试 |
-| golangci-lint + go test | 后端代码检查与测试 |
-| GitHub Actions | CI 全量测试门禁 |
+<div align="center">
+<img src="doc/images/editor-mockup.png" alt="WeaveClip Editor Interface" width="90%" />
+</div>
 
 ---
 
-## 📁 项目结构
+## ✨ Features · 核心特性
+
+<div align="center">
+<img src="doc/images/ai-editing.png" alt="AI Conversational Editing" width="60%" />
+</div>
+
+| 特性 Feature | 说明 Description |
+|:---|:---|
+| 🤖 **AI 对话式剪辑** | 用自然语言描述意图，AI 自动生成时间线与剪辑方案 <br/> Describe your vision in natural language; AI builds the timeline for you |
+| 🎬 **专业多轨时间轴** | 可视化多轨道编辑：视频轨、音频轨、文字轨，精准控制每一帧 <br/> Multi-track timeline: video, audio, and text layers with frame-level control |
+| 📤 **智能素材管理** | 自动场景检测、ASR 语音转文字、视觉内容理解，素材自动归档 <br/> Auto scene detection, ASR transcription, and visual understanding |
+| ⚡ **实时进度推送** | WebSocket 推送渲染进度，体验流畅不卡顿 <br/> Real-time render progress via WebSocket — smooth and responsive |
+| 🔌 **Mock 优先开发** | 后端未就绪时前端全程可用 Mock 数据跑通全流程 <br/> Mock-first architecture: frontend works end-to-end before backend is ready |
+| 🎨 **Morandi 设计语言** | 低饱和莫兰迪色板 + Slate Blue 主色，克制专业的编辑器界面 <br/> Low-saturation Morandi palette with Slate Blue accent — clean, professional, tool-like |
+
+---
+
+## 🏗 Architecture · 技术架构
+
+<div align="center">
+<img src="doc/images/tech-architecture.png" alt="WeaveClip Architecture" width="70%" />
+</div>
+
+### 🖥 Frontend · 前端
+
+| Technology | Purpose |
+|:---|:---|
+| **React 18 + TypeScript** | Component framework |
+| **Vite** | Build tool & dev server |
+| **Semi Design** | Enterprise UI component library |
+| **CSS Modules** | Style isolation, strict design-token compliance |
+| **Zustand** | Client state (timeline, selection, playback) |
+| **TanStack Query** | Server data fetching & caching |
+| **React Router** | Page routing & navigation |
+| **i18next** | Internationalization |
+
+### ⚙️ Backend · 后端
+
+| Technology | Purpose |
+|:---|:---|
+| **Go 1.22+ + Gin** | HTTP service & routing |
+| **GORM + PostgreSQL** | Data persistence |
+| **Redis + Asynq** | Async task queue (render job scheduling) |
+| **MinIO (S3-compatible)** | Source assets & rendered output storage |
+| **FFmpeg** | Video transcoding, concatenation, rendering |
+| **WebSocket** | Real-time render progress push |
+
+### 🛠 Infrastructure · 开发设施
+
+| Technology | Purpose |
+|:---|:---|
+| **Docker Compose** | Local PostgreSQL, Redis, MinIO orchestration |
+| **Vitest + Testing Library** | Frontend unit & component tests |
+| **golangci-lint + go test** | Backend linting & testing |
+| **GitHub Actions** | CI full test gate |
+
+---
+
+## 📁 Project Structure · 项目结构
 
 ```
 WeaveClip/
-├── web/                          # React 前端（端口 3000）
+├── web/                          # React Frontend (port 3000)
 │   ├── src/
-│   │   ├── pages/                # 页面级组件（Home / Projects / Editor / Create / Login）
-│   │   ├── components/           # 可复用 UI 组件（按功能模块拆分）
-│   │   ├── stores/               # Zustand 状态管理
-│   │   ├── services/             # API 请求层（TanStack Query hooks）
-│   │   ├── router.tsx            # React Router 路由表
-│   │   ├── locales/              # i18n 多语言文案
-│   │   └── styles/               # 全局样式与 CSS 变量定义
+│   │   ├── pages/                # Home / Projects / Editor / Create / Login
+│   │   ├── components/           # Reusable UI components
+│   │   ├── stores/               # Zustand state management
+│   │   ├── services/             # API layer (TanStack Query hooks)
+│   │   ├── router.tsx            # React Router routes
+│   │   ├── locales/              # i18n translations
+│   │   └── styles/               # Global styles & CSS variables
 │   ├── package.json
 │   └── vite.config.ts
 │
-├── server/                       # Go 后端（端口 8080）
-│   ├── cmd/server/               # 服务入口
-│   ├── internal/                 # 业务逻辑（handler / service / model）
-│   ├── migrations/               # 数据库迁移脚本
-│   ├── tests/                    # 后端测试
+├── server/                       # Go Backend (port 8080)
+│   ├── cmd/server/               # Service entrypoint
+│   ├── internal/                 # Business logic (handler / service / model)
+│   ├── migrations/               # Database migration scripts
+│   ├── tests/                    # Backend tests
 │   ├── go.mod
 │   └── Makefile
 │
-├── doc/                          # 项目文档
-│   ├── design-system.md          # 前端唯一视觉基准（Morandi 设计规范）
-│   ├── development-plan.md       # 开发阶段规划
-│   └── inventory-mapping.md      # 素材映射规则
+├── doc/                          # Project documentation
+│   ├── design-system.md          # Frontend visual spec (Morandi design)
+│   ├── development-plan.md       # Development roadmap
+│   └── images/                   # README & doc images
 │
-├── scripts/                      # 环境脚本（setup / dev / smoke test）
-├── docker-compose.yml            # 本地基础设施（PostgreSQL + Redis + MinIO）
-├── README.md                     # 本文件
-├── CONTRIBUTING.md               # 贡献指南
-├── DESIGN.md                     # 产品设计文档
-└── TEST_PLAN.md                  # 测试策略
+├── design/                       # UI design references
+├── scripts/                      # Setup / dev / smoke test scripts
+├── docker-compose.yml            # Local infra (PostgreSQL + Redis + MinIO)
+├── README.md
+├── CONTRIBUTING.md
+├── DESIGN.md
+└── TEST_PLAN.md
 ```
 
 ---
 
-## 🚀 快速开始
+## 🚀 Quick Start · 快速开始
 
-### 环境要求
+### Prerequisites · 环境要求
 
-- **Node.js** 18+ 与 **pnpm**
+- **Node.js** 18+ & **pnpm**
 - **Go** 1.22+
-- **Docker**（用于 PostgreSQL / Redis / MinIO）
-- **FFmpeg** 6+（Phase 1+ 视频处理需要）
+- **Docker** (for PostgreSQL / Redis / MinIO)
+- **FFmpeg** 6+ (required from Phase 1+)
 
-### 一键初始化
+### One-Click Setup · 一键初始化
 
 ```bash
-./scripts/setup.sh   # 环境检查 + 安装前后端依赖
+./scripts/setup.sh   # Environment check + install frontend & backend deps
 ```
 
-或手动安装：
+Or manually · 或手动安装：
 
 ```bash
-# 前端
+# Frontend
 cd web && pnpm install && cd ..
 
-# 后端
+# Backend
 cd server && go mod download && cd ..
 ```
 
-### 启动开发环境
+### Launch · 启动开发环境
 
 ```bash
-# 方式一：使用脚本一键启动（推荐）
+# Option 1: One-click script (recommended)
 ./scripts/dev.sh
 
-# 方式二：手动启动
-docker-compose up -d                              # 基础设施（PostgreSQL + Redis + MinIO）
-cd server && go run ./cmd/server                  # 后端服务 → http://localhost:8080
-cd web && pnpm dev                                # 前端开发服务器 → http://localhost:3000
+# Option 2: Manual
+docker-compose up -d                              # Infra (PostgreSQL + Redis + MinIO)
+cd server && go run ./cmd/server                  # Backend → http://localhost:8080
+cd web && pnpm dev                                # Frontend → http://localhost:3000
 ```
 
-### 访问地址
+### Access Points · 访问地址
 
-| 服务 | 地址 | 备注 |
-|------|------|------|
-| 前端开发服务器 | http://localhost:3000 | 主应用入口 |
-| 后端 API | http://localhost:8080 | RESTful API |
-| 健康检查 | http://localhost:8080/api/health | 后端存活探测 |
-| MinIO 控制台 | http://localhost:9001 | 账号 `minioadmin` / 密码 `minioadmin` |
+| Service | URL | Notes |
+|:---|:---|:---|
+| Frontend Dev Server | http://localhost:3000 | Main app entry |
+| Backend API | http://localhost:8080 | RESTful API |
+| Health Check | http://localhost:8080/api/health | Backend liveness probe |
+| MinIO Console | http://localhost:9001 | `minioadmin` / `minioadmin` |
 
-> **💡 Phase 0 说明**：后端数据库连接失败时自动降级为 Mock 模式，前端全程可用 Mock 数据跑通全流程，无需等待后端就绪。
-
----
-
-## 📅 开发阶段
-
-| Phase | 内容 | 状态 |
-|-------|------|------|
-| **Phase 0** | 产品骨架 + Mock 数据 | ✅ 完成 |
-| **Phase 1** | Editor 基础编辑（上传 / 时间轴 / Trim / Split） | ⬜ 待开发 |
-| **Phase 2** | AI Generate（一句话生成时间线） | ⬜ 待开发 |
-| **Phase 3** | AI Edit（对话式修改） | ⬜ 待开发 |
-| **Phase 4** | 真实视频处理（ASR / 场景检测 / Vision） | ⬜ 待开发 |
-| **Phase 5** | FFmpeg 渲染导出 MP4 | ⬜ 待开发 |
-| **Phase 6** | 体验优化（Undo / 版本历史） | ⬜ 待开发 |
-
-> 详细计划见 [doc/development-plan.md](doc/development-plan.md)
+> **💡 Phase 0 Note · 说明**: When the backend database is unavailable, the app automatically falls back to Mock mode. The frontend works end-to-end with Mock data — no need to wait for the backend.
 
 ---
 
-## 🧪 测试
+## 🗺 Roadmap · 开发阶段
 
-本地开发不强制跑测试，push 到远程时 CI 会自动执行全量测试门禁。
+| Phase | Scope | Status |
+|:---|:---|:---:|
+| **Phase 0** | Product skeleton + Mock data | ✅ Done |
+| **Phase 1** | Editor basics (Upload / Timeline / Trim / Split) | ⬜ Planned |
+| **Phase 2** | AI Generate (one-prompt timeline generation) | ⬜ Planned |
+| **Phase 3** | AI Edit (conversational refinement) | ⬜ Planned |
+| **Phase 4** | Real video processing (ASR / Scene detection / Vision) | ⬜ Planned |
+| **Phase 5** | FFmpeg render & MP4 export | ⬜ Planned |
+| **Phase 6** | UX polish (Undo / Version history) | ⬜ Planned |
 
-### 本地运行测试（可选）
+> Detailed plan: [doc/development-plan.md](doc/development-plan.md)
+
+---
+
+## 🧪 Testing · 测试
+
+Local development doesn't require running tests manually — CI enforces full test gates on push.
+
+### Run Locally (Optional) · 本地运行测试（可选）
 
 ```bash
-# ── 前端测试 ──
+# ── Frontend ──
 cd web
 pnpm install
-pnpm test:run          # 单次运行测试
-pnpm test:coverage     # 带覆盖率报告
+pnpm test:run          # Single run
+pnpm test:coverage     # With coverage report
 
-# ── 后端测试 ──
+# ── Backend ──
 cd server
-go test ./...                          # 基础测试
-make test-race                         # 竞态检测
-make test-coverage                     # 覆盖率报告（生成 coverage.html）
-make smoke                             # 冒烟测试（需先 docker-compose up -d）
+go test ./...                          # Basic tests
+make test-race                         # Race detection
+make test-coverage                     # Coverage report → coverage.html
+make smoke                             # Smoke tests (requires docker-compose up -d)
 ```
 
-### CI 测试流程
+### CI Pipeline · CI 流程
 
-向 `main` 或 `feat/**` 分支 push、或提交 PR 时，CI 会自动执行以下门禁：
+On push to `main` or `feat/**`, or on PR submission, CI automatically runs:
 
-1. **后端**：`go vet` → `go test -race -coverprofile` → `go build`
-2. **前端**：`pnpm test:run` → `pnpm build` → `pnpm run check:i18n`
-3. **Lint**：`golangci-lint` + `eslint`
-4. **冒烟测试**：health → auth → assets 全流程
+1. **Backend**: `go vet` → `go test -race -coverprofile` → `go build`
+2. **Frontend**: `pnpm test:run` → `pnpm build` → `pnpm run check:i18n`
+3. **Lint**: `golangci-lint` + `eslint`
+4. **Smoke**: health → auth → assets end-to-end
 
-> 详细测试策略见 [TEST_PLAN.md](TEST_PLAN.md)
+> Full test strategy: [TEST_PLAN.md](TEST_PLAN.md)
 
 ---
 
-## 🤝 贡献
+## 🤝 Contributing · 贡献
 
-欢迎提交 Issue 和 Pull Request！
+PRs and Issues are welcome! 欢迎提交 Issue 和 Pull Request！
 
-提交代码前请确认：
+Before submitting, please ensure:
 
-- [x] `pnpm build` 和 `go build` 通过
-- [x] 前端 i18n 检查通过（`pnpm run check:i18n`）
-- [x] 代码符合项目工程规范（见 [AGENTS.md](./AGENTS.md)）
-- [x] Commit message 遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范
+- [ ] `pnpm build` and `go build` pass
+- [ ] i18n check passes (`pnpm run check:i18n`)
+- [ ] Code follows project conventions ([AGENTS.md](./AGENTS.md))
+- [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
 
 ---
 
 ## 📄 License
 
-MIT
+[MIT](./LICENSE)
 
 ---
 
-<p align="center">
-  Made with ❤️ by WeaveClip Team
-</p>
+<div align="center">
+
+Made with ❤️ by the WeaveClip Team
+
+</div>
