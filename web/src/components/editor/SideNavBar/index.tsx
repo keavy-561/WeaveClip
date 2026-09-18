@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import {
+  Avatar,
+  Button,
+} from '@douyinfe/semi-ui';
+import {
   IconVideoListStroked,
   IconMicrophone,
   IconAIWandLevel1,
@@ -32,28 +36,29 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ activeItem: controlledActiveIte
     <aside className={styles.sidebar}>
       <div className={styles.navItems}>
         {navItems.map((item) => (
-          <button
+          <Button
             key={item.key}
+            theme="borderless"
             className={`${styles.navItem} ${active === item.key ? styles.active : ''}`}
-            title={item.label}
+            aria-label={item.label}
             onClick={() => setInternalActive(item.key)}
           >
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.label}>{item.label}</span>
-          </button>
+          </Button>
         ))}
       </div>
 
       <div className={styles.bottomItems}>
-        <button className={styles.navItem} title={t('common.help')}>
-          <span className={styles.icon}><IconHelpCircle /></span>
-        </button>
-        <div className={styles.avatar} title={t('common.user')}>
-          <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6SbRvBK7utPQvzhZjbwhsiLfLZ5afT8fCm2YA_xflsK48xTlPbHK3h_zjVV4s_0MjLlgBGpNRrRdJxKgEYFHqHhgOHDmh9MXDDyakOnlrhUu1xtHCF1KNxzH8j1gZWcYbKOGNQY9ZMUO-3tGf7_DRSwhLVu83WwD-jM9Ec8kd2LSqiift0jArE5kjHB7nkFjwZu3eoaQ9oN0RIY0BPkT_r8fX1e1tK0Z3q6CxJ4O4bLhXEB7OauXKMA"
-            alt="User avatar"
-          />
-        </div>
+        <Button
+          theme="borderless"
+          className={styles.navItem}
+          aria-label={t('common.help')}
+          icon={<IconHelpCircle />}
+        />
+<Avatar size="small" className={styles.avatar} alt={t('common.user')}>
+          {t('home.ownerMe').charAt(0)}
+        </Avatar>
       </div>
     </aside>
   );

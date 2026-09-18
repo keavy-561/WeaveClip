@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@douyinfe/semi-ui';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
@@ -20,13 +21,14 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onAction }) => {
   return (
     <div className={styles.quickActions}>
       {QUICK_ACTIONS.map((action) => (
-        <button
+        <Button
           key={action.key}
+          theme="borderless"
           className={styles.actionBtn}
           onClick={() => onAction(action.prompt)}
         >
           {t(`editor.quickActions.${action.key}`)}
-        </button>
+        </Button>
       ))}
     </div>
   );

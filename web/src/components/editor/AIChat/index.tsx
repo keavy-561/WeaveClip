@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { Spin } from '@douyinfe/semi-ui';
+import React, { useRef, useEffect, useState } from 'react';
+import { Spin, TextArea } from '@douyinfe/semi-ui';
 import { useAIChatStore } from '@/stores/aiChatStore';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -14,6 +14,7 @@ const AIChat: React.FC = () => {
   const { t } = useAppTranslation();
   const listRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
+  const [draft, setDraft] = useState('');
 
   useEffect(() => {
     return () => {
@@ -79,16 +80,18 @@ const AIChat: React.FC = () => {
       <QuickActions onAction={(prompt) => handleSend(prompt)} />
 
       <div className={styles.inputWrap}>
-        <textarea
+        <TextArea
           className={styles.input}
           placeholder={t('editor.aiChat.inputPlaceholder')}
           rows={2}
+          autosize={{ minRows: 2, maxRows: 4 }}
+          value={draft}
+          onChange={(value) => setDraft(value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              const target = e.currentTarget;
-              handleSend(target.value);
-              target.value = '';
+              handleSend(draft);
+              setDraft('');
             }
           }}
         />

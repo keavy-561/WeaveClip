@@ -35,18 +35,20 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       </div>
 
       <div className={styles.tabBar}>
-        <button
+        <Button
+          theme="borderless"
           className={`${styles.segment} ${tab === 'library' ? styles.segmentActive : ''}`}
           onClick={() => setTab('library')}
         >
           {t('editor.mediaPanel.library')}
-        </button>
-        <button
+        </Button>
+        <Button
+          theme="borderless"
           className={`${styles.segment} ${tab === 'media' ? styles.segmentActive : ''}`}
           onClick={() => setTab('media')}
         >
           {t('editor.mediaPanel.media')}
-        </button>
+        </Button>
       </div>
 
       <div className={styles.search}>

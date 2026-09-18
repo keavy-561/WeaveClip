@@ -26,10 +26,24 @@
   border: none;
   background: transparent;
   transition: all 0.2s;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+
+  :global(.semi-button-content) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   &:hover {
     color: var(--semi-color-text-0);
     background: var(--color-surface-container-high);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--semi-color-primary);
+    outline-offset: -1px;
   }
 
   &.active {

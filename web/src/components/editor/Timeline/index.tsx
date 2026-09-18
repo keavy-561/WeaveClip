@@ -94,7 +94,15 @@ const Timeline: React.FC = () => {
         </div>
         <div className={styles.toolHeaderRight}>
           <div className={styles.zoomControls}>
-            <button className={styles.iconBtn} onClick={() => setZoom(Math.max(0.5, zoom - 0.25))} title={t('editor.timeline.zoomOut')}>−</button>
+            <Button
+              theme="borderless"
+              size="small"
+              className={styles.iconBtn}
+              onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
+              aria-label={t('editor.timeline.zoomOut')}
+            >
+              −
+            </Button>
             <input
               type="range"
               min="0.5"
@@ -104,10 +112,24 @@ const Timeline: React.FC = () => {
               onChange={(e) => setZoom(Number(e.target.value))}
               className={styles.zoomSlider}
             />
-            <button className={styles.iconBtn} onClick={() => setZoom(Math.min(3, zoom + 0.25))} title={t('editor.timeline.zoomIn')}>+</button>
+            <Button
+              theme="borderless"
+              size="small"
+              className={styles.iconBtn}
+              onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+              aria-label={t('editor.timeline.zoomIn')}
+            >
+              +
+            </Button>
           </div>
           <span className={styles.divider} />
-          <span className={styles.iconBtn} title={t('common.settings')}><IconSetting /></span>
+          <Button
+            icon={<IconSetting />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            aria-label={t('common.settings')}
+          />
         </div>
       </div>
 

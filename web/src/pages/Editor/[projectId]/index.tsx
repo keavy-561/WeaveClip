@@ -134,8 +134,16 @@ const Editor: React.FC = () => {
           />
           <Logo size="small" />
           <nav className={styles.navLinks}>
-            <button className={`${styles.navLink} ${styles.active}`}>{t('editor.header.drafts')}</button>
-            <button className={styles.navLink}>{t('editor.header.templates')}</button>
+            <Button
+              theme="borderless"
+              className={`${styles.navLink} ${styles.active}`}
+              size="small"
+            >
+              {t('editor.header.drafts')}
+            </Button>
+            <Button theme="borderless" className={styles.navLink} size="small">
+              {t('editor.header.templates')}
+            </Button>
           </nav>
         </div>
         <div className={styles.headerCenter}>

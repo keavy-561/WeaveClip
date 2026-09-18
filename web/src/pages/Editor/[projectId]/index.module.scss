@@ -33,23 +33,23 @@
 }
 
 .navLink {
-  padding: 6px 12px;
+  padding: 6px 12px !important;
   border: none;
   background: transparent;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--semi-color-text-1);
+  color: var(--semi-color-text-1) !important;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    color: var(--semi-color-text-0);
-    background: var(--color-surface-container-high);
+    color: var(--semi-color-text-0) !important;
+    background: var(--color-surface-container-high) !important;
   }
 
   &.active {
-    color: var(--semi-color-primary);
+    color: var(--semi-color-primary) !important;
     font-weight: 600;
   }
 }

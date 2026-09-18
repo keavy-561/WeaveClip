@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '@douyinfe/semi-ui';
 import {
   IconFilter,
   IconSetting,
@@ -23,14 +24,16 @@ const ToolSidebar: React.FC = () => {
   return (
     <div className={styles.toolbar}>
       {tools.map((tool) => (
-        <button
+        <Button
           key={tool.key}
+          theme="borderless"
           className={`${styles.toolBtn} ${active === tool.key ? styles.active : ''}`}
           title={tool.title}
+          aria-label={tool.title}
           onClick={() => setActive(tool.key)}
         >
           <span className={styles.toolIcon}>{tool.icon}</span>
-        </button>
+        </Button>
       ))}
     </div>
   );
