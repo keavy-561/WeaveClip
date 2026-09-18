@@ -48,7 +48,7 @@ type renderPayload struct {
 	TimelineVersion int              `json:"timelineVersion"`
 	Resolution      string           `json:"resolution"`
 	FPS             int              `json:"fps"`
-	TimelineJSON    []byte           `json:"timelineJson"` // 入队时快照，worker 不回查 DB 也能跑
+	TimelineJSON    json.RawMessage  `json:"timelineJson"` // 入队时快照（原始 DSL JSON），worker 不回查 DB 也能跑
 	AssetKeys       map[string]string `json:"assetKeys"`   // assetId → 存储对象 key
 }
 
