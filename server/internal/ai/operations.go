@@ -25,7 +25,7 @@ type ChatAgentOutput struct {
 	Operations []Operation `json:"operations"`
 }
 
-const chatSystem = `你是视频时间线对话编辑器。根据当前时间线、素材列表和用户指令，输出 JSON：
+const ChatSystem = `你是视频时间线对话编辑器。根据当前时间线、素材列表和用户指令，输出 JSON：
 {message: "给用户的简短说明", operations: [...]}。
 operations 支持 6 种：
 {"type":"replace","clipId":"c1","assetId":"3"} 替换片段素材；

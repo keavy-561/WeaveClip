@@ -118,7 +118,7 @@ func (s *ChatService) llmChat(dsl *ai.DSLTimeline, assets []model.Asset, message
 	if err != nil {
 		return nil, err
 	}
-	text, err := s.llm.Complete(ctx, chatSystem, []ai.Message{{Role: "user", Content: string(input)}})
+	text, err := s.llm.Complete(ctx, ai.ChatSystem, []ai.Message{{Role: "user", Content: string(input)}})
 	if err != nil {
 		return nil, fmt.Errorf("chat llm: %w", err)
 	}

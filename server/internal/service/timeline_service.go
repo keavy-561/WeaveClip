@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 
+	"gorm.io/datatypes"
+
 	"github.com/weaveclip/server/internal/model"
 	"github.com/weaveclip/server/internal/repository"
 )
@@ -93,7 +95,7 @@ func (s *TimelineService) SaveInternal(projectID uint, raw []byte, label string)
 	timeline := &model.Timeline{
 		ProjectID:    projectID,
 		Version:      next,
-		TimelineJSON: json.RawMessage(raw),
+		TimelineJSON: datatypes.JSON(raw),
 		Label:        label,
 	}
 	if err := s.timelines.Create(timeline); err != nil {

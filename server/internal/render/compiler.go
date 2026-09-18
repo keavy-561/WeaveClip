@@ -67,14 +67,14 @@ func Compile(dsl *ai.DSLTimeline, assetFiles map[string]string, opt Options) (*P
 	chain := make([]string, 0, len(clips))
 	durations := make([]float64, len(clips))
 	for i, clip := range clips {
-		key := clipAssetKey(clip)
+		key := clipAssetKey(&clips[i])
 		src, ok := assetFiles[key]
 		if !ok {
 			return nil, fmt.Errorf("asset %s file not provided", key)
 		}
 		inputArgs = append(inputArgs, "-i", src)
 
-		trimIn, dur := clipRange(clip)
+		trimIn, dur := clipRange(&clips[i])
 		if dur <= 0 {
 			return nil, fmt.Errorf("clip %s non-positive duration", clip.ID)
 		}
