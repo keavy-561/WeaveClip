@@ -60,20 +60,20 @@ func runMigrations(db *gorm.DB) error {
 	}
 	// 并发启动（server + worker 同时冷启动）可能在 pg 目录表唯一约束上冲突，
 	// 对这类瞬时错误做有限次重试（迁移脚本全部 IF NOT EXISTS，重试安全）
-	var err error
+	var upErr error
 	for attempt := 0; attempt < 5; attempt++ {
-		err = migrations.Up(sqlDB, migrationsDir)
-		if err == nil {
+		upErr = migrations.Up(sqlDB, migrationsDir)
+		if upErr == nil {
 			return nil
 		}
-		msg := err.Error()
+		msg := upErr.Error()
 		if !strings.Contains(msg, "duplicate key") && !strings.Contains(msg, "23505") {
-			return err
+			return upErr
 		}
 		slog.Warn("concurrent migration conflict, retrying", "attempt", attempt+1)
 		time.Sleep(2 * time.Second)
 	}
-	return err
+	return upErr
 }
 
 // MustConnect is like Connect but exits the process on failure in non-mock mode.
