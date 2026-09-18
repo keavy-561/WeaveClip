@@ -104,7 +104,9 @@ func main() {
 		assetRepo = repository.NewMockAssetRepo(handler.MockAssets())
 	}
 	assetService := service.NewAssetService(assetRepo, projectService)
-	assetHandler := handler.NewAssetHandler(assetService)
+	uploadService := service.NewUploadService(assetRepo, projectService, store,
+		cfg.FFmpeg.FFprobePath, cfg.FFmpeg.BinaryPath)
+	assetHandler := handler.NewAssetHandler(assetService, uploadService)
 
 	// 路由注册
 	api := r.Group("/api")
@@ -134,6 +136,8 @@ func main() {
 			projects.DELETE("/:id", projectHandler.Delete)
 			projects.GET("/:id/assets", assetHandler.List)
 			projects.POST("/:id/assets", assetHandler.Create)
+			projects.POST("/:id/assets/presign", assetHandler.Presign)
+			projects.POST("/:id/assets/confirm", assetHandler.Confirm)
 
 			// Phase 1+: analyze / generate / chat / render
 		}

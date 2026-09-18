@@ -11,6 +11,7 @@ type AssetRepository interface {
 	ListByProject(projectID uint) ([]model.Asset, error)
 	Get(id uint) (*model.Asset, error)
 	Create(asset *model.Asset) error
+	Update(asset *model.Asset) error
 	Delete(id uint) error
 }
 
@@ -40,6 +41,10 @@ func (r *gormAssetRepo) Get(id uint) (*model.Asset, error) {
 
 func (r *gormAssetRepo) Create(asset *model.Asset) error {
 	return r.db.Create(asset).Error
+}
+
+func (r *gormAssetRepo) Update(asset *model.Asset) error {
+	return r.db.Save(asset).Error
 }
 
 func (r *gormAssetRepo) Delete(id uint) error {
@@ -82,9 +87,29 @@ func (r *mockAssetRepo) Get(id uint) (*model.Asset, error) {
 func (r *mockAssetRepo) Create(asset *model.Asset) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	asset.ID = uint(len(r.assets) + 1)
+	if asset.ID == 0 {
+		var maxID uint
+		for _, a := range r.assets {
+			if a.ID > maxID {
+				maxID = a.ID
+			}
+		}
+		asset.ID = maxID + 1
+	}
 	r.assets = append(r.assets, *asset)
 	return nil
+}
+
+func (r *mockAssetRepo) Update(asset *model.Asset) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for i := range r.assets {
+		if r.assets[i].ID == asset.ID {
+			r.assets[i] = *asset
+			return nil
+		}
+	}
+	return gorm.ErrRecordNotFound
 }
 
 func (r *mockAssetRepo) Delete(id uint) error {

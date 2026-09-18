@@ -9,7 +9,8 @@ import (
 type Asset struct {
 	ID           uint           `gorm:"primaryKey" json:"id"`
 	ProjectID    uint           `gorm:"not null;index" json:"projectId"`
-	Type         string         `gorm:"not null" json:"type"` // video | audio | image
+	Type         string         `gorm:"not null" json:"type"`                          // video | audio | image
+	Status       string         `gorm:"default:'ready'" json:"status"`                 // uploading | ready | failed（002 迁移）
 	StoragePath  string         `gorm:"not null" json:"storagePath"`
 	FileName     string         `gorm:"not null" json:"fileName"`
 	FileSize     int64          `json:"fileSize"`

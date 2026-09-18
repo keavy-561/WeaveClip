@@ -87,7 +87,7 @@ func TestAssetHandler_CRUD(t *testing.T) {
 	assetRepo := newFakeAssetRepo(nil)
 	projectFinder := newFakeProjectFinder(model.Project{ID: 1, UserID: 1})
 	assetService := service.NewAssetService(assetRepo, projectFinder)
-	assetHandler := NewAssetHandler(assetService)
+	assetHandler := NewAssetHandler(assetService, nil)
 
 	t.Run("create asset", func(t *testing.T) {
 		w := httptest.NewRecorder()
