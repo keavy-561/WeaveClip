@@ -77,13 +77,21 @@ func HandleRender(q *queue.Queue, deps RenderDeps) {
 }
 
 func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
+	defer func() {
+		// 任何 panic 都转为可见的失败状态（否则任务静默重试，renders 行停在 queued）
+		if r := recover(); r != nil {
+			slog.Error("handleRender panic", "panic", r)
+		}
+	}()
 	slog.Info("render task received", "payloadBytes", len(payload))
 	var p renderPayload
 	if err := json.Unmarshal(payload, &p); err != nil {
+		slog.Error("decode render payload failed", "error", err)
 		return fmt.Errorf("decode render payload: %w", err)
 	}
 	renderRow, err := d.Renders.Get(p.RenderID)
 	if err != nil {
+		slog.Error("load render row failed", "renderId", p.RenderID, "error", err)
 		return fmt.Errorf("load render %d: %w", p.RenderID, err)
 	}
 
