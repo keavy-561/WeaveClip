@@ -6,6 +6,7 @@ import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useEditorUIStore, type EditorTool } from '@/stores/editorUIStore';
 import { useAssetsStore } from '@/stores/assetsStore';
 import { mockAssets } from '@/utils/mockData';
+import AIChat from '@/components/editor/AIChat';
 import styles from './index.module.scss';
 
 const ASSET_IMAGES: Record<string, string> = {
@@ -42,6 +43,18 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     brand: t('nav.brand'),
     help: t('common.help'),
   };
+
+  if (activeTool === 'ai') {
+    // AI 对话面板接入真实的对话式编辑（工单 F07）
+    return (
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span className={styles.title}>{toolLabels.ai}</span>
+        </div>
+        <AIChat />
+      </div>
+    );
+  }
 
   if (activeTool !== 'media') {
     const toolLabel = toolLabels[activeTool];

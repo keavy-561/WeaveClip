@@ -23,7 +23,8 @@
     "importMedia": "导入媒体",
     "back": "返回",
     "help": "帮助",
-    "user": "用户"
+    "user": "用户",
+    "retry": "重试"
   },
   "nav": {
     "home": "首页",
@@ -187,7 +188,8 @@
       "contextHintSelected": "已选择片段：{{id}}",
       "contextHintNone": "未选择片段",
       "loadingText": "思考中...",
-      "inputPlaceholder": "告诉 AI 你要改什么... 例如：「让前 5 秒更有冲击力」"
+      "inputPlaceholder": "告诉 AI 你要改什么... 例如：「让前 5 秒更有冲击力」",
+      "sendFailed": "发送失败：{{reason}}"
     },
     "quickActions": {
       "makeShorter": "更短更精炼",
@@ -206,7 +208,20 @@
       "duration": "时长",
       "loadError": "加载编辑器数据失败"
     },
-    "loadError": "加载编辑器数据失败"
+    "loadError": "加载编辑器数据失败",
+    "export": {
+      "title": "导出视频",
+      "format": "格式",
+      "resolution": "分辨率",
+      "fps": "帧率",
+      "start": "开始渲染",
+      "startFailed": "启动渲染失败：{{reason}}",
+      "rendering": "渲染中，可离开本页稍后回来…",
+      "completed": "渲染完成！",
+      "downloadNow": "下载 MP4",
+      "failedHint": "渲染失败：{{reason}}",
+      "retry": "重试"
+    }
   },
   "create": {
     "analyzeProgress": {
@@ -238,7 +253,9 @@
       "rejectedFiles": "{{count}} 个文件被拒收：{{details}}",
       "unsupportedFormat": "格式不支持",
       "exceedsSize": "超过 500MB",
-      "error": "创建项目失败"
+      "error": "创建项目失败",
+      "uploadFailed": "上传失败：{{reason}}",
+      "uploadingProgress": "正在上传 {{done}}/{{total}} 个文件（{{pct}}%）"
     },
     "describe": {
       "step": "描述",
@@ -264,7 +281,13 @@
       }
     },
     "generate": {
-      "step": "生成"
+      "step": "生成",
+      "title": "AI 正在生成你的时间线…",
+      "startFailed": "启动生成失败",
+      "failed": "生成失败",
+      "needInput": "为了剪出更贴心的片子，AI 想先确认：",
+      "submitAnswers": "继续生成",
+      "openEditor": "打开编辑器"
     },
     "fileList": {
       "count": "{{count}} 个文件",

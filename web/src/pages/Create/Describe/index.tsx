@@ -85,7 +85,12 @@ const Describe: React.FC = () => {
       return;
     }
 
-    updateMutation.mutate(payload);
+    // 真实模式：保存项目资料后进入 AI 生成步骤（工单 F08，D5 裁定）
+    updateMutation.mutate(payload, {
+      onSuccess: () => navigate(`/projects/new/generate?projectId=${projectId}`, {
+        state: { draft: { prompt: values.prompt } },
+      }),
+    });
   };
 
   return (

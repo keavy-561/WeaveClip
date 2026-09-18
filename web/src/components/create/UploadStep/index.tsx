@@ -8,9 +8,11 @@ import styles from './index.module.scss';
 
 export interface UploadStepProps {
   onContinue: (files: FileItemData[]) => void;
+  /** mock 模式下才做本地进度模拟；真实模式文件上传发生在项目创建之后（F02） */
+  simulateProgress?: boolean;
 }
 
-const UploadStep: React.FC<UploadStepProps> = ({ onContinue }) => {
+const UploadStep: React.FC<UploadStepProps> = ({ onContinue, simulateProgress = false }) => {
   const { t } = useAppTranslation();
   const [files, setFiles] = useState<FileItemData[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -44,9 +46,20 @@ const UploadStep: React.FC<UploadStepProps> = ({ onContinue }) => {
       createdAt: new Date().toISOString(),
       progress: 0,
       status: 'pending' as const,
+      raw: f,
     }));
 
     setFiles((prev) => [...prev, ...newFiles]);
+
+    // 仅 mock 模式做本地进度模拟；真实模式的上传带真实进度，发生在项目创建后
+    if (!simulateProgress) {
+      setFiles((prev) =>
+        prev.map((f) =>
+          newFiles.some((n) => n.id === f.id) ? { ...f, progress: 100, status: 'done' } : f
+        )
+      );
+      return;
+    }
 
     newFiles.forEach((file) => {
       setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: 'uploading' } : f)));

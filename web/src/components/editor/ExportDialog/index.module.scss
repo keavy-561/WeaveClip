@@ -1,0 +1,41 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--semi-color-text-2);
+}
+
+.control {
+  width: 100%;
+}
+
+.cta {
+  margin-top: 8px;
+}
+
+.progressArea {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.progressText,
+.doneText,
+.errorText {
+  font-size: 14px;
+}
+
+.errorText {
+  color: var(--semi-color-danger);
+}

@@ -23,7 +23,8 @@
     "importMedia": "Import media",
     "back": "Back",
     "help": "Help",
-    "user": "User"
+    "user": "User",
+    "retry": "Retry"
   },
   "nav": {
     "home": "Home",
@@ -187,7 +188,8 @@
       "contextHintSelected": "Clip selected: {{id}}",
       "contextHintNone": "No clip selected",
       "loadingText": "Thinking...",
-      "inputPlaceholder": "Tell AI what to change... e.g. \"Make the first 5 seconds more impactful\""
+      "inputPlaceholder": "Tell AI what to change... e.g. \"Make the first 5 seconds more impactful\"",
+      "sendFailed": "Failed to send: {{reason}}"
     },
     "quickActions": {
       "makeShorter": "Make shorter",
@@ -206,7 +208,20 @@
       "duration": "Duration",
       "loadError": "Failed to load editor data"
     },
-    "loadError": "Failed to load editor data"
+    "loadError": "Failed to load editor data",
+    "export": {
+      "title": "Export video",
+      "format": "Format",
+      "resolution": "Resolution",
+      "fps": "Frame rate",
+      "start": "Start rendering",
+      "startFailed": "Failed to start rendering: {{reason}}",
+      "rendering": "Rendering... you can leave and come back later.",
+      "completed": "Rendering completed!",
+      "downloadNow": "Download MP4",
+      "failedHint": "Rendering failed: {{reason}}",
+      "retry": "Try again"
+    }
   },
   "create": {
     "analyzeProgress": {
@@ -238,7 +253,9 @@
       "rejectedFiles": "{{count}} file(s) rejected: {{details}}",
       "unsupportedFormat": "unsupported format",
       "exceedsSize": "exceeds 500MB",
-      "error": "Failed to create project"
+      "error": "Failed to create project",
+      "uploadFailed": "Upload failed: {{reason}}",
+      "uploadingProgress": "Uploading {{done}}/{{total}} files ({{pct}}%)"
     },
     "describe": {
       "step": "Describe",
@@ -264,7 +281,13 @@
       }
     },
     "generate": {
-      "step": "Generate"
+      "step": "Generate",
+      "title": "AI is crafting your timeline...",
+      "startFailed": "Failed to start generation",
+      "failed": "Generation failed",
+      "needInput": "A few questions to nail your cut:",
+      "submitAnswers": "Continue generating",
+      "openEditor": "Open editor"
     },
     "fileList": {
       "count": "{{count}} file(s)",
