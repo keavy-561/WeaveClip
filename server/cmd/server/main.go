@@ -13,6 +13,7 @@ import (
 	"github.com/weaveclip/server/internal/middleware"
 	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
+	"github.com/weaveclip/server/internal/storage"
 )
 
 func main() {
@@ -43,6 +44,31 @@ func main() {
 	// Database (non-mock: exit on failure; mock: return nil)
 	db := database.MustConnect(cfg)
 
+	// 对象存储（B05）：优先 MinIO；不可用或 mock 模式回落本地磁盘存储
+	var store storage.Storage
+	if db != nil && cfg.Storage.Endpoint != "" {
+		ms, err := storage.NewMinioStorage(cfg.Storage)
+		if err != nil {
+			slog.Warn("minio init failed, fallback to local disk storage", "error", err)
+		} else {
+			store = ms
+		}
+	}
+	var mockStorageRoot string
+	if store == nil {
+		root := os.Getenv("MOCK_STORAGE_DIR")
+		if root == "" {
+			root = "./.mock-storage"
+		}
+		ls, err := storage.NewLocalDiskStorage(root, os.Getenv("MOCK_STORAGE_PUBLIC_BASE"))
+		if err != nil {
+			slog.Error("local storage init failed", "error", err)
+			os.Exit(1)
+		}
+		store = ls
+		mockStorageRoot = ls.Root()
+	}
+
 	// HTTP 服务
 	r := gin.New()
 	r.Use(gin.Recovery(), middleware.Recover(), middleware.RequestID(), middleware.Logger(),
@@ -50,7 +76,7 @@ func main() {
 		middleware.RequestTimeout(cfg.EffectiveRequestTimeout()))
 
 	// Handlers
-	healthHandler := handler.NewHealthHandler()
+	healthHandler := handler.NewHealthHandler(db, cfg.Redis.Addr, store)
 
 	// Project 仓库 + 服务（分层治理：handler 不再直连 DB）
 	var projectRepo repository.ProjectRepository
@@ -84,6 +110,12 @@ func main() {
 	api := r.Group("/api")
 	{
 		api.GET("/health", healthHandler.Check)
+
+		// 本地磁盘存储的回环直传端点（仅 mock 存储模式注册）
+		if mockStorageRoot != "" {
+			msHandler := handler.NewMockStorageHandler(mockStorageRoot)
+			api.Any("/mock-storage/*key", msHandler.Handle)
+		}
 
 		auth := api.Group("/auth")
 		{

@@ -30,6 +30,17 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+      minio:
+        image: quay.io/minio/minio:latest
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        ports: [9000:9000]
+        options: >-
+          --health-cmd "curl -sf http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -51,6 +62,10 @@ jobs:
           DATABASE_DBNAME: weaveclip
           DATABASE_SSLMODE: disable
           REDIS_ADDR: localhost:6379
+          STORAGE_ENDPOINT: localhost:9000
+          STORAGE_ACCESS_KEY: minioadmin
+          STORAGE_SECRET_KEY: minioadmin
+          STORAGE_BUCKET: weaveclip
           JWT_SECRET: test_secret
           MOCK_MODE: false
         run: go test -race ./...
@@ -67,6 +82,10 @@ jobs:
           DATABASE_DBNAME: weaveclip
           DATABASE_SSLMODE: disable
           REDIS_ADDR: localhost:6379
+          STORAGE_ENDPOINT: localhost:9000
+          STORAGE_ACCESS_KEY: minioadmin
+          STORAGE_SECRET_KEY: minioadmin
+          STORAGE_BUCKET: weaveclip
           JWT_SECRET: test_secret
           MOCK_MODE: false
         run: |

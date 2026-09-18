@@ -6,58 +6,42 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestHealthHandler_Check(t *testing.T) {
+func TestHealthHandler_Shallow(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	h := NewHealthHandler()
+	h := NewHealthHandler(nil, "", nil)
 
-	tests := []struct {
-		name   string
-		query  string
-		want   map[string]any
-		status int
-	}{
-		{
-			name:   "basic health check",
-			query:  "",
-			want:   map[string]any{"status": "ok"},
-			status: 200,
-		},
-		{
-			name:   "deep health check",
-			query:  "deep=true",
-			want:   map[string]any{"status": "ok", "db": "ok", "redis": "ok", "minio": "ok"},
-			status: 200,
-		},
-	}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("GET", "/api/health", nil)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			c, _ := gin.CreateTestContext(w)
-			if tt.query != "" {
-				c.Request = httptest.NewRequest("GET", "/api/health?"+tt.query, nil)
-			} else {
-				c.Request = httptest.NewRequest("GET", "/api/health", nil)
-			}
+	h.Check(c)
 
-			h.Check(c)
+	assert.Equal(t, 200, w.Code)
+	var resp map[string]any
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
+	assert.Equal(t, "ok", resp["status"])
+}
 
-			if w.Code != tt.status {
-				t.Fatalf("expected status %d, got %d: %s", tt.status, w.Code, w.Body.String())
-			}
+func TestHealthHandler_DeepMockMode(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	// db 为 nil 即 mock 模式：各组件报告 mock，整体 ok
+	h := NewHealthHandler(nil, "localhost:6379", nil)
 
-			var resp map[string]any
-			if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
-				t.Fatalf("failed to parse response: %v", err)
-			}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("GET", "/api/health?deep=true", nil)
 
-			for k, v := range tt.want {
-				if resp[k] != v {
-					t.Errorf("expected %s = %v, got %v", k, v, resp[k])
-				}
-			}
-		})
-	}
+	h.Check(c)
+
+	assert.Equal(t, 200, w.Code)
+	var resp map[string]any
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
+	assert.Equal(t, "ok", resp["status"])
+	assert.Equal(t, "mock", resp["db"])
+	assert.Equal(t, "mock", resp["redis"])
+	assert.Equal(t, "mock", resp["storage"])
 }

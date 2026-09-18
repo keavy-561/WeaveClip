@@ -11,12 +11,23 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// StorageConfig 对象存储配置（供 storage 包构造客户端）。
+type StorageConfig struct {
+	Provider  string `yaml:"provider"`
+	Endpoint  string `yaml:"endpoint"`
+	AccessKey string `yaml:"access_key"`
+	SecretKey string `yaml:"secret_key"`
+	Bucket    string `yaml:"bucket"`
+	Region    string `yaml:"region"`
+	Secure    bool   `yaml:"secure"`
+}
+
 type Config struct {
 	Server struct {
 		Port              int           `yaml:"port"`
 		Mode              string        `yaml:"mode"` // debug | release
-		RequestTimeout    time.Duration `yaml:"request_timeout"`       // 兼容字段：纳秒
-		RequestTimeoutSec int           `yaml:"request_timeout_sec"`   // 推荐字段：秒
+		RequestTimeout    time.Duration `yaml:"request_timeout"`      // 兼容字段：纳秒
+		RequestTimeoutSec int           `yaml:"request_timeout_sec"`  // 推荐字段：秒
 	} `yaml:"server"`
 
 	Database struct {
@@ -34,14 +45,7 @@ type Config struct {
 		Password string `yaml:"password"`
 	} `yaml:"redis"`
 
-	Storage struct {
-		Provider  string `yaml:"provider"`
-		Endpoint  string `yaml:"endpoint"`
-		AccessKey string `yaml:"access_key"`
-		SecretKey string `yaml:"secret_key"`
-		Bucket    string `yaml:"bucket"`
-		Region    string `yaml:"region"`
-	} `yaml:"storage"`
+	Storage StorageConfig `yaml:"storage"`
 
 	JWT struct {
 		Secret string        `yaml:"secret"`
