@@ -43,8 +43,6 @@ func TestRequestTimeout_SlowHandler(t *testing.T) {
 		t.Fatalf("invalid JSON body: %v", err)
 	}
 	assert.Equal(t, "GATEWAY_TIMEOUT", body["code"])
-	// 等慢处理器 goroutine 退出，避免影响后续测试
-	time.Sleep(100 * time.Millisecond)
 }
 
 func TestRequestTimeout_PanicRecovered(t *testing.T) {

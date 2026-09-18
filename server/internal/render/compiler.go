@@ -169,11 +169,9 @@ func Compile(dsl *ai.DSLTimeline, assetFiles map[string]string, opt Options) (*P
 	}
 
 	// 最终滤镜：视频输出接字幕
-	finalVideo := videoOut
 	if subFilter != "" {
 		chain = append(chain, fmt.Sprintf("[%s]null%s[vsub]", videoOut, subFilter))
-		finalVideo = "vsub"
-		videoMap[1] = fmt.Sprintf("[%s]", finalVideo)
+		videoMap[1] = "[vsub]"
 	}
 
 	args := append(inputArgs, extraArgs...)

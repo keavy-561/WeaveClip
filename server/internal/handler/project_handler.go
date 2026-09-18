@@ -141,5 +141,5 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 		respondProjectError(c, err, "failed to delete project")
 		return
 	}
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusNoContent, gin.H{})
 }

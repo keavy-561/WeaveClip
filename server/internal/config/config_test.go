@@ -33,8 +33,10 @@ database:
   host: ${DB_HOST}
   port: ${DB_PORT}
   user: weaveclip
-  password: "${DB_PASSWORD}"
+  password: ${DB_PASSWORD}
 `)
+	// 隔离 CI 环境变量（overrideFromEnv 会覆盖同名字段）
+	t.Setenv("DATABASE_HOST", "")
 	t.Setenv("DB_HOST", "db.example.com")
 	t.Setenv("DB_PORT", "6543")
 	t.Setenv("DB_PASSWORD", "p@ss:word")
@@ -47,6 +49,7 @@ database:
 }
 
 func TestLoad_UnsetPlaceholderKeptLiteral(t *testing.T) {
+	t.Setenv("DATABASE_HOST", "")
 	writeTestConfig(t, `
 server:
   port: 8080

@@ -76,7 +76,7 @@ func Probe(ctx context.Context, tools Tools, localFile string) (*ProbeResult, er
 		return nil, fmt.Errorf("parse ffprobe output: %w", err)
 	}
 	res := &ProbeResult{}
-	fmt.Sscanf(parsed.Format.Duration, "%f", &res.Duration)
+	_, _ = fmt.Sscanf(parsed.Format.Duration, "%f", &res.Duration)
 	for _, st := range parsed.Streams {
 		if st.CodecType == "video" && res.Width == 0 {
 			res.Width = st.Width
@@ -97,7 +97,7 @@ func parseFrameRate(s string) float64 {
 	if n, _ := fmt.Sscanf(s, "%f/%f", &num, &den); n == 2 && den > 0 {
 		return num / den
 	}
-	fmt.Sscanf(s, "%f", &num)
+	_, _ = fmt.Sscanf(s, "%f", &num)
 	return num
 }
 

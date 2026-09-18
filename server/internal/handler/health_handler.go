@@ -34,7 +34,7 @@ func (h *HealthHandler) Check(c *gin.Context) {
 	}
 
 	mockMode := h.db == nil
-	dbStatus, redisStatus, storageStatus := "ok", "ok", "ok"
+	var dbStatus, redisStatus, storageStatus string
 	if mockMode {
 		// mock 模式不依赖外部组件，直接报告 mock 状态
 		dbStatus, redisStatus, storageStatus = "mock", "mock", "mock"
