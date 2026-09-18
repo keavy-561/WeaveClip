@@ -1,0 +1,3 @@
+# Design mockups / UI exploration assets — treat as documentation so they
+# don't pollute the repository language statistics.
+design/** linguist-documentation=true
