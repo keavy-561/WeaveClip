@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -31,10 +32,13 @@ func (h *AnalyzeHandler) Start(c *gin.Context) {
 		return
 	}
 	var req StartAnalyzeReq
-	if len(c.Request.Body) > 0 {
-		if err := c.ShouldBindJSON(&req); err != nil {
-			BadRequest(c, "invalid request body")
-			return
+	if c.Request.Body != nil {
+		body, readErr := io.ReadAll(io.LimitReader(c.Request.Body, 1<<20))
+		if readErr == nil && len(body) > 0 {
+			if err := json.Unmarshal(body, &req); err != nil {
+				BadRequest(c, "invalid request body")
+				return
+			}
 		}
 	}
 	task, err := h.analyze.Start(projectID, currentUserID(c), req.AssetIDs)

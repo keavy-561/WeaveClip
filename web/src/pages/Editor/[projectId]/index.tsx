@@ -127,6 +127,15 @@ const Editor: React.FC = () => {
   const tracks = useTimelineStore((s) => s.tracks);
   const timelineDuration = useTimelineStore((s) => s.duration);
 
+  const displayAssets =
+    !isMockMode && projectId
+      ? assetsLoading
+        ? []
+        : assets.length > 0
+          ? assets
+          : mockAssets
+      : mockAssets.filter((a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId));
+
   // 素材注入全局 store：Clip/MediaPanel 由此读取真实素材信息
   useEffect(() => {
     setAssets(displayAssets);
@@ -157,15 +166,6 @@ const Editor: React.FC = () => {
 
   // 键盘快捷键：Space/Delete/Ctrl+Z/Ctrl+Shift+Z（工单 F11）
   useEditorShortcuts();
-
-  const displayAssets =
-    !isMockMode && projectId
-      ? assetsLoading
-        ? []
-        : assets.length > 0
-          ? assets
-          : mockAssets
-      : mockAssets.filter((a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId));
 
   useEffect(() => {
     document.title = currentProject?.name
