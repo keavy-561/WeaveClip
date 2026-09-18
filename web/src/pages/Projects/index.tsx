@@ -12,6 +12,14 @@ import styles from './index.module.scss';
 
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
+const statusTextMap: Record<string, string> = {
+  draft: 'statusDraft',
+  ready: 'statusReady',
+  analyzing: 'statusAnalyzing',
+  generating: 'statusGenerating',
+  rendering: 'statusRendering',
+};
+
 const Projects: React.FC = () => {
   const { t } = useAppTranslation();
   const navigate = useNavigate();
@@ -54,6 +62,7 @@ const Projects: React.FC = () => {
             icon={<IconArrowLeft />}
             theme="borderless"
             className={styles.backBtn}
+            aria-label={t('common.back', 'Back')}
             onClick={() => navigate('/')}
           />
           <Logo size="small" />
@@ -63,23 +72,45 @@ const Projects: React.FC = () => {
         </div>
         <div className={styles.navRight}>
           <LanguageSwitcher />
-          <Button theme="solid" size="small" icon={<IconPlus />} onClick={() => navigate('/projects/new')}>
-            {t('projects.newVideo')}
-          </Button>
         </div>
       </header>
 
       <main className={styles.main}>
+        <div className={styles.actionBar}>
+          <Button
+            theme="solid"
+            size="small"
+            icon={<IconPlus />}
+            className={styles.newVideoBtn}
+            onClick={() => navigate('/projects/new')}
+          >
+            {t('projects.newVideo')}
+          </Button>
+        </div>
+
         {isLoading ? (
-          <div className={styles.skeletonGrid}>
+          <div className={styles.grid}>
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className={styles.card} />
+              <Skeleton key={i} className={styles.skeletonCard} />
             ))}
           </div>
         ) : error ? (
-          <Empty description={t('projects.loadError', 'Failed to load projects')} />
+          <div className={styles.emptyWrap}>
+            <Empty description={t('projects.loadError', 'Failed to load projects')} />
+          </div>
         ) : projects.length === 0 ? (
-          <div className={styles.empty}>{t('projects.empty')}</div>
+          <div className={styles.emptyWrap}>
+            <Empty description={t('projects.empty')}>
+              <Button
+                theme="solid"
+                icon={<IconPlus />}
+                className={styles.emptyCta}
+                onClick={() => navigate('/projects/new')}
+              >
+                {t('projects.newVideo')}
+              </Button>
+            </Empty>
+          </div>
         ) : (
           <div className={styles.grid}>
             {projects.map((project) => (
@@ -88,38 +119,45 @@ const Projects: React.FC = () => {
                 className={styles.card}
                 onClick={() => navigate(`/editor/${project.id}`)}
               >
-                <h3 className={styles.cardTitle}>{project.name}</h3>
-                <div className={styles.meta}>
-                  <div className={styles.metaLeft}>
-                    <span className={styles.badge}>{project.aspectRatio}</span>
-                    <span className={styles.info}>
+                <div className={styles.cardBody}>
+                  <h3 className={styles.cardTitle}>{project.name}</h3>
+                </div>
+                <div className={styles.cardFooter}>
+                  <div className={styles.meta}>
+                    <span>{project.aspectRatio}</span>
+                    <span>
                       {project.duration ? `${project.duration}${t('home.durationUnit', 's')}` : '—'}
                     </span>
-                    <span className={styles.info}>{project.style}</span>
+                    <span>{t(`mockData.style.${project.style}`, project.style)}</span>
                   </div>
-                  <span className={styles.status}>{project.status}</span>
-                </div>
-                <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
-                  <Popover
-                    trigger="click"
-                    content={
-                      <div className={styles.popoverMenu}>
-                        <div className={styles.popoverItem} onClick={() => confirmDelete(project.id)}>
-                          <IconDelete />
-                          {t('projects.delete', 'Delete')}
+                  <span className={styles.status}>{t(`home.${statusTextMap[project.status] || 'statusReady'}`)}</span>
+                  <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
+                    <Popover
+                      trigger="click"
+                      content={
+                        <div className={styles.popoverMenu}>
+                          <Button
+                            theme="borderless"
+                            size="small"
+                            icon={<IconDelete />}
+                            className={styles.popoverItem}
+                            onClick={() => confirmDelete(project.id)}
+                          >
+                            {t('projects.delete', 'Delete')}
+                          </Button>
                         </div>
-                      </div>
-                    }
-                    position="bottomRight"
-                  >
-                    <Button
-                      icon={<IconMore />}
-                      theme="borderless"
-                      size="small"
-                      className={styles.actionBtn}
-                      aria-label={t('projects.actions', 'Actions')}
-                    />
-                  </Popover>
+                      }
+                      position="bottomRight"
+                    >
+                      <Button
+                        icon={<IconMore />}
+                        theme="borderless"
+                        size="small"
+                        className={styles.actionBtn}
+                        aria-label={t('projects.actions', 'Actions')}
+                      />
+                    </Popover>
+                  </div>
                 </div>
               </div>
             ))}

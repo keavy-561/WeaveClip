@@ -84,8 +84,8 @@
   },
   "projects": {
     "title": "Projects",
-    "newVideo": "+ New Video",
-    "empty": "No projects yet",
+    "newVideo": "New Video",
+    "empty": "No projects yet — create your first video",
     "delete": "Delete",
     "actions": "Actions",
     "deleteSuccess": "Project deleted",
