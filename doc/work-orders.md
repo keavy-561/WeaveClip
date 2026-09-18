@@ -80,6 +80,8 @@
 | D6 | 视觉基准矛盾 | development-plan.md §3（深色默认/Inter/12px 圆角）vs design-system.md + DESIGN.md（Morandi 浅色/Manrope/8px） | **以 design-system.md 为唯一基准**（README badge 与 design/ 稿均指向它），development-plan §3 待 T02 修订 | 前端全部、T02 |
 | D7 | DELETE /projects 响应 | development-plan.md:758 `{success:true}` vs api.md:190 与现行实现 204 | **以 204 为准**，修订 development-plan | T02 |
 
+> 2026-09-19：以上裁定（D1–D7）已按建议默认值落地，修订见各文档变更记录（doc/development-plan.md、server/docs/api.md、AGENTS.md、README.md）。
+
 ---
 
 ## 4. 后端工单（完成后即"后端服务全部写完"）
@@ -367,3 +369,4 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 | 日期 | 版本 | 变更内容 |
 |---|---|---|
 | 2026-09-18 | v1.0 | 初始版本：基于全量代码审查产出后端 21 / 前端 15 / 治理 3 共 39 条工单，附 7 项待裁定决策与执行批次建议 |
+| 2026-09-19 | v1.1 | 并入走查工单（audit/工单清单.md WC-P0/P1/P2 与 WC-NI 系列）；B08（项目更新）已由 main 分支 PATCH /api/projects/:id 实现；D1–D7 裁定落地。 |
