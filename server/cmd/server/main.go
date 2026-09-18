@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/weaveclip/server/internal/ai"
 	"github.com/weaveclip/server/internal/config"
 	"github.com/weaveclip/server/internal/database"
 	"github.com/weaveclip/server/internal/handler"
@@ -118,6 +119,36 @@ func main() {
 	timelineService := service.NewTimelineService(timelineRepo, projectService)
 	timelineHandler := handler.NewTimelineHandler(timelineService)
 
+	// AI 链路（B10-B13）：有 key 走真实 LLM，否则 mock 客户端 + 启发式
+	var llmClient ai.LLMClient
+	if cfg.AI.AnthropicKey != "" {
+		llmClient = ai.NewAnthropicClient(cfg.AI.AnthropicKey, "")
+	} else {
+		llmClient = ai.NewMockLLM()
+	}
+	pipeline := ai.NewPipeline(llmClient)
+	if _, isMock := llmClient.(*ai.MockLLM); isMock {
+		pipeline.EnableHeuristic = true
+	}
+
+	var generationRepo repository.GenerationRepository
+	if db != nil {
+		generationRepo = repository.NewGormGenerationRepo(db)
+	} else {
+		generationRepo = repository.NewMockGenerationRepo()
+	}
+	generateService := service.NewGenerateService(generationRepo, projectService, assetRepo, timelineService, pipeline)
+	generateHandler := handler.NewGenerateHandler(generateService)
+
+	var editRepo repository.EditRepository
+	if db != nil {
+		editRepo = repository.NewGormEditRepo(db)
+	} else {
+		editRepo = repository.NewMockEditRepo()
+	}
+	chatService := service.NewChatService(projectService, assetRepo, timelineService, editRepo, llmClient)
+	chatHandler := handler.NewChatHandler(chatService)
+
 	// 路由注册
 	api := r.Group("/api")
 	{
@@ -151,11 +182,14 @@ func main() {
 			projects.GET("/:id/timeline", timelineHandler.Get)
 			projects.GET("/:id/timeline/versions", timelineHandler.ListVersions)
 			projects.PUT("/:id/timeline", timelineHandler.Save)
+			projects.POST("/:id/generate", generateHandler.Start)
+			projects.POST("/:id/chat", chatHandler.Chat)
 
-			// Phase 1+: analyze / generate / chat / render
+			// Phase 4: analyze / Phase 5: render 接入后补充
 		}
 		api.GET("/assets/:id", middleware.Auth(), assetHandler.Get)
 		api.DELETE("/assets/:id", middleware.Auth(), assetHandler.Delete)
+		api.GET("/generations/:id", middleware.Auth(), generateHandler.Get)
 	}
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)

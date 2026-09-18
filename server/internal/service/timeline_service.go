@@ -67,6 +67,11 @@ func (s *TimelineService) Save(projectID, userID uint, raw []byte, label string)
 	if _, err := s.proj.GetProject(projectID, userID); err != nil {
 		return nil, ErrProjectNotFound
 	}
+	return s.SaveInternal(projectID, raw, label)
+}
+
+// SaveInternal 内部落库（生成/对话管线内部使用，已在上层做过属主校验）。
+func (s *TimelineService) SaveInternal(projectID uint, raw []byte, label string) (*model.Timeline, error) {
 	if err := validateTimelineJSON(raw); err != nil {
 		return nil, err
 	}
