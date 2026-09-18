@@ -164,7 +164,8 @@
       "play": "Play",
       "pause": "Pause",
       "mute": "Mute",
-      "unmute": "Unmute"
+      "unmute": "Unmute",
+      "previewAlt": "Video preview"
     },
     "sidebar": {
       "filters": "Filters",
@@ -262,10 +263,6 @@
       "cinematic": "Cinematic",
       "minimal": "Minimal"
     }
-  },
-  "theme": {
-    "lightLabel": "Switch to dark theme",
-    "darkLabel": "Switch to light theme"
   },
   "login": {
     "title": "Sign in",

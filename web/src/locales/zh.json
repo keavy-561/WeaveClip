@@ -164,7 +164,8 @@
       "play": "播放",
       "pause": "暂停",
       "mute": "静音",
-      "unmute": "取消静音"
+      "unmute": "取消静音",
+      "previewAlt": "视频预览"
     },
     "sidebar": {
       "filters": "滤镜",
@@ -262,10 +263,6 @@
       "cinematic": "电影",
       "minimal": "最低限度"
     }
-  },
-  "theme": {
-    "lightLabel": "切换到深色主题",
-    "darkLabel": "切换到浅色主题"
   },
   "login": {
     "title": "登录",
