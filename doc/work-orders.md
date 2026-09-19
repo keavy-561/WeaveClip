@@ -425,6 +425,8 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 
 执行顺序建议：WO2-01 → WO2-05/06/07（小件并行）→ WO2-02/03/04 → WO2-08/10 → WO2-09/11/12。
 
+**实施结果（2026-09-19）**：WO2-01/02/03/04/05/06/07/08/09/12 已实现并推送（含 VideoPlayer 真 `<video>` 双向同步、playbackUrl 预签名链路、Transcript/VersionHistory UI、/settings、素材删除、登录校验、RequireAuth 接 /auth/me、GORM 集成测试与迁移往返、Vision 多模态分析、govulncheck/npm audit 安全 job、dslAdapter/TranscriptPanel 测试）。**遗留**：WO2-10 的 ExportDialog/Generate 页测试与 WO2-11（Timeline 虚拟滚动/响应式核查）待后续；并行会话（豆包）同期落地了第三轮走查修复（WO3-01~08，见 git log）。
+
 ---
 
 ## 变更记录
@@ -437,3 +439,4 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 | 2026-09-19 | v1.3 | 第二轮工单 WO2-01～WO2-12 登记；随后 WO2-02/03/08/09/10/12 由并行会话完成（转录面板/版本历史/GORM集成测试/Vision/前端测试/安全job）。 |
 | 2026-09-19 | v1.4 | 第三轮：豆包复测 P1×3/P2×5 → 新增 WO3-01～08 并全部实现（时间轴点击遮挡防御修复、编辑器模板按钮响应、删除项目二次确认、素材占位图去设计稿假图、mock 导出进度模拟、移除 Google Fonts、Router v7 flags、StrictMode 规避 findDOMNode）；另修复 WO2-09 提交遗留的 3 处编译错误。 |
 | 2026-09-19 | v1.3 | 复查产出第二轮工单 12 条（§8）：VideoPlayer 真播放器、Transcript/版本历史 UI、settings、素材删除、登录校验、GORM 集成测试、Vision 接入、性能与安全扫描等。 |
+| 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |
