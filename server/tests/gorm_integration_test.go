@@ -18,6 +18,7 @@ import (
 
 	"github.com/weaveclip/server/internal/model"
 	"github.com/weaveclip/server/internal/repository"
+	"github.com/weaveclip/server/internal/service"
 	"github.com/weaveclip/server/migrations"
 )
 
@@ -65,7 +66,7 @@ func TestGormRepos_CRUD(t *testing.T) {
 	// 幂等建表，保证独立于迁移引擎测试的执行顺序
 	require.NoError(t, migrations.Up(mustSQLDB(t, db), "../migrations"))
 
-	userRepo := repository.NewGormUserRepo(db)
+	userRepo := service.NewGormUserRepo(db)
 	projectRepo := repository.NewGormProjectRepo(db)
 	assetRepo := repository.NewGormAssetRepo(db)
 	timelineRepo := repository.NewGormTimelineRepo(db)

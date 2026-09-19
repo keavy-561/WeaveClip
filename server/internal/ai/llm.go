@@ -171,7 +171,7 @@ func (c *AnthropicClient) CompleteVision(ctx context.Context, system, userText s
 			},
 		})
 	}
-	content = append(content, map[string]string{"type": "text", "text": userText})
+	content = append(content, map[string]any{"type": "text", "text": userText})
 
 	body, err := json.Marshal(map[string]any{
 		"model":      c.model,

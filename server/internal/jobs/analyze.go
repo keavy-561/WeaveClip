@@ -184,7 +184,7 @@ func (d Deps) runVision(ctx context.Context, localFile string, asset *model.Asse
 {strongMoments:[{time(number,秒),reason(string)}], talkingHead(bool,是否口播人物), bRoll:[{time,reason}(空镜/转场素材)], duplicates:[{timeA,timeB}(疑似重复画面)]}。
 time 以素材时长 %.1f 秒为基准估算。只输出 JSON。`
 	text := fmt.Sprintf(visionSystem, total)
-	out, err := d.Vision.CompleteVision(ctx, visionSystem, "素材文件名："+asset.FileName, images)
+	out, err := d.Vision.CompleteVision(ctx, text, "素材文件名："+asset.FileName, images)
 	if err != nil {
 		return err
 	}
