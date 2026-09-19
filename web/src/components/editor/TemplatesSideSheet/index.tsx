@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, SideSheet } from '@douyinfe/semi-ui';
 import { mockTemplates } from '@/utils/mockData';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -19,9 +20,11 @@ const toneClassMap: Record<Template['tone'], string> = {
   steel: styles.toneSteel,
 };
 
-/** 模板中心（工单 WO6-01）：替代原先的「开发中」Toast 占位 */
+/** 模板中心（工单 WO6-01/WO7-03）：替代原先的「开发中」Toast 占位。
+ * 双真实路径：「使用模板」预填 AI 对话走改剪；「用模板新建」带 prompt 进 Describe→Generate 生成链 */
 const TemplatesSideSheet: React.FC<TemplatesSideSheetProps> = ({ visible, onClose, onUse }) => {
   const { t } = useAppTranslation();
+  const navigate = useNavigate();
 
   return (
     <SideSheet
@@ -43,14 +46,20 @@ const TemplatesSideSheet: React.FC<TemplatesSideSheetProps> = ({ visible, onClos
               <h4 className={styles.name}>{t(template.titleKey)}</h4>
               <p className={styles.prompt}>{t(template.promptKey)}</p>
             </div>
-            <Button
-              theme="solid"
-              size="small"
-              className={styles.useBtn}
-              onClick={() => onUse(t(template.promptKey))}
-            >
-              {t('editor.templates.use')}
-            </Button>
+            <div className={styles.actions}>
+              <Button theme="solid" size="small" onClick={() => onUse(t(template.promptKey))}>
+                {t('editor.templates.use')}
+              </Button>
+              <Button
+                theme="borderless"
+                size="small"
+                onClick={() =>
+                  navigate(`/projects/new/describe?prompt=${encodeURIComponent(t(template.promptKey))}`)
+                }
+              >
+                {t('editor.templates.create')}
+              </Button>
+            </div>
           </div>
         ))}
       </div>

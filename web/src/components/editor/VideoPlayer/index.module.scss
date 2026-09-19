@@ -79,6 +79,33 @@
   text-overflow: ellipsis;
 }
 
+// 字幕实时渲染（WO7-01）：按片段样式叠加，位置由 .captionTop/Center/Bottom 决定
+.captionOverlay {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  z-index: 2;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.4;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+.captionTop {
+  top: 8%;
+}
+
+.captionCenter {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.captionBottom {
+  bottom: 12%;
+}
+
 .overlay {
   position: absolute;
   inset: 0;

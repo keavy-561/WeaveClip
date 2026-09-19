@@ -277,7 +277,8 @@
     "templates": {
       "title": "Template gallery",
       "subtitle": "Pick a template — AI will generate or restyle your timeline in that style",
-      "use": "Use template"
+      "use": "Use template",
+      "create": "Create with template"
     },
     "record": {
       "start": "Start recording",

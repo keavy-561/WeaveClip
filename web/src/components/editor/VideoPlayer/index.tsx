@@ -64,6 +64,48 @@ const VideoPlayer: React.FC = () => {
     );
   }, [activeClip, assets]);
 
+  // 当前字幕（字幕轨命中播放头的片段），预览中真实渲染（工单 WO7-01）
+  const activeCaption = useMemo(() => {
+    const captionTrack = tracks.find((tr) => tr.type === 'caption');
+    if (!captionTrack) return null;
+    return (
+      captionTrack.clips.find(
+        (c) => currentTime >= c.start && currentTime < c.start + c.duration
+      ) ?? null
+    );
+  }, [tracks, currentTime]);
+
+  // 调色/滤镜/效果预览（工单 WO7-02）：映射为 CSS filter 实时作用于 <video>，
+  // 最终成片效果以后端渲染管线（B17）编译的 ffmpeg 滤镜为准
+  const previewFilter = useMemo(() => {
+    if (!activeClip) return undefined;
+    const parts: string[] = [];
+    const brightness = activeClip.brightness ?? 0;
+    const contrast = activeClip.contrast ?? 0;
+    if (brightness !== 0) parts.push(`brightness(${(1 + brightness / 100).toFixed(3)})`);
+    if (contrast !== 0) parts.push(`contrast(${(1 + contrast / 100).toFixed(3)})`);
+    const presetFilter: Record<string, string> = {
+      vivid: 'saturate(1.4)',
+      charm: 'sepia(0.35) saturate(1.15)',
+      sky: 'hue-rotate(18deg) saturate(1.15) brightness(1.05)',
+      mono: 'grayscale(1)',
+    };
+    const preset = activeClip.params?.filter;
+    if (typeof preset === 'string' && presetFilter[preset]) {
+      parts.push(presetFilter[preset]);
+    }
+    const effectFilter: Record<string, string> = {
+      vivid: 'saturate(1.4)',
+      mono: 'grayscale(1)',
+      vintage: 'sepia(0.45) contrast(0.95)',
+    };
+    const effect = activeClip.effectType;
+    if (effect && effect !== 'none' && effectFilter[effect]) {
+      parts.push(effectFilter[effect]);
+    }
+    return parts.length > 0 ? parts.join(' ') : undefined;
+  }, [activeClip]);
+
   // 可播放地址：后端预签名 playbackUrl 优先；mock 本地路径不可播，回退 CSS 渐变占位
   const videoSrc = activeAsset?.playbackUrl ?? null;
   const hasPlayableSource = !!videoSrc;
@@ -201,6 +243,7 @@ const VideoPlayer: React.FC = () => {
         <video
           ref={videoRef}
           className={styles.video}
+          style={previewFilter ? { filter: previewFilter } : undefined}
           src={hasPlayableSource ? videoSrc ?? undefined : undefined}
           poster={activeAsset?.thumbnailUrl || undefined}
           preload="metadata"
@@ -221,6 +264,20 @@ const VideoPlayer: React.FC = () => {
         <div className={styles.mockTime}>{formatTime(currentTime)}</div>
         {/* 品牌水印（工单 WO6-09）：品牌面板填写名称后显示 */}
         {brandName.trim() && <div className={styles.brandWatermark}>{brandName.trim()}</div>}
+        {/* 字幕真实渲染（工单 WO7-01）：按片段的颜色/位置/字号叠加显示 */}
+        {activeCaption?.text && (
+          <div
+            className={`${styles.captionOverlay} ${
+              styles[`caption${activeCaption.style?.position ?? 'bottom'}`] ?? ''
+            }`}
+            style={{
+              color: activeCaption.style?.color ?? '#FFFFFF',
+              fontSize: `${activeCaption.style?.size ?? 24}px`,
+            }}
+          >
+            {activeCaption.text}
+          </div>
+        )}
 
         <div className={styles.overlay}>
           <div className={styles.controls}>
