@@ -156,3 +156,32 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm exec eslint src --ext .ts,.tsx || echo "ESLint not configured, skipping"
+
+  security:
+    runs-on: ubuntu-latest
+    continue-on-error: true # T03/WO2-12：安全扫描不阻塞主链路
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Resolve server deps
+        working-directory: server
+        run: go mod tidy && go mod edit -go=1.23
+      - name: govulncheck
+        working-directory: server
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          $(go env GOPATH)/bin/govulncheck ./...
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: npm audit
+        working-directory: web
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm audit --audit-level critical
