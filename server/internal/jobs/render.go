@@ -186,8 +186,9 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 	_ = d.Renders.Update(renderRow)
 	notify(15, "rendering", "")
 	step := plan.Steps[0]
-	cmd := exec.CommandContext(ctx, step.Args[0], step.Args[1:]...)
-	cmd.Args = append(cmd.Args[:2], append([]string{"-progress", "pipe:1", "-nostats"}, cmd.Args[2:]...)...)
+	// 在二进制名之后插入进度输出参数
+	fullArgs := append([]string{step.Args[0], "-progress", "pipe:1", "-nostats"}, step.Args[1:]...)
+	cmd := exec.CommandContext(ctx, fullArgs[0], fullArgs[1:]...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return fail("stdout pipe: %v", err)

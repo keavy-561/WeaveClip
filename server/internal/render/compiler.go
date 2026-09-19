@@ -26,12 +26,13 @@ type Plan struct {
 
 // Options 编译选项。
 type Options struct {
-	Width    int
-	Height   int
-	FPS      int
-	WorkDir  string
-	Output   string // 最终输出文件名（含扩展名）
-	CRF      string // 质量（默认 20）
+	Width      int
+	Height     int
+	FPS        int
+	WorkDir    string
+	Output     string // 最终输出文件名（含扩展名）
+	CRF        string // 质量（默认 20）
+	FFmpegPath string // 可执行文件路径（默认 ffmpeg），Args[0] 使用
 }
 
 // Compile 把 DSL 编译为 ffmpeg 命令计划。
@@ -52,6 +53,9 @@ func Compile(dsl *ai.DSLTimeline, assetFiles map[string]string, opt Options) (*P
 	if opt.CRF == "" {
 		opt.CRF = "20"
 	}
+	if opt.FFmpegPath == "" {
+		opt.FFmpegPath = "ffmpeg"
+	}
 	if opt.Output == "" {
 		opt.Output = "output.mp4"
 	}
@@ -62,8 +66,8 @@ func Compile(dsl *ai.DSLTimeline, assetFiles map[string]string, opt Options) (*P
 	}
 	clips := videoTrack.Clips
 
-	// 输入参数 + 每个片段的滤镜链
-	inputArgs := []string{"-hide_banner", "-y"}
+	// 输入参数 + 每个片段的滤镜链（Args[0] 为可执行文件）
+	inputArgs := []string{opt.FFmpegPath, "-hide_banner", "-y"}
 	chain := make([]string, 0, len(clips))
 	durations := make([]float64, len(clips))
 	for i, clip := range clips {

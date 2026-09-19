@@ -46,6 +46,7 @@ func TestCompile_Concat(t *testing.T) {
 	require.Len(t, plan.Steps, 1)
 
 	args := plan.Steps[0].Args
+	assert.Equal(t, "ffmpeg", args[0])
 	joined := strings.Join(args, " ")
 	// 三个输入：两个视频 + 一个循环背景音乐
 	assert.Equal(t, 3, countFlag(args, "-i"))
