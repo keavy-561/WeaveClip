@@ -24,6 +24,11 @@
 
 编号规则：B=后端（21 条，P0 主体）、F=前端（15 条）、T=测试/CI/治理（3 条）。规模：S≤1 天、M=1–3 天、L>3 天（纯人工估算，供排期参考）。
 
+> **执行进度（2026-09-19）**：B01–B21、F01–F15、T01–T03 的实现代码已全部推送
+> （分支 feat/editor-ui-redesign-morandi），验证交由远端 CI（local-dev-rules §1）。
+> B08（项目更新）由 main 分支 PATCH 端点先行完成。B21 中构建产物出库与 F12 中
+> 确认弃用的死代码删除属"文件删除"，仍待人类按删除保护流程执行。
+
 | 编号 | 标题 | 规模 | 依赖 |
 |---|---|---|---|
 | B01 | 分层治理：Project 走 service/repository，消除 handler 直连 DB | M | — |
@@ -79,6 +84,8 @@
 | D5 | Generate 进度 UI 时机 | development-plan.md:530（任务 2.10）要求轮询进度 UI vs AGENTS.md:58 声明"本轮不做" | **B12 完成后即做 F08**（后端既然全写完，前端联调随之） | F08、T02 |
 | D6 | 视觉基准矛盾 | development-plan.md §3（深色默认/Inter/12px 圆角）vs design-system.md + DESIGN.md（Morandi 浅色/Manrope/8px） | **以 design-system.md 为唯一基准**（README badge 与 design/ 稿均指向它），development-plan §3 待 T02 修订 | 前端全部、T02 |
 | D7 | DELETE /projects 响应 | development-plan.md:758 `{success:true}` vs api.md:190 与现行实现 204 | **以 204 为准**，修订 development-plan | T02 |
+
+> 2026-09-19：以上裁定（D1–D7）已按建议默认值落地，修订见各文档变更记录（doc/development-plan.md、server/docs/api.md、AGENTS.md、README.md）。
 
 ---
 
@@ -367,3 +374,5 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 | 日期 | 版本 | 变更内容 |
 |---|---|---|
 | 2026-09-18 | v1.0 | 初始版本：基于全量代码审查产出后端 21 / 前端 15 / 治理 3 共 39 条工单，附 7 项待裁定决策与执行批次建议 |
+| 2026-09-19 | v1.1 | 并入走查工单（audit/工单清单.md WC-P0/P1/P2 与 WC-NI 系列）；B08（项目更新）已由 main 分支 PATCH /api/projects/:id 实现；D1–D7 裁定落地。 |
+| 2026-09-19 | v1.2 | 全量工单实现完成并推送：后端新增存储/上传/时间轴/AI/分析/渲染/WebSocket 服务与迁移 002，前端接入真实上传、持久化、聊天、生成页与导出；smoke 扩至 7 个脚本；本机零验证，待 CI 裁决。 |

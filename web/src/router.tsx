@@ -4,6 +4,7 @@ import Projects from '@/pages/Projects';
 import Upload from '@/pages/Create/Upload';
 import Analyze from '@/pages/Create/Analyze';
 import Describe from '@/pages/Create/Describe';
+import Generate from '@/pages/Create/Generate';
 import Editor from '@/pages/Editor/[projectId]';
 import Login from '@/pages/Login';
 import Home from '@/pages/Home';
@@ -27,6 +28,11 @@ const Router: React.FC = () => {
       <Route path="/projects/new/analyze" element={
         <RequireAuth>
           <Analyze />
+        </RequireAuth>
+      } />
+      <Route path="/projects/new/generate" element={
+        <RequireAuth>
+          <Generate />
         </RequireAuth>
       } />
       <Route path="/projects/new/describe" element={

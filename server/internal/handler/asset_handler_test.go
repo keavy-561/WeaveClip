@@ -46,6 +46,16 @@ func (r *fakeAssetRepo) Create(asset *model.Asset) error {
 	return nil
 }
 
+func (r *fakeAssetRepo) Update(asset *model.Asset) error {
+	for i := range r.assets {
+		if r.assets[i].ID == asset.ID {
+			r.assets[i] = *asset
+			return nil
+		}
+	}
+	return nil
+}
+
 func (r *fakeAssetRepo) Delete(id uint) error {
 	for i := range r.assets {
 		if r.assets[i].ID == id {
@@ -87,7 +97,7 @@ func TestAssetHandler_CRUD(t *testing.T) {
 	assetRepo := newFakeAssetRepo(nil)
 	projectFinder := newFakeProjectFinder(model.Project{ID: 1, UserID: 1})
 	assetService := service.NewAssetService(assetRepo, projectFinder)
-	assetHandler := NewAssetHandler(assetService)
+	assetHandler := NewAssetHandler(assetService, nil)
 
 	t.Run("create asset", func(t *testing.T) {
 		w := httptest.NewRecorder()

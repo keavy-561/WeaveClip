@@ -23,7 +23,8 @@
     "importMedia": "Import media",
     "back": "Back",
     "help": "Help",
-    "user": "User"
+    "user": "User",
+    "retry": "Retry"
   },
   "nav": {
     "home": "Home",
@@ -99,6 +100,9 @@
       "projectName": "Project Name",
       "aspectRatio": "16:9"
     },
+    "panel": {
+      "developing": "{{tool}} is under development"
+    },
     "mediaPanel": {
       "title": "Media",
       "library": "Library",
@@ -140,6 +144,11 @@
       "text": "Text",
       "volume": "Volume",
       "audio": "Audio",
+      "effectType": "Effect Type",
+      "effectNone": "None",
+      "mono": "Mono",
+      "vintage": "Vintage",
+      "captionOnly": "Select a clip on the caption track",
       "selectClip": "Select a clip to inspect"
     },
     "timeline": {
@@ -179,7 +188,8 @@
       "contextHintSelected": "Clip selected: {{id}}",
       "contextHintNone": "No clip selected",
       "loadingText": "Thinking...",
-      "inputPlaceholder": "Tell AI what to change... e.g. \"Make the first 5 seconds more impactful\""
+      "inputPlaceholder": "Tell AI what to change... e.g. \"Make the first 5 seconds more impactful\"",
+      "sendFailed": "Failed to send: {{reason}}"
     },
     "quickActions": {
       "makeShorter": "Make shorter",
@@ -198,7 +208,20 @@
       "duration": "Duration",
       "loadError": "Failed to load editor data"
     },
-    "loadError": "Failed to load editor data"
+    "loadError": "Failed to load editor data",
+    "export": {
+      "title": "Export video",
+      "format": "Format",
+      "resolution": "Resolution",
+      "fps": "Frame rate",
+      "start": "Start rendering",
+      "startFailed": "Failed to start rendering: {{reason}}",
+      "rendering": "Rendering... you can leave and come back later.",
+      "completed": "Rendering completed!",
+      "downloadNow": "Download MP4",
+      "failedHint": "Rendering failed: {{reason}}",
+      "retry": "Try again"
+    }
   },
   "create": {
     "analyzeProgress": {
@@ -227,7 +250,12 @@
       "formats": "MP4 / MOV / JPG / PNG",
       "continue": "Continue",
       "noFiles": "Please upload at least one file",
-      "error": "Failed to create project"
+      "rejectedFiles": "{{count}} file(s) rejected: {{details}}",
+      "unsupportedFormat": "unsupported format",
+      "exceedsSize": "exceeds 500MB",
+      "error": "Failed to create project",
+      "uploadFailed": "Upload failed: {{reason}}",
+      "uploadingProgress": "Uploading {{done}}/{{total}} files ({{pct}}%)"
     },
     "describe": {
       "step": "Describe",
@@ -243,6 +271,9 @@
       "styleStorytelling": "Storytelling",
       "generate": "Generate",
       "generating": "Generating...",
+      "needUpload": "Please upload your footage first",
+      "goUpload": "Upload footage first",
+      "charCount": "{{count}}/500",
       "error": "Failed to create project",
       "validation": {
         "required": "Please describe what you want",
@@ -250,10 +281,16 @@
       }
     },
     "generate": {
-      "step": "Generate"
+      "step": "Generate",
+      "title": "AI is crafting your timeline...",
+      "startFailed": "Failed to start generation",
+      "failed": "Generation failed",
+      "needInput": "A few questions to nail your cut:",
+      "submitAnswers": "Continue generating",
+      "openEditor": "Open editor"
     },
     "fileList": {
-      "count": "{{count}} file",
+      "count": "{{count}} file(s)",
       "totalDuration": "Total duration"
     }
   },

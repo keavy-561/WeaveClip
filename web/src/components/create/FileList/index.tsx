@@ -9,6 +9,8 @@ import styles from './index.module.scss';
 export interface FileItemData extends Asset {
   progress?: number;
   status: 'pending' | 'uploading' | 'done' | 'error';
+  /** 原始文件对象（真实上传用，不入库） */
+  raw?: File;
 }
 
 interface FileListProps {
@@ -31,7 +33,7 @@ const FileList: React.FC<FileListProps> = ({ files, onRemove }) => {
     <div className={styles.fileSection}>
       <div className={styles.fileSummary}>
         <span className={styles.summaryCount}>
-          {files.length} {t('create.fileList.count', files.length === 1 ? 'file' : 'files')}
+          {t('create.fileList.count', { count: files.length })}
         </span>
         {files.some((f) => f.duration) && (
           <span className={styles.summaryDuration}>

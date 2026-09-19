@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Toast } from '@douyinfe/semi-ui';
+import { Button, Toast, Progress } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import UploadStep from '@/components/create/UploadStep';
 import type { FileItemData } from '@/components/create/FileList';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
-import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
+import { assetService } from '@/services/assetService';
 import { addMockProject } from '@/utils/mockData';
 import styles from './index.module.scss';
 
@@ -16,16 +16,12 @@ const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 const Upload: React.FC = () => {
   const { t } = useAppTranslation();
   const navigate = useNavigate();
-
-  const createMutation = useMutation({
-    mutationFn: (payload: { name: string; duration?: number; aspectRatio?: string; style?: string }) =>
-      projectService.create(payload),
-    onSuccess: (project) => {
-      navigate(`/projects/new/analyze?projectId=${project.id}`);
-    },
-    onError: () => {
-      Toast.error(t('create.upload.error', 'Failed to create project'));
-    },
+  // 真实上传状态（F02）：项目创建后逐文件 presign → PUT → confirm
+  const [uploadState, setUploadState] = useState<{ active: boolean; done: number; total: number; pct: number }>({
+    active: false,
+    done: 0,
+    total: 0,
+    pct: 0,
   });
 
   const handleContinue = (files: FileItemData[]) => {
@@ -37,7 +33,7 @@ const Upload: React.FC = () => {
       style: 'energetic',
     };
 
-    // 后端未就绪时降级为本地项目创建，之后统一进分析页
+    // mock 模式：本地创建项目后进分析页（本地模拟进度）
     if (isMockMode) {
       const projectId = `proj_${Date.now()}`;
       addMockProject({
@@ -54,7 +50,46 @@ const Upload: React.FC = () => {
       return;
     }
 
-    createMutation.mutate(payload);
+    // 真实模式：创建项目 → 逐文件 presign 直传 → confirm 触发处理管线（工单 B06/B07）
+    void uploadAll(payload, files);
+  };
+
+  const uploadAll = async (
+    payload: { name: string; duration?: number; aspectRatio?: string; style?: string },
+    files: FileItemData[]
+  ) => {
+    setUploadState({ active: true, done: 0, total: files.length, pct: 0 });
+    try {
+      const project = await projectService.create(payload);
+      for (let i = 0; i < files.length; i++) {
+        const item = files[i];
+        if (!item.raw) {
+          throw new Error(`missing raw file for ${item.fileName}`);
+        }
+        const contentType = item.raw.type || 'application/octet-stream';
+        const { uploadUrl, assetId } = await assetService.presign(project.id, {
+          type: item.type,
+          fileName: item.fileName,
+          fileSize: item.fileSize ?? 0,
+        });
+        await assetService.uploadToPresigned(uploadUrl, item.raw, contentType, (pct) => {
+          setUploadState((prev) => ({
+            ...prev,
+            pct: Math.round(((i + pct / 100) / files.length) * 100),
+          }));
+        });
+        await assetService.confirm(project.id, assetId);
+        setUploadState((prev) => ({ ...prev, done: i + 1 }));
+      }
+      navigate(`/projects/new/analyze?projectId=${project.id}`);
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message ??
+        (error as Error).message;
+      Toast.error(t('create.upload.uploadFailed', { reason: message ?? '' }));
+    } finally {
+      setUploadState((prev) => ({ ...prev, active: false }));
+    }
   };
 
   return (
@@ -81,7 +116,18 @@ const Upload: React.FC = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>{t('create.upload.title', 'Create new video')}</h1>
-        <UploadStep onContinue={handleContinue} />
+        {uploadState.active ? (
+          <div className={styles.uploadingOverlay}>
+            <span>
+              {t('create.upload.uploadingProgress', { done: uploadState.done, total: uploadState.total, pct: uploadState.pct })}
+            </span>
+            <div className={styles.uploadingBar}>
+              <Progress percent={uploadState.pct} />
+            </div>
+          </div>
+        ) : (
+          <UploadStep onContinue={handleContinue} simulateProgress={isMockMode} />
+        )}
       </main>
     </div>
   );

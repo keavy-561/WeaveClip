@@ -16,6 +16,22 @@
   border-radius: 8px;
 }
 
+// 计数器包裹层：为绝对定位的计数提供锚点
+.textareaWrap {
+  position: relative;
+}
+
+// 单文本节点字数统计（替代 Semi TextArea 内置计数器）
+.charCount {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: 12px;
+  color: var(--semi-color-text-2);
+  pointer-events: none;
+  user-select: none;
+}
+
 .errorText {
   font-size: 12px;
   color: var(--semi-color-danger);

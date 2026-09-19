@@ -184,12 +184,14 @@ cd web && pnpm dev                                # Frontend → http://localhos
 | Phase | Scope | Status |
 |:---|:---|:---:|
 | **Phase 0** | Product skeleton + Mock data | ✅ Done |
-| **Phase 1** | Editor basics (Upload / Timeline / Trim / Split) | ⬜ Planned |
-| **Phase 2** | AI Generate (one-prompt timeline generation) | ⬜ Planned |
-| **Phase 3** | AI Edit (conversational refinement) | ⬜ Planned |
-| **Phase 4** | Real video processing (ASR / Scene detection / Vision) | ⬜ Planned |
-| **Phase 5** | FFmpeg render & MP4 export | ⬜ Planned |
+| **Phase 1** | Editor basics (Upload / Timeline / Trim / Split) | 🚧 In Progress |
+| **Phase 2** | AI Generate (one-prompt timeline generation) | 🚧 In Progress |
+| **Phase 3** | AI Edit (conversational refinement) | 🚧 In Progress |
+| **Phase 4** | Real video processing (ASR / Scene detection / Vision) | 🚧 In Progress |
+| **Phase 5** | FFmpeg render & MP4 export | 🚧 In Progress |
 | **Phase 6** | UX polish (Undo / Version history) | ⬜ Planned |
+
+> Phase 1–5 进行中（按 [doc/work-orders.md](doc/work-orders.md) 工单执行）：后端服务与编辑器核心正在实现中，各 Phase 验收未全部达成。
 
 > Detailed plan: [doc/development-plan.md](doc/development-plan.md)
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import i18n from '@/locales/i18n';
 
 interface I18nContextValue {
@@ -15,12 +15,22 @@ interface I18nProviderProps {
 }
 
 const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
+  // 订阅语言切换事件并触发重渲染，否则 changeLanguage 后 t() 不更新（走查 P0-7 根因）
+  const [language, setLanguage] = useState(i18n.language);
+  useEffect(() => {
+    const onLanguageChanged = (lng: string) => setLanguage(lng);
+    i18n.on('languageChanged', onLanguageChanged);
+    return () => {
+      i18n.off('languageChanged', onLanguageChanged);
+    };
+  }, []);
+
   return (
     <I18nContext.Provider
       value={{
         t: i18n.t.bind(i18n),
         i18n,
-        language: i18n.language,
+        language,
         changeLanguage: i18n.changeLanguage.bind(i18n),
       }}
     >

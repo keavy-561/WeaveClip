@@ -1,16 +1,23 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Spin, TextArea } from '@douyinfe/semi-ui';
+import { useParams } from 'react-router-dom';
+import { Spin, TextArea, Toast } from '@douyinfe/semi-ui';
 import { useAIChatStore } from '@/stores/aiChatStore';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { chatService } from '@/services/generateService';
+import { backendToFront } from '@/utils/dslAdapter';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import ChatMessage from './ChatMessage';
 import QuickActions from './QuickActions';
 import { generateId } from '@/utils/format';
 import styles from './index.module.scss';
 
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
+
 const AIChat: React.FC = () => {
   const { messages, isLoading, addMessage, setLoading } = useAIChatStore();
   const selectedClipId = useTimelineStore((s) => s.selectedClipId);
+  const setDSL = useTimelineStore((s) => s.setDSL);
+  const { projectId } = useParams<{ projectId: string }>();
   const { t } = useAppTranslation();
   const listRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
@@ -40,20 +47,46 @@ const AIChat: React.FC = () => {
     });
     setLoading(true);
 
-    // Phase 0: Mock AI 响应
-    if (timerRef.current !== null) {
-      clearTimeout(timerRef.current);
+    // mock 模式：本地模拟回复；真实模式：调用对话式编辑 API（工单 F07/B13）
+    if (isMockMode) {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = window.setTimeout(() => {
+        addMessage({
+          id: generateId(),
+          role: 'assistant',
+          content: mockAIReply(text, selectedClipId),
+          timestamp: new Date().toISOString(),
+        });
+        setLoading(false);
+        timerRef.current = null;
+      }, 1200);
+      return;
     }
-    timerRef.current = window.setTimeout(() => {
-      addMessage({
-        id: generateId(),
-        role: 'assistant',
-        content: mockAIReply(text, selectedClipId),
-        timestamp: new Date().toISOString(),
+
+    void chatService.send(projectId ?? '', { message: text, selectedClipId: selectedClipId ?? null })
+      .then((resp) => {
+        addMessage({
+          id: generateId(),
+          role: 'assistant',
+          content: resp.message,
+          operations: resp.operations,
+          timestamp: new Date().toISOString(),
+        });
+        // 服务端已应用 operations 并落库新版本，这里同步本地时间轴
+        if (resp.timeline?.timelineJson) {
+          setDSL(backendToFront(resp.timeline.timelineJson as unknown as Parameters<typeof backendToFront>[0]));
+        }
+      })
+      .catch((error) => {
+        const reason =
+          (error as { response?: { data?: { message?: string } } }).response?.data?.message ?? '';
+        Toast.error(t('editor.aiChat.sendFailed', { reason }));
+      })
+      .finally(() => {
+        setLoading(false);
       });
-      setLoading(false);
-      timerRef.current = null;
-    }, 1200);
   };
 
   return (
@@ -77,7 +110,7 @@ const AIChat: React.FC = () => {
         )}
       </div>
 
-      <QuickActions onAction={(prompt) => handleSend(prompt)} />
+      <QuickActions onAction={(prompt) => setDraft(prompt)} />
 
       <div className={styles.inputWrap}>
         <TextArea

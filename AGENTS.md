@@ -55,5 +55,8 @@ Get-ChildItem web/src/components/create -Recurse -Filter *.tsx | Select-String "
 第 1 条有输出不一定是违规（删除按钮等 Semi 组件也带 onClick），但逐条看一眼只要 30 秒；第 2、3 条没输出才是危险信号。
 
 ## TODO / Deferred
-- Generate 屏：不在本轮实现独立路由与进度 UI。待后端 Phase E 前端联调时，
-  按真实契约（generationId + 轮询）实现 `/projects/new/generate` 路由与进度状态。
+- Generate 屏：后端 Generate API（Phase 2）完成后，按真实契约（generationId + 轮询）
+  实现 `/projects/new/generate` 路由与进度状态。真实文件上传随 Phase 1 落地后，
+  前端由 mock 上传切换为 presign/confirm 直传链路。
+  （2026-09-19 裁定 D4/D5：原 "Phase E" 表述映射为具体 Phase 编号，Generate 屏
+  不再推迟到联调期，后端 Phase 2 API 就绪即实现。）

@@ -22,6 +22,10 @@ export interface Clip {
   sourceDuration?: number;
   speed?: number;
   volume?: number;
+  /** 亮度（-100 ~ 100），供检查器调色 tab 绑定 */
+  brightness?: number;
+  /** 对比度（-100 ~ 100），供检查器调色 tab 绑定 */
+  contrast?: number;
   text?: string;
   style?: CaptionStyle;
   effectType?: string;

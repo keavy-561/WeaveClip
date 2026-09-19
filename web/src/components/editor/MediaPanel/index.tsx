@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Button, Switch } from '@douyinfe/semi-ui';
-import { IconPlus, IconSearch, IconArrowRight } from '@douyinfe/semi-icons';
+import { Button, Empty, Input, Slider, Switch } from '@douyinfe/semi-ui';
+import { IconPlus, IconArrowRight, IconSearch } from '@douyinfe/semi-icons';
 import type { Asset } from '@/types/asset';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { useEditorUIStore, type EditorTool } from '@/stores/editorUIStore';
+import { useAssetsStore } from '@/stores/assetsStore';
+import { mockAssets } from '@/utils/mockData';
+import AIChat from '@/components/editor/AIChat';
 import styles from './index.module.scss';
 
 const ASSET_IMAGES: Record<string, string> = {
@@ -17,15 +21,67 @@ interface MediaPanelProps {
   assets: Asset[];
 }
 
+/** 格式化 mm:ss 时长徽标 */
+const formatBadge = (duration: number): string =>
+  `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}`;
+
 const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const [tab, setTab] = useState<string>('library');
   const [query, setQuery] = useState<string>('');
+  const [autoCaptions, setAutoCaptions] = useState<boolean>(true);
+  const [noiseReduction, setNoiseReduction] = useState<number>(40);
+  const activeTool = useEditorUIStore((s) => s.activeTool);
+  const storedAssets = useAssetsStore((s) => s.assets);
   const { t } = useAppTranslation();
 
-  const videos = assets.filter((a) => a.type === 'video');
+  // 非 media 工具：渲染“开发中”占位面板（缺陷走查 P0-3）
+  const toolLabels: Record<Exclude<EditorTool, 'media'>, string> = {
+    record: t('nav.record'),
+    content: t('nav.content'),
+    ai: t('nav.aiTools'),
+    text: t('nav.text'),
+    brand: t('nav.brand'),
+    help: t('common.help'),
+  };
+
+  if (activeTool === 'ai') {
+    // AI 对话面板接入真实的对话式编辑（工单 F07）
+    return (
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span className={styles.title}>{toolLabels.ai}</span>
+        </div>
+        <AIChat />
+      </div>
+    );
+  }
+
+  if (activeTool !== 'media') {
+    const toolLabel = toolLabels[activeTool];
+    return (
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span className={styles.title}>{toolLabel}</span>
+        </div>
+        <div className={styles.toolPlaceholder}>
+          <Empty description={t('editor.panel.developing', { tool: toolLabel })} />
+        </div>
+      </div>
+    );
+  }
+
+  // 素材来源：优先 assetsStore，其次父级传入的 assets，最后回退 mockAssets
+  const sourceAssets = storedAssets.length > 0 ? storedAssets : assets.length > 0 ? assets : mockAssets;
+  const videos = sourceAssets.filter((a) => a.type === 'video');
   const filtered = videos.filter((a) =>
     a.fileName.toLowerCase().includes(query.toLowerCase())
   );
+
+  /** 拖拽开始时写入 dataTransfer，供时间轴 onDrop 读取 */
+  const handleAssetDragStart = (asset: Asset) => (e: React.DragEvent) => {
+    e.dataTransfer.setData('application/x-asset-id', asset.id);
+    e.dataTransfer.effectAllowed = 'copy';
+  };
 
   return (
     <div className={styles.panel}>
@@ -52,14 +108,14 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       </div>
 
       <div className={styles.search}>
-        <IconSearch className={styles.searchIcon} />
-        <input
-          type="text"
-          className={styles.searchInput}
+        <Input
+          prefix={<IconSearch />}
           placeholder={t('common.searchPlaceholder')}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(v) => setQuery(v)}
           aria-label={t('common.search')}
+          showClear
+          className={styles.searchInput}
         />
       </div>
 
@@ -71,11 +127,17 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
           </div>
           <div className={styles.assetGrid}>
             {filtered.slice(0, 4).map((asset) => (
-              <div key={asset.id} className={styles.assetCard}>
+              <div
+                key={asset.id}
+                className={styles.assetCard}
+                draggable
+                onDragStart={handleAssetDragStart(asset)}
+                title={asset.fileName}
+              >
                 <div className={styles.assetImage}>
                   <img
                     className={styles.assetImg}
-                    src={ASSET_IMAGES[asset.id] ?? ''}
+                    src={asset.thumbnailUrl ?? ASSET_IMAGES[asset.id] ?? ''}
                     alt={asset.fileName}
                     loading="lazy"
                   />
@@ -83,9 +145,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                     <IconPlus />
                   </div>
                   {asset.duration && (
-                    <span className={styles.durationBadge}>
-                      {Math.floor(asset.duration / 60)}:{String(Math.floor(asset.duration % 60)).padStart(2, '0')}
-                    </span>
+                    <span className={styles.durationBadge}>{formatBadge(asset.duration)}</span>
                   )}
                 </div>
               </div>
@@ -100,11 +160,17 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
           </div>
           <div className={styles.horizontalList}>
             {filtered.slice(0, 4).map((asset) => (
-              <div key={asset.id} className={styles.horizontalCard}>
+              <div
+                key={asset.id}
+                className={styles.horizontalCard}
+                draggable
+                onDragStart={handleAssetDragStart(asset)}
+                title={asset.fileName}
+              >
                 <div className={styles.horizontalImage}>
                   <img
                     className={styles.horizontalImg}
-                    src={ASSET_IMAGES[asset.id] ?? ''}
+                    src={asset.thumbnailUrl ?? ASSET_IMAGES[asset.id] ?? ''}
                     alt={asset.fileName}
                     loading="lazy"
                   />
@@ -113,7 +179,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                   </div>
                   {asset.duration && (
                     <span className={styles.durationBadge}>
-                      {t('editor.mediaPanel.quality4K')} {Math.floor(asset.duration / 60)}:{String(Math.floor(asset.duration % 60)).padStart(2, '0')}
+                      {t('editor.mediaPanel.quality4K')} {formatBadge(asset.duration)}
                     </span>
                   )}
                 </div>
@@ -131,13 +197,26 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
             </div>
             <div className={styles.aiRow}>
               <span className={styles.aiLabel}>{t('editor.mediaPanel.autoCaptions')}</span>
-              <Switch size="small" checked={true} />
+              <Switch
+                size="small"
+                checked={autoCaptions}
+                onChange={(checked) => setAutoCaptions(checked)}
+                aria-label={t('editor.mediaPanel.autoCaptions')}
+              />
             </div>
             <div className={styles.aiRow}>
               <span className={styles.aiLabel}>{t('editor.mediaPanel.noiseReduction')}</span>
               <div className={styles.sliderRow}>
-                <input type="range" min="0" max="100" defaultValue="40" className={styles.range} />
-                <span className={styles.sliderValue}>40%</span>
+                <Slider
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={noiseReduction}
+                  onChange={(v) => setNoiseReduction(v as number)}
+                  className={styles.slider}
+                  aria-label={t('editor.mediaPanel.noiseReduction')}
+                />
+                <span className={styles.sliderValue}>{noiseReduction}%</span>
               </div>
             </div>
           </div>

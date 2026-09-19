@@ -1,111 +1,55 @@
-import React, { useState } from 'react';
-import { Button } from '@douyinfe/semi-ui';
+import React from 'react';
+import { Button, Input, Select, Slider } from '@douyinfe/semi-ui';
 import { IconMore } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useEditorUIStore, type InspectorTab } from '@/stores/editorUIStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
+import type { Clip } from '@/types/timeline';
 import styles from './index.module.scss';
 
-type Tab = 'adjust' | 'filters';
-
-interface RangeRowProps {
+interface TabItem {
+  key: InspectorTab;
   label: string;
-  min?: number;
-  max?: number;
-  defaultValue?: number;
-  /** 彩虹渐变轨道（Hue） */
-  rainbow?: boolean;
-  /** 激活高亮（Blur） */
-  active?: boolean;
 }
 
-const RangeRow: React.FC<RangeRowProps> = ({
+interface ParamSliderRowProps {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  /** 数值后缀（如速度的 ×） */
+  suffix?: string;
+  onChange: (value: number) => void;
+}
+
+/** 参数滑杆行：Semi Slider + 数值显示，受控绑定到选中片段字段 */
+const ParamSliderRow: React.FC<ParamSliderRowProps> = ({
   label,
-  min = -100,
-  max = 100,
-  defaultValue = 0,
-  rainbow = false,
-  active = false,
-}) => {
-  const [value, setValue] = useState(defaultValue);
-  const pct = ((value - min) / (max - min)) * 100;
-
-  return (
-    <div className={styles.controlRow}>
-      <span className={`${styles.controlLabel} ${active ? styles.activeLabel : ''}`}>{label}</span>
-      {active ? (
-        <div className={styles.sliderWrap}>
-          <div className={styles.sliderTrack} style={{ width: `${pct}%` }} />
-          <input
-            type="range"
-            className={styles.rangeActive}
-            min={min}
-            max={max}
-            value={value}
-            onChange={(e) => setValue(Number(e.target.value))}
-          />
-          <div className={styles.sliderThumb} style={{ left: `${pct}%` }} />
-        </div>
-      ) : (
-        <input
-          type="range"
-          className={`${styles.rangeFlex} ${rainbow ? styles.rainbowTrack : ''}`}
-          min={min}
-          max={max}
-          value={value}
-          onChange={(e) => setValue(Number(e.target.value))}
-        />
-      )}
-      <input
-        type="number"
-        className={`${styles.numberInputSm} ${active ? styles.activeInput : ''}`}
-        value={value}
-        onChange={(e) => setValue(Number(e.target.value))}
-      />
-    </div>
-  );
-};
-
-/** 白平衡：色温/色调（带色点标注，对齐设计稿 280px Inspector） */
-const WhiteBalanceSection: React.FC = () => {
-  const { t } = useAppTranslation();
-  const [colorTemp, setColorTemp] = useState(0);
-  const [tint, setTint] = useState(0);
-
-  return (
-    <section className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <h4 className={styles.sectionTitle}>{t('editor.inspector.whiteBalance')}</h4>
-        <Button theme="borderless" size="small" className={styles.resetBtn}>
-          {t('common.reset')}
-        </Button>
-      </div>
-      <div className={styles.controlGroup}>
-        <div className={styles.wbRow}>
-          <span className={styles.wbLabel}>{t('editor.inspector.colorTemp')}</span>
-          <input type="number" className={styles.wbInput} value={colorTemp} onChange={(e) => setColorTemp(Number(e.target.value))} />
-        </div>
-        <div className={styles.balanceRow}>
-          <span className={`${styles.sliderDot} ${styles.dotCool}`} />
-          <input type="range" min="-100" max="100" value={colorTemp} onChange={(e) => setColorTemp(Number(e.target.value))} className={styles.range} />
-          <span className={`${styles.sliderDot} ${styles.dotWarm}`} />
-        </div>
-        <div className={styles.wbRow}>
-          <span className={styles.wbLabel}>{t('editor.inspector.tint')}</span>
-          <input type="number" className={styles.wbInput} value={tint} onChange={(e) => setTint(Number(e.target.value))} />
-        </div>
-        <div className={styles.balanceRow}>
-          <span className={`${styles.sliderDot} ${styles.dotGreen}`} />
-          <input type="range" min="-100" max="100" value={tint} onChange={(e) => setTint(Number(e.target.value))} className={styles.range} />
-          <span className={`${styles.sliderDot} ${styles.dotPurple}`} />
-        </div>
-      </div>
-    </section>
-  );
-};
+  value,
+  min,
+  max,
+  step = 1,
+  suffix,
+  onChange,
+}) => (
+  <div className={styles.controlRow}>
+    <span className={styles.controlLabel}>{label}</span>
+    <Slider
+      className={styles.paramSlider}
+      min={min}
+      max={max}
+      step={step}
+      value={value}
+      onChange={(v) => onChange(v as number)}
+    />
+    <span className={styles.valueText}>{suffix ? `${value}${suffix}` : Math.round(value)}</span>
+  </div>
+);
 
 const InspectorPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('adjust');
-  const [activeFilter, setActiveFilter] = useState<string>('none');
+  const activeTab = useEditorUIStore((s) => s.activeInspectorTab);
+  const setInspectorTab = useEditorUIStore((s) => s.setInspectorTab);
   const { tracks, selectedClipId, updateClip } = useTimelineStore();
   const { t } = useAppTranslation();
 
@@ -115,18 +59,24 @@ const InspectorPanel: React.FC = () => {
 
   const selectedType = tracks.find((tr) => tr.clips.some((c) => c.id === selectedClipId))?.type;
 
-  const toneRows = [
-    { label: t('editor.inspector.brightness') },
-    { label: t('editor.inspector.contrast') },
-    { label: t('editor.inspector.saturation') },
-    { label: t('editor.inspector.exposure') },
+  // tab 列表（调色/滤镜/调整/效果/字幕/速度，与 ToolSidebar 快捷按钮共用状态）
+  const tabs: TabItem[] = [
+    { key: 'color', label: t('editor.inspector.adjustColors') },
+    { key: 'filter', label: t('editor.inspector.filters') },
+    { key: 'adjust', label: t('editor.sidebar.adjustments') },
+    { key: 'effect', label: t('editor.sidebar.effects') },
+    { key: 'caption', label: t('editor.sidebar.captions') },
+    { key: 'speed', label: t('editor.sidebar.speed') },
   ];
 
-  const creativeRows = [
-    { label: t('editor.inspector.hue'), rainbow: true },
-    { label: t('editor.inspector.sharpness'), min: 0 },
-    { label: t('editor.inspector.blur'), min: 0, defaultValue: 20, active: true },
-  ];
+  // 选中片段的受控参数（缺省值与设计稿一致）
+  const brightness = selectedClip?.brightness ?? 0;
+  const contrast = selectedClip?.contrast ?? 0;
+  const volumePercent = Math.round((selectedClip?.volume ?? 1) * 100);
+  const speed = selectedClip?.speed ?? 1;
+  const filterParam = selectedClip?.params?.filter;
+  const filterValue = typeof filterParam === 'string' ? filterParam : 'none';
+  const effectValue = selectedClip?.effectType ?? 'none';
 
   const filters = [
     { key: 'none', name: t('editor.inspector.none'), preview: 'previewNone' },
@@ -135,92 +85,41 @@ const InspectorPanel: React.FC = () => {
     { key: 'sky', name: t('editor.inspector.sky'), preview: 'previewSky' },
   ];
 
-  const renderVideoSections = () => (
-    <>
-      <WhiteBalanceSection />
-      <div className={styles.divider} />
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h4 className={styles.sectionTitle}>{t('editor.inspector.tone')}</h4>
-          <Button theme="borderless" size="small" className={styles.resetBtn}>
-            {t('common.reset')}
-          </Button>
-        </div>
-        <div className={styles.controlGroup}>
-          {toneRows.map((row) => (
-            <RangeRow key={row.label} label={row.label} />
-          ))}
-        </div>
-      </section>
-      <div className={styles.divider} />
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h4 className={styles.sectionTitle}>
-            {t('editor.inspector.creative')}
-            <span className={styles.aiBadge}>✦</span>
-          </h4>
-          <Button theme="borderless" size="small" className={styles.resetBtn}>
-            {t('common.reset')}
-          </Button>
-        </div>
-        <div className={styles.controlGroup}>
-          {creativeRows.map((row) => (
-            <RangeRow
-              key={row.label}
-              label={row.label}
-              min={row.min}
-              defaultValue={row.defaultValue}
-              rainbow={row.rainbow}
-              active={row.active}
-            />
-          ))}
-        </div>
-      </section>
-      <div className={styles.divider} />
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h4 className={styles.sectionTitle}>{t('editor.inspector.quickFilters')}</h4>
-          <Button theme="borderless" size="small" className={styles.resetBtn}>
-            {t('common.seeAll')}
-          </Button>
-        </div>
-        <div className={styles.filterGrid}>
-          {filters.map((filter) => (
-            <Button
-              key={filter.key}
-              theme="borderless"
-              className={`${styles.filterItem} ${activeFilter === filter.key ? styles.filterItemActive : ''}`}
-              onClick={() => setActiveFilter(filter.key)}
-            >
-              <span className={`${styles.filterPreview} ${styles[filter.preview as keyof typeof styles]}`}>
-                <span className={styles.filterPlaceholder} />
-              </span>
-              <span className={styles.filterName}>{filter.name}</span>
-            </Button>
-          ))}
-        </div>
-      </section>
-    </>
-  );
+  const effectOptions = [
+    { value: 'none', label: t('editor.inspector.effectNone') },
+    { value: 'vivid', label: t('editor.inspector.vivid') },
+    { value: 'mono', label: t('editor.inspector.mono') },
+    { value: 'vintage', label: t('editor.inspector.vintage') },
+  ];
+
+  const filterOptions = filters.map((f) => ({ value: f.key, label: f.name }));
+
+  /** 更新选中片段的顶层字段 */
+  const patchClip = (updates: Partial<Clip>) => {
+    if (selectedClip) updateClip(selectedClip.id, updates);
+  };
+
+  /** 更新选中片段的 params（如滤镜） */
+  const patchParams = (patch: Record<string, unknown>) => {
+    if (selectedClip)
+      updateClip(selectedClip.id, { params: { ...(selectedClip.params ?? {}), ...patch } });
+  };
 
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
         <div className={styles.tabs}>
-          <Button
-            theme="borderless"
-            className={`${styles.tab} ${activeTab === 'adjust' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('adjust')}
-          >
-            {t('editor.inspector.adjustColors')}
-          </Button>
-          <Button
-            theme="borderless"
-            className={`${styles.tab} ${activeTab === 'filters' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('filters')}
-          >
-            {t('editor.inspector.filters')}
-          </Button>
+          {tabs.map((tab) => (
+            <Button
+              key={tab.key}
+              theme="borderless"
+              className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ''}`}
+              aria-pressed={activeTab === tab.key}
+              onClick={() => setInspectorTab(tab.key)}
+            >
+              {tab.label}
+            </Button>
+          ))}
         </div>
         <Button icon={<IconMore />} theme="borderless" size="small" className={styles.moreBtn} />
       </div>
@@ -230,39 +129,173 @@ const InspectorPanel: React.FC = () => {
           <div className={styles.empty}>{t('editor.inspector.selectClip')}</div>
         ) : (
           <>
-            {selectedType === 'caption' && (
+            {activeTab === 'color' && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
-                  <h4 className={styles.sectionTitle}>{t('editor.inspector.text')}</h4>
-                </div>
-                <input
-                  type="text"
-                  className={styles.textInput}
-                  defaultValue={selectedClip.text ?? ''}
-                  onBlur={(e) => updateClip(selectedClip.id, { text: e.target.value })}
-                  placeholder={t('editor.inspector.selectClip')}
-                />
-              </section>
-            )}
-
-            {selectedType === 'audio' && (
-              <section className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <h4 className={styles.sectionTitle}>{t('editor.inspector.volume')}</h4>
-                  <Button theme="borderless" size="small" className={styles.resetBtn}>
+                  <h4 className={styles.sectionTitle}>{t('editor.inspector.adjustColors')}</h4>
+                  <Button
+                    theme="borderless"
+                    size="small"
+                    className={styles.resetBtn}
+                    onClick={() => patchClip({ brightness: 0, contrast: 0 })}
+                  >
                     {t('common.reset')}
                   </Button>
                 </div>
-                <RangeRow
-                  label={t('editor.inspector.volume')}
-                  min={0}
-                  max={100}
-                  defaultValue={Math.round((selectedClip.volume ?? 1) * 100)}
-                />
+                <div className={styles.controlGroup}>
+                  <ParamSliderRow
+                    label={t('editor.inspector.brightness')}
+                    value={brightness}
+                    min={-100}
+                    max={100}
+                    onChange={(v) => patchClip({ brightness: v })}
+                  />
+                  <ParamSliderRow
+                    label={t('editor.inspector.contrast')}
+                    value={contrast}
+                    min={-100}
+                    max={100}
+                    onChange={(v) => patchClip({ contrast: v })}
+                  />
+                </div>
               </section>
             )}
 
-            {selectedType === 'video' && renderVideoSections()}
+            {activeTab === 'filter' && (
+              <section className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h4 className={styles.sectionTitle}>{t('editor.inspector.filters')}</h4>
+                  <Button
+                    theme="borderless"
+                    size="small"
+                    className={styles.resetBtn}
+                    onClick={() => patchParams({ filter: 'none' })}
+                  >
+                    {t('common.reset')}
+                  </Button>
+                </div>
+                <div className={styles.paramSelectWrap}>
+                  <Select
+                    className={styles.paramSelect}
+                    value={filterValue}
+                    optionList={filterOptions}
+                    onChange={(v) => patchParams({ filter: v as string })}
+                  />
+                </div>
+                <div className={styles.filterGrid}>
+                  {filters.map((filter) => (
+                    <Button
+                      key={filter.key}
+                      theme="borderless"
+                      className={`${styles.filterItem} ${filterValue === filter.key ? styles.filterItemActive : ''}`}
+                      onClick={() => patchParams({ filter: filter.key })}
+                    >
+                      <span className={`${styles.filterPreview} ${styles[filter.preview as keyof typeof styles]}`}>
+                        <span className={styles.filterPlaceholder} />
+                      </span>
+                      <span className={styles.filterName}>{filter.name}</span>
+                    </Button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'adjust' && (
+              <section className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h4 className={styles.sectionTitle}>{t('editor.sidebar.adjustments')}</h4>
+                  <Button
+                    theme="borderless"
+                    size="small"
+                    className={styles.resetBtn}
+                    onClick={() => patchClip({ volume: 1 })}
+                  >
+                    {t('common.reset')}
+                  </Button>
+                </div>
+                <div className={styles.controlGroup}>
+                  <ParamSliderRow
+                    label={t('editor.inspector.volume')}
+                    value={volumePercent}
+                    min={0}
+                    max={100}
+                    onChange={(v) => patchClip({ volume: v / 100 })}
+                  />
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'effect' && (
+              <section className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h4 className={styles.sectionTitle}>{t('editor.inspector.effectType')}</h4>
+                  <Button
+                    theme="borderless"
+                    size="small"
+                    className={styles.resetBtn}
+                    onClick={() => patchClip({ effectType: 'none' })}
+                  >
+                    {t('common.reset')}
+                  </Button>
+                </div>
+                <div className={styles.paramSelectWrap}>
+                  <Select
+                    className={styles.paramSelect}
+                    value={effectValue}
+                    optionList={effectOptions}
+                    onChange={(v) => patchClip({ effectType: v as string })}
+                  />
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'caption' && (
+              selectedType === 'caption' ? (
+                <section className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h4 className={styles.sectionTitle}>{t('editor.inspector.text')}</h4>
+                  </div>
+                  <div className={styles.captionInputWrap}>
+                    <Input
+                      key={selectedClip.id}
+                      className={styles.captionInput}
+                      defaultValue={selectedClip.text ?? ''}
+                      onBlur={(e) => updateClip(selectedClip.id, { text: e.target.value })}
+                      placeholder={t('editor.inspector.text')}
+                    />
+                  </div>
+                </section>
+              ) : (
+                <div className={styles.empty}>{t('editor.inspector.captionOnly')}</div>
+              )
+            )}
+
+            {activeTab === 'speed' && (
+              <section className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h4 className={styles.sectionTitle}>{t('editor.sidebar.speed')}</h4>
+                  <Button
+                    theme="borderless"
+                    size="small"
+                    className={styles.resetBtn}
+                    onClick={() => patchClip({ speed: 1 })}
+                  >
+                    {t('common.reset')}
+                  </Button>
+                </div>
+                <div className={styles.controlGroup}>
+                  <ParamSliderRow
+                    label={t('editor.sidebar.speed')}
+                    value={speed}
+                    min={0.25}
+                    max={4}
+                    step={0.25}
+                    suffix="×"
+                    onChange={(v) => patchClip({ speed: v })}
+                  />
+                </div>
+              </section>
+            )}
           </>
         )}
       </div>

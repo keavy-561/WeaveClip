@@ -12,8 +12,24 @@ type MockUserRepo struct {
 	users []model.User
 }
 
+// 演示账号（走查 P0-1）：前端“填入演示账号”在 mock 模式下可直接登录。
+const (
+	DemoUserEmail    = "demo@weaveclip.dev"
+	DemoUserPassword = "demo1234"
+)
+
 func NewMockUserRepo() *MockUserRepo {
-	return &MockUserRepo{users: make([]model.User, 0)}
+	r := &MockUserRepo{users: make([]model.User, 0)}
+	// 预置演示账号；bcrypt 哈希失败时跳过（不影响注册流程创建新用户）
+	if hash, err := HashPassword(DemoUserPassword); err == nil {
+		r.users = append(r.users, model.User{
+			ID:           1,
+			Email:        DemoUserEmail,
+			PasswordHash: hash,
+			Name:         "Demo",
+		})
+	}
+	return r
 }
 
 func (r *MockUserRepo) GetByEmail(email string) (*model.User, error) {

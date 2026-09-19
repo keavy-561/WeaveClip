@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Button, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
 import DescribeForm from '@/components/create/DescribeForm';
 import type { DescribeFormValues } from '@/components/create/DescribeForm';
-import { addMockProject, updateMockProject } from '@/utils/mockData';
+import { updateMockProject } from '@/utils/mockData';
 import styles from './index.module.scss';
 
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
@@ -29,15 +29,6 @@ const Describe: React.FC = () => {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [errors, setErrors] = useState<{ prompt?: string }>({});
-  const timerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     const queryPrompt = searchParams.get('prompt');
@@ -45,17 +36,6 @@ const Describe: React.FC = () => {
     const prefill = queryPrompt || statePrompt || '';
     setValues((prev) => ({ ...prev, prompt: prefill }));
   }, [searchParams, location.state]);
-
-  const createMutation = useMutation({
-    mutationFn: (payload: ProjectPayload) => projectService.create(payload),
-    onSuccess: (project) => {
-      navigate(`/editor/${project.id}`);
-    },
-    onError: () => {
-      Toast.error(t('create.describe.error', 'Failed to create project'));
-      setIsGenerating(false);
-    },
-  });
 
   // 从分析页进入时更新已创建的项目（描述阶段提交即保存项目资料）
   const updateMutation = useMutation({
@@ -70,6 +50,12 @@ const Describe: React.FC = () => {
   });
 
   const handleGenerate = () => {
+    // 直进描述页（如从模板卡片进入）但未上传素材时，提示并引导回上传步骤（走查 P1-4）
+    if (!projectId) {
+      Toast.warning(t('create.describe.needUpload', 'Please upload your footage first'));
+      return;
+    }
+
     const newErrors: { prompt?: string } = {};
     if (!values.prompt.trim()) {
       newErrors.prompt = t('create.describe.validation.required', 'Please describe what you want');
@@ -87,47 +73,24 @@ const Describe: React.FC = () => {
       style: values.style,
     };
 
-    // 从分析页进入：更新已创建的项目，避免产生重复项目
-    if (projectId) {
-      if (isMockMode) {
-        const updated = updateMockProject(projectId, { ...payload, status: 'ready' });
-        if (!updated) {
-          Toast.error(t('create.describe.error', 'Failed to create project'));
-          setIsGenerating(false);
-          return;
-        }
-        navigate(`/editor/${projectId}`);
+    // mock 模式：直接更新本地项目并进入编辑器
+    if (isMockMode) {
+      const updated = updateMockProject(projectId, { ...payload, status: 'ready' });
+      if (!updated) {
+        Toast.error(t('create.describe.error', 'Failed to create project'));
+        setIsGenerating(false);
         return;
       }
-      updateMutation.mutate(payload);
+      navigate(`/editor/${projectId}`);
       return;
     }
 
-    // 直达描述页（如模板卡片）：沿用本地创建流程
-    if (isMockMode) {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-      }
-      timerRef.current = window.setTimeout(() => {
-        const newProjectId = `proj_${Date.now()}`;
-        addMockProject({
-          id: newProjectId,
-          name: payload.name ?? 'Untitled',
-          status: 'ready',
-          duration: payload.duration ?? null,
-          aspectRatio: payload.aspectRatio ?? '9:16',
-          style: payload.style ?? 'energetic',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          thumbnailUrl: '/src/assets/project-thumb-1.png',
-        });
-        navigate(`/editor/${newProjectId}`);
-        timerRef.current = null;
-      }, 1500);
-      return;
-    }
-
-    createMutation.mutate(payload);
+    // 真实模式：保存项目资料后进入 AI 生成步骤（工单 F08，D5 裁定）
+    updateMutation.mutate(payload, {
+      onSuccess: () => navigate(`/projects/new/generate?projectId=${projectId}`, {
+        state: { draft: { prompt: values.prompt } },
+      }),
+    });
   };
 
   return (
@@ -154,6 +117,19 @@ const Describe: React.FC = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>{t('create.describe.title', 'What should we make?')}</h1>
+        {!projectId && (
+          <div className={styles.uploadGuide}>
+            <span className={styles.uploadGuideText}>
+              {t('create.describe.needUpload', 'Please upload your footage first')}
+            </span>
+            <Button
+              theme="solid"
+              onClick={() => navigate('/projects/new')}
+            >
+              {t('create.describe.goUpload', 'Upload footage first')}
+            </Button>
+          </div>
+        )}
         <DescribeForm
           values={values}
           errors={errors}

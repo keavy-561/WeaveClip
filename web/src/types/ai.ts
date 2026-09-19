@@ -15,14 +15,25 @@ export type QuickAction =
   | 'improve_hook'
   | 'change_music';
 
-export interface GenerateRequest {
-  prompt: string;
+export interface GenerateAnswer {
+  question: string;
+  answer: string;
 }
 
+export interface GenerateRequest {
+  prompt: string;
+  answers?: GenerateAnswer[];
+}
+
+/** 对齐后端 GET /api/generations/:id 响应（工单 B12 契约） */
 export interface GenerateResponse {
   generationId: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  projectId: number;
+  status: 'pending' | 'processing' | 'need_input' | 'completed' | 'failed';
+  prompt?: string;
   timeline?: VideoDSL;
+  timelineVersion?: number;
+  questions?: string[];
   error?: string;
 }
 
@@ -31,8 +42,12 @@ export interface ChatRequest {
   selectedClipId?: string | null;
 }
 
+/** 对齐后端 POST /api/projects/:id/chat 响应（工单 B13 契约） */
 export interface ChatResponse {
   message: string;
   operations: EditingOperation[];
-  timeline: VideoDSL;
+  timeline?: {
+    version: number;
+    timelineJson: VideoDSL;
+  };
 }

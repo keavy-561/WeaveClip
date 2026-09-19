@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,10 +15,11 @@ import (
 // AssetHandler asset CRUD
 type AssetHandler struct {
 	assetService *service.AssetService
+	uploads      *service.UploadService
 }
 
-func NewAssetHandler(assetService *service.AssetService) *AssetHandler {
-	return &AssetHandler{assetService: assetService}
+func NewAssetHandler(assetService *service.AssetService, uploads *service.UploadService) *AssetHandler {
+	return &AssetHandler{assetService: assetService, uploads: uploads}
 }
 
 type CreateAssetReq struct {
@@ -47,6 +49,9 @@ func (h *AssetHandler) List(c *gin.Context) {
 	if err != nil {
 		InternalError(c, "failed to list assets")
 		return
+	}
+	for i := range assets {
+		h.uploads.DecorateThumbnail(&assets[i])
 	}
 	OK(c, gin.H{"assets": assets})
 }
@@ -106,6 +111,75 @@ func (h *AssetHandler) Get(c *gin.Context) {
 		NotFound(c, "asset not found")
 		return
 	}
+	h.uploads.DecorateThumbnail(asset)
+	OK(c, gin.H{"asset": asset})
+}
+
+// PresignAssetReq 预签名直传请求。
+type PresignAssetReq struct {
+	Type     string `json:"type" binding:"required"` // video | audio | image
+	FileName string `json:"fileName" binding:"required"`
+	FileSize int64  `json:"fileSize"`
+}
+
+// Presign POST /api/projects/:id/assets/presign（工单 B06）
+func (h *AssetHandler) Presign(c *gin.Context) {
+	projectID, ok := parseIDParam(c)
+	if !ok {
+		return
+	}
+	var req PresignAssetReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		BadRequest(c, "invalid request body")
+		return
+	}
+	asset, uploadURL, err := h.uploads.Presign(projectID, currentUserID(c), req.FileName, req.FileSize, req.Type)
+	if err != nil {
+		switch {
+		case errors.Is(err, service.ErrProjectNotFound):
+			NotFound(c, "project not found")
+		case errors.Is(err, service.ErrInvalidUpload):
+			BadRequest(c, err.Error())
+		default:
+			InternalError(c, "failed to presign upload")
+		}
+		return
+	}
+	Created(c, gin.H{"uploadUrl": uploadURL, "assetId": asset.ID, "asset": asset})
+}
+
+// ConfirmAssetReq 确认上传完成请求。
+type ConfirmAssetReq struct {
+	AssetID uint `json:"assetId" binding:"required"`
+}
+
+// Confirm POST /api/projects/:id/assets/confirm（工单 B06）
+func (h *AssetHandler) Confirm(c *gin.Context) {
+	if _, ok := parseIDParam(c); !ok {
+		return
+	}
+	var req ConfirmAssetReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		BadRequest(c, "invalid request body")
+		return
+	}
+	asset, err := h.uploads.Confirm(req.AssetID, currentUserID(c))
+	if err != nil {
+		switch {
+		case errors.Is(err, service.ErrAssetNotFound):
+			NotFound(c, "asset not found")
+		case errors.Is(err, service.ErrInvalidState):
+			Conflict(c, "asset not in uploading state")
+		case errors.Is(err, service.ErrObjectMissing):
+			BadRequest(c, "uploaded object not found")
+		case errors.Is(err, service.ErrInvalidUpload):
+			BadRequest(c, err.Error())
+		default:
+			InternalError(c, "failed to confirm upload")
+		}
+		return
+	}
+	h.uploads.DecorateThumbnail(asset)
 	OK(c, gin.H{"asset": asset})
 }
 

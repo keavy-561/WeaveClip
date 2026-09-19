@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@douyinfe/semi-ui';
 import {
   IconFilter,
@@ -8,16 +8,26 @@ import {
   IconFastForward,
 } from '@douyinfe/semi-icons';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { useEditorUIStore, type InspectorTab } from '@/stores/editorUIStore';
 import styles from './index.module.scss';
 
+interface SideTool {
+  key: InspectorTab;
+  icon: React.ReactNode;
+  title: string;
+}
+
 const ToolSidebar: React.FC = () => {
-  const [active, setActive] = useState<string>('adjustments');
+  const activeTab = useEditorUIStore((s) => s.activeInspectorTab);
+  const setInspectorTab = useEditorUIStore((s) => s.setInspectorTab);
   const { t } = useAppTranslation();
-  const tools = [
-    { key: 'filters', icon: <IconFilter />, title: t('editor.sidebar.filters') },
-    { key: 'adjustments', icon: <IconSetting />, title: t('editor.sidebar.adjustments') },
-    { key: 'effects', icon: <IconAIWandLevel1 />, title: t('editor.sidebar.effects') },
-    { key: 'captions', icon: <IconLoopTextStroked />, title: t('editor.sidebar.captions') },
+
+  // 快捷按钮与右侧检查器的 tab 一一对应，点击即切换检查器面板
+  const tools: SideTool[] = [
+    { key: 'color', icon: <IconFilter />, title: t('editor.inspector.adjustColors') },
+    { key: 'filter', icon: <IconSetting />, title: t('editor.inspector.filters') },
+    { key: 'effect', icon: <IconAIWandLevel1 />, title: t('editor.sidebar.effects') },
+    { key: 'caption', icon: <IconLoopTextStroked />, title: t('editor.sidebar.captions') },
     { key: 'speed', icon: <IconFastForward />, title: t('editor.sidebar.speed') },
   ];
 
@@ -27,10 +37,11 @@ const ToolSidebar: React.FC = () => {
         <Button
           key={tool.key}
           theme="borderless"
-          className={`${styles.toolBtn} ${active === tool.key ? styles.active : ''}`}
+          className={`${styles.toolBtn} ${activeTab === tool.key ? styles.active : ''}`}
           title={tool.title}
           aria-label={tool.title}
-          onClick={() => setActive(tool.key)}
+          aria-pressed={activeTab === tool.key}
+          onClick={() => setInspectorTab(tool.key)}
         >
           <span className={styles.toolIcon}>{tool.icon}</span>
         </Button>

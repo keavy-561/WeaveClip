@@ -116,6 +116,8 @@ WeaveClip（中文：织影）是一款 AI Native 的视频剪辑助手，将传
 
 ## 3. UI / Visual 设计系统
 
+> **视觉基准说明（2026-09-19 裁定 D6）**：自 2026-09 起，产品视觉规范以 [doc/design-system.md](./design-system.md) 为唯一基准（Morandi 浅色、Slate Blue 主色、Manrope 英文字体、Card 8px 圆角）。本节描述的深色默认、Inter 字体、12px 圆角等为早期设计探索，与上述基准冲突之处不再作为实现依据，仅保留历史背景，不随实现同步更新。
+
 ### 3.1 设计方向
 
 **Dark Creative Studio** — 参考 Linear 的克制、Figma 的工具感，结合创意工具的专业感和现代 AI 产品的交互方式。使用 Semi Design 提供的组件体系，保持温和克制的企业级 UI 风格。
@@ -555,12 +557,12 @@ WeaveClip/
 | 3.1 | AIChat Store | `web/src/stores/aiChatStore.ts` | 消息列表、加载状态、错误状态 |
 | 3.2 | Chat API | `server/internal/handler/chat_handler.go`, `server/internal/service/chat_service.go` | POST `/api/projects/:id/chat`，接收 message + selectedClipId，返回 AI 响应 + operations |
 | 3.3 | AI 上下文感知 | `server/internal/ai/editing_agent.go` | 接收当前选中 clip 信息 + 时间线状态，做局部修改 |
-| 3.4 | 操作：Replace Clip | `server/internal/ai/editing-agent.go` | AI 返回 replace operation，替换指定 clip |
-| 3.5 | 操作：Trim via Chat | `server/internal/ai/editing-agent.go` | "把这段缩短" → trim operation |
-| 3.6 | 操作：Delete via Chat | `server/internal/ai/editing-agent.go` | "删掉这段" → delete operation |
-| 3.7 | 操作：Reorder via Chat | `server/internal/ai/editing-agent.go` | "把这两段换一下顺序" → reorder operation |
-| 3.8 | 操作：Add Caption | `server/internal/ai/editing-agent.go` | "加字幕" → add_caption operation |
-| 3.9 | 操作：Change Music | `server/internal/ai/editing-agent.go` | "换个背景音乐" → change_music operation |
+| 3.4 | 操作：Replace Clip | `server/internal/ai/editing_agent.go` | AI 返回 replace operation，替换指定 clip |
+| 3.5 | 操作：Trim via Chat | `server/internal/ai/editing_agent.go` | "把这段缩短" → trim operation |
+| 3.6 | 操作：Delete via Chat | `server/internal/ai/editing_agent.go` | "删掉这段" → delete operation |
+| 3.7 | 操作：Reorder via Chat | `server/internal/ai/editing_agent.go` | "把这两段换一下顺序" → reorder operation |
+| 3.8 | 操作：Add Caption | `server/internal/ai/editing_agent.go` | "加字幕" → add_caption operation |
+| 3.9 | 操作：Change Music | `server/internal/ai/editing_agent.go` | "换个背景音乐" → change_music operation |
 | 3.10 | Operations → Timeline 应用 | `web/src/stores/timelineStore.ts` | 将 AI 返回的 operations 数组应用到当前时间线 |
 | 3.11 | Edit 记录 | `server/internal/model/edit.go`, `server/internal/repository/edit_repo.go` | 每次 AI 编辑写入 edits 表（message, operation, before_json, after_json） |
 | 3.12 | 快捷 AI 操作 | `web/src/components/editor/AIChat/QuickActions/` | Semi `ButtonGroup`：Make shorter / Change style / Add captions / Improve hook / Change music |
@@ -624,7 +626,7 @@ WeaveClip/
 | 5.5 | 音频混合 | `server/internal/ffmpeg/extract_audio.go`, `server/internal/ffmpeg/render.go` | 背景音乐音量调节 + 原始音频混合 |
 | 5.6 | 转场效果 | `server/internal/ffmpeg/render.go` | xfade 滤镜实现片段间转场（淡入淡出、滑动等） |
 | 5.7 | Render Worker | `server/internal/worker/render_worker.go` | Asynq 任务类型，执行 FFmpeg 渲染，更新进度 |
-| 5.8 | WebSocket Hub | `server/internal/pkg/ws/hub.go`, `server/internal/handler/ws_handler.go` | Gorilla WebSocket，管理客户端连接池，按 projectId 推送进度 |
+| 5.8 | WebSocket Hub | `server/internal/pkg/ws/hub.go`, `server/internal/handler/ws_handler.go` | Gorilla WebSocket，管理客户端连接池，按 renderId 推送进度（2026-09-19 裁定 D2） |
 | 5.9 | Render API | `server/internal/handler/render_handler.go`, `server/internal/service/render_service.go` | POST 启动渲染任务，GET 查询状态 |
 | 5.10 | 前端 WebSocket 接入 | `web/src/hooks/useWebSocket.ts`, `web/src/components/editor/Export/ExportDialog/` | 连接 WebSocket，实时显示渲染进度（Semi `Progress`），完成时显示下载链接 |
 | 5.11 | 导出设置 | `web/src/components/editor/Export/ExportDialog/` | Semi `Select`（分辨率 1080p/720p）、帧率（24/30/60）、格式（MP4） |
@@ -755,7 +757,7 @@ GET    /api/projects             → { projects: Project[] }
 POST   /api/projects             → { project: Project }
 GET    /api/projects/:id         → { project: Project }
 PUT    /api/projects/:id         → { project: Project }
-DELETE /api/projects/:id         → { success: true }
+DELETE /api/projects/:id         → 204 No Content
 ```
 
 **POST /api/projects Body:**
@@ -763,13 +765,17 @@ DELETE /api/projects/:id         → { success: true }
 { "name": "NYC Travel Vlog" }
 ```
 
+> 2026-09-19 裁定 D7：`DELETE /api/projects/:id` 成功返回 `204 No Content`（无响应体），不再返回 `{ success: true }`，与 server/docs/api.md 通用约定一致。
+>
+> 2026-09-19 补充：项目更新已由 main 分支以 `PATCH /api/projects/:id`（部分更新非空字段）实现（工单 B08），契约见 server/docs/api.md；上表 `PUT` 写法保留为早期设计。
+
 ### 7.3 Assets
 
 ```
 POST   /api/projects/:id/assets/presign   → { uploadUrl, assetId }  (生成预签名 URL)
 POST   /api/projects/:id/assets/confirm   → { asset }               (确认上传完成)
 GET    /api/projects/:id/assets           → { assets: Asset[] }
-DELETE /api/assets/:id                    → { success: true }
+DELETE /api/assets/:id                    → 204 No Content
 ```
 
 **POST /api/projects/:id/assets/presign Body:**
@@ -781,6 +787,8 @@ DELETE /api/assets/:id                    → { success: true }
 ```json
 { "assetId": "xxx", "storagePath": "projects/xxx/travel_clip.mp4" }
 ```
+
+> 2026-09-19 裁定 D1：真实文件上传一律走上述两步 presign/confirm 流程，本节契约为准；`POST /api/projects/:id/assets`（单步元数据注册，详见 server/docs/api.md）保留为 mock/调试用途，不用于真实上传。同日裁定 D7 同口径：`DELETE /api/assets/:id` 亦返回 `204 No Content`。
 
 ### 7.4 Analyze
 
@@ -879,8 +887,10 @@ GET    /api/renders/:id             → { status, progress, downloadUrl }
 ### 7.8 WebSocket
 
 ```
-GET    /ws/render/:projectId        → WebSocket 连接（渲染进度推送）
+GET    /ws/render/:renderId         → WebSocket 连接（渲染进度推送）
 ```
+
+> 2026-09-19 裁定 D2：进度属于某次渲染任务，WebSocket 路径参数统一为 `:renderId`（与 §7.7 的推送示例一致，原 `:projectId` 写法作废）；浏览器 WebSocket 握手无法携带 `Authorization` 头，鉴权统一使用 `?token=<JWT>` 查询参数。
 
 ---
 
@@ -933,7 +943,7 @@ CREATE TABLE assets (
   created_at      TIMESTAMPTZ DEFAULT now()
 );
 
--- 时间线版本表
+-- 时间线版本表（多版本设计，见本节末尾 D3 裁定说明）
 CREATE TABLE timelines (
   id              BIGSERIAL PRIMARY KEY,
   project_id      BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -1007,6 +1017,8 @@ CREATE INDEX idx_renders_project ON renders(project_id);
 CREATE INDEX idx_task_results_task_id ON task_results(task_id);
 CREATE INDEX idx_task_results_project ON task_results(project_id);
 ```
+
+> **2026-09-19 裁定 D3**：timelines 表按多版本设计——初始迁移 001 中的 `UNIQUE(project_id)`（单版本语义）与 Phase 6.1 Version History 需求冲突，迁移 002 去掉该约束并改用 `(project_id, version DESC)` 索引；`PUT /api/projects/:id/timeline` 每次插入新版本行（version 递增），`GET /api/projects/:id/timeline` 默认返回最新版本（`?version=` 可选）。
 
 ### 8.2 GORM 模型（Go struct）
 
@@ -1475,3 +1487,11 @@ Ctrl+Z (Undo)
 ```
 
 > 要证明的不是"AI 会剪视频"，而是：你能把一个复杂的专业工作流重新设计成一个普通用户能通过自然语言完成的 AI Native 产品。
+
+---
+
+## 变更记录
+
+| 日期 | 版本 | 变更内容 |
+|---|---|---|
+| 2026-09-19 | v1.1 | 按 D1–D7 裁定修订：视觉基准指向 design-system、WS 路径 :renderId、timelines 多版本语义、DELETE 204、上传契约以 presign/confirm 为准、修正文件名笔误。 |

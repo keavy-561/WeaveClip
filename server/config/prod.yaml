@@ -1,6 +1,7 @@
 server:
   port: 8080
   mode: release
+  request_timeout_sec: 30
 
 database:
   host: ${DB_HOST}

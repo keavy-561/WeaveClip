@@ -35,9 +35,11 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
-      - name: Download server deps
+      - name: Resolve server deps
         working-directory: server
-        run: go mod download
+        # 依赖图含要求 go1.25 的模块（toolchain auto 切换解决），
+        # tidy 会抬升 go 指令，这里随后压回 1.23 以兼容 golangci-lint
+        run: go mod tidy && go mod edit -go=1.23
       - name: Vet
         working-directory: server
         run: go vet ./...
@@ -53,10 +55,16 @@ jobs:
           REDIS_ADDR: localhost:6379
           JWT_SECRET: test_secret
           MOCK_MODE: false
-        run: go test -race ./internal/handler ./internal/middleware ./tests/...
+        run: go test -race ./...
       - name: Build
         working-directory: server
-        run: go build -o bin/server ./cmd/server
+        run: |
+          go build -o bin/server ./cmd/server
+          go build -o bin/worker ./cmd/worker
+      - name: Install ffmpeg (smoke 需要真实音视频链路)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Smoke tests
         working-directory: server
         env:
@@ -68,11 +76,14 @@ jobs:
           DATABASE_SSLMODE: disable
           REDIS_ADDR: localhost:6379
           JWT_SECRET: test_secret
+          MOCK_STORAGE_DIR: ${{ github.workspace }}/server/.shared-storage
           MOCK_MODE: false
         run: |
           set -euo pipefail
           ./bin/server &
           SERVER_PID=$!
+          ./bin/worker &
+          WORKER_PID=$!
           for i in $(seq 1 60); do
             if curl -sf http://localhost:8080/api/health > /dev/null; then
               echo "Server ready"
@@ -83,8 +94,15 @@ jobs:
           bash tests/smoke/health.sh
           bash tests/smoke/auth.sh
           bash tests/smoke/assets.sh
+          bash tests/smoke/upload.sh
+          bash tests/smoke/timeline.sh
+          bash tests/smoke/ai.sh
+          bash tests/smoke/analyze.sh
+          bash tests/smoke/render.sh
           kill "$SERVER_PID" || true
+          kill "$WORKER_PID" || true
           wait "$SERVER_PID" 2>/dev/null || true
+          wait "$WORKER_PID" 2>/dev/null || true
 
   frontend:
     runs-on: ubuntu-latest
@@ -121,6 +139,13 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Resolve server deps
+        working-directory: server
+        run: go mod tidy && go mod edit -go=1.23
       - name: Lint backend
         uses: golangci/golangci-lint-action@v6
         with:

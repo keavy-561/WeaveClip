@@ -38,8 +38,8 @@ const UploadZone: React.FC<UploadZoneProps> = ({
           valid.push(file);
         } else {
           const reasons: string[] = [];
-          if (!typeOk) reasons.push('unsupported format');
-          if (!sizeOk) reasons.push('exceeds 500MB');
+          if (!typeOk) reasons.push(t('create.upload.unsupportedFormat', 'unsupported format'));
+          if (!sizeOk) reasons.push(t('create.upload.exceedsSize', 'exceeds 500MB'));
           invalid.push({ name: file.name, reason: reasons.join(', ') });
         }
       });
@@ -47,7 +47,10 @@ const UploadZone: React.FC<UploadZoneProps> = ({
       if (invalid.length > 0) {
         import('@douyinfe/semi-ui').then(({ Toast }) => {
           Toast.error(
-            `${invalid.length} file(s) rejected: ${invalid.map((i) => `${i.name} (${i.reason})`).join('; ')}`
+            t('create.upload.rejectedFiles', {
+              count: invalid.length,
+              details: invalid.map((i) => `${i.name} (${i.reason})`).join('; '),
+            })
           );
         });
       }
@@ -56,7 +59,7 @@ const UploadZone: React.FC<UploadZoneProps> = ({
         onFileSelect(valid);
       }
     },
-    [onFileSelect]
+    [onFileSelect, t]
   );
 
   const handleDrop = useCallback(
