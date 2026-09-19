@@ -1,0 +1,53 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px;
+  gap: 12px;
+
+  .header .title {
+    font-weight: 600;
+  }
+}
+
+.segments {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assetBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assetName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--semi-color-text-2);
+}
+
+.noSegments {
+  font-size: 12px;
+  color: var(--semi-color-text-3);
+}
+
+.segment {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.timeBtn {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--semi-color-primary);
+}
+
+.segmentText {
+  font-size: 13px;
+  line-height: 1.5;
+}

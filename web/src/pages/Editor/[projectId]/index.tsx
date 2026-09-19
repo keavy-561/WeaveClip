@@ -29,6 +29,8 @@ import { useAssetsStore } from '@/stores/assetsStore';
 import { useEditorShortcuts } from '@/hooks/useEditorShortcuts';
 import { backendToFront, frontToBackend } from '@/utils/dslAdapter';
 import ExportDialog from '@/components/editor/ExportDialog';
+import VersionHistory from '@/components/editor/VersionHistory';
+import { IconHistory } from '@douyinfe/semi-icons';
 import { mockProjects, mockAssets, mockTimelineDSL, mockChatMessages } from '@/utils/mockData';
 import styles from './index.module.scss';
 
@@ -39,6 +41,7 @@ const Editor: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useAppTranslation();
   const [exportOpen, setExportOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   // 自动保存：时间线水合完成后才允许写回，避免“加载即保存”
   const hydratedRef = useRef(false);
@@ -215,6 +218,14 @@ const Editor: React.FC = () => {
           </span>
           <LanguageSwitcher />
           <Button
+            icon={<IconHistory />}
+            theme="borderless"
+            size="small"
+            className={styles.iconBtn}
+            aria-label={t('editor.versionHistory.title')}
+            onClick={() => setHistoryOpen(true)}
+          />
+          <Button
             icon={<IconUndo />}
             theme="borderless"
             size="small"
@@ -291,6 +302,7 @@ const Editor: React.FC = () => {
       </div>
 
       <ExportDialog projectId={projectId ?? ''} visible={exportOpen} onClose={() => setExportOpen(false)} />
+      <VersionHistory projectId={projectId ?? ''} visible={historyOpen} onClose={() => setHistoryOpen(false)} />
     </div>
   );
 };

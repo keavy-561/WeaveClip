@@ -221,6 +221,18 @@
       "downloadNow": "Download MP4",
       "failedHint": "Rendering failed: {{reason}}",
       "retry": "Try again"
+    },
+    "transcript": {
+      "title": "Transcript",
+      "empty": "No transcript yet — analyzed footage will appear here"
+    },
+    "versionHistory": {
+      "title": "Version history",
+      "empty": "No timeline versions yet",
+      "restore": "Restore",
+      "restoreDone": "Restored to v{{version}}",
+      "restoreFailed": "Restore failed",
+      "unlabeled": "Unlabeled"
     }
   },
   "create": {

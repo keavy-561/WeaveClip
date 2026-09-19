@@ -221,6 +221,18 @@
       "downloadNow": "下载 MP4",
       "failedHint": "渲染失败：{{reason}}",
       "retry": "重试"
+    },
+    "transcript": {
+      "title": "转录文本",
+      "empty": "暂无转录内容，上传素材并完成分析后生成"
+    },
+    "versionHistory": {
+      "title": "版本历史",
+      "empty": "还没有时间线版本",
+      "restore": "回滚到该版本",
+      "restoreDone": "已回滚到 v{{version}}",
+      "restoreFailed": "回滚失败",
+      "unlabeled": "未命名"
     }
   },
   "create": {
