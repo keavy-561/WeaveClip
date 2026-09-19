@@ -425,7 +425,9 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 
 执行顺序建议：WO2-01 → WO2-05/06/07（小件并行）→ WO2-02/03/04 → WO2-08/10 → WO2-09/11/12。
 
-**实施结果（2026-09-19）**：WO2-01/02/03/04/05/06/07/08/09/12 已实现并推送（含 VideoPlayer 真 `<video>` 双向同步、playbackUrl 预签名链路、Transcript/VersionHistory UI、/settings、素材删除、登录校验、RequireAuth 接 /auth/me、GORM 集成测试与迁移往返、Vision 多模态分析、govulncheck/npm audit 安全 job、dslAdapter/TranscriptPanel 测试）。**遗留**：WO2-10 的 ExportDialog/Generate 页测试与 WO2-11（Timeline 虚拟滚动/响应式核查）待后续；并行会话（豆包）同期落地了第三轮走查修复（WO3-01~08，见 git log）。
+**实施结果（2026-09-19）**：WO2-01/02/03/04/05/06/07/08/09/12 已实现并推送（含 VideoPlayer 真 `<video>` 双向同步、playbackUrl 预签名链路、Transcript/VersionHistory UI、/settings、素材删除、登录校验、RequireAuth 接 /auth/me、GORM 集成测试与迁移往返、Vision 多模态分析、govulncheck/npm audit 安全 job、dslAdapter/TranscriptPanel 测试）。**遗留收口（2026-09-19）**：WO2-10 的 ExportDialog/Generate 页测试随 WO4-08 关闭（4da436c）；
+WO2-11 的 Timeline 性能与响应式核查随 WO4-09 关闭（4da436c，采用单轨 200 条渲染上限+溢出汇总条，
+完整虚拟滚动仍留待后续）；并行会话（豆包）同期落地了第三轮走查修复（WO3-01~08，见 git log）。
 
 
 
@@ -436,18 +438,24 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 > 背景：第二轮完成 10/12；豆包同期落地 WO3-01~08（第三轮走查修复）并做真机测试。
 > 本轮复查确认的新缺口如下（编号沿用 WO4，避开豆包已用的 WO3）。
 
-| 编号 | 标题 | 优先级 | 现状证据 |
-|---|---|---|---|
-| WO4-01 | 编辑器多片段连续播放：VideoPlayer 按 currentTime 定位当前 clip 并切换素材源（当前只播第一个素材，`VideoPlayer/index.tsx:40-53` 注释自认） | P1 | 播放头走过后续片段画面不更新 |
-| WO4-02 | 退出登录 + 账户菜单：首页头像下拉（账号/设置/退出登录），logout 清 token 跳登录；编辑器齿轮按钮接 `/settings`（现无 onClick） | P1 | 全仓无 logout；Editor `IconSetting` 无 handler |
-| WO4-03 | analyzeService 类型契约修正：前端 `assetIds: string[]` vs 后端 `[]uint`，非空传参必失败 | P1 | `assetService.ts:59` |
-| WO4-04 | Security job 降噪：govulncheck 失败使 job 显示 X（run 虽绿），改为步骤级容忍让 job 绿 | P2 | run 35435160087 job X |
-| WO4-05 | 播放器/编辑器假图占位本地化：去 googleusercontent 外链（`VideoPlayer:15`），改 CSS 渐变占位 | P2 | 外链在国内环境超时（走查 P2-6 同源问题） |
-| WO4-06 | Share 按钮占位：点击 Toast 提示"链接已复制/开发中"（Phase 5+ 未到，消灭死按钮） | P2 | Editor shareBtn 无 handler |
-| WO4-07 | docker-compose 增加 worker 服务 + README 真实模式联调说明（VITE_API_MODE=real / MOCK_MODE=false 的启动方式） | P2 | compose 无 worker；README 未写 |
-| WO4-08 | 第二轮遗留转入：ExportDialog/Generate 页组件测试（原 WO2-10） | P2 | 零测试 |
-| WO4-09 | 第二轮遗留转入：Timeline 大量 clip 性能（虚拟滚动/渲染上限）+ 最小 1280px 响应式核查（原 WO2-11） | P2 | 未做 |
-| WO4-10 | 未用 locale key 清理（71 个 extra 警告）——评估后**暂不实施**：动态 key 与豆包高频改动下，误删风险大于收益；保持 check-i18n 告警级别 | — | 决策记录 |
+| 编号 | 标题 | 优先级 | 现状证据 | 状态 |
+|---|---|---|---|---|
+| WO4-01 | 编辑器多片段连续播放：VideoPlayer 按 currentTime 定位当前 clip 并切换素材源（当前只播第一个素材，`VideoPlayer/index.tsx:40-53` 注释自认） | P1 | 播放头走过后续片段画面不更新 | ✅ 4da436c |
+| WO4-02 | 退出登录 + 账户菜单：首页头像下拉（账号/设置/退出登录），logout 清 token 跳登录；编辑器齿轮按钮接 `/settings`（现无 onClick） | P1 | 全仓无 logout；Editor `IconSetting` 无 handler | ✅ 4da436c |
+| WO4-03 | analyzeService 类型契约修正：前端 `assetIds: string[]` vs 后端 `[]uint`，非空传参必失败 | P1 | `assetService.ts:59` | ✅ 2317dd1 |
+| WO4-04 | Security job 降噪：govulncheck 失败使 job 显示 X（run 虽绿），改为步骤级容忍让 job 绿 | P2 | run 35435160087 job X | ✅ 2317dd1 |
+| WO4-05 | 播放器/编辑器假图占位本地化：去 googleusercontent 外链（`VideoPlayer:15`），改 CSS 渐变占位 | P2 | 外链在国内环境超时（走查 P2-6 同源问题） | ✅ 4da436c |
+| WO4-06 | Share 按钮占位：点击 Toast 提示"链接已复制/开发中"（Phase 5+ 未到，消灭死按钮） | P2 | Editor shareBtn 无 handler | ✅ 4da436c |
+| WO4-07 | docker-compose 增加 worker 服务 + README 真实模式联调说明（VITE_API_MODE=real / MOCK_MODE=false 的启动方式） | P2 | compose 无 worker；README 未写 | ✅ 2317dd1 |
+| WO4-08 | 第二轮遗留转入：ExportDialog/Generate 页组件测试（原 WO2-10） | P2 | 零测试 | ✅ 4da436c |
+| WO4-09 | 第二轮遗留转入：Timeline 大量 clip 性能（虚拟滚动/渲染上限）+ 最小 1280px 响应式核查（原 WO2-11） | P2 | 未做 | ✅ 4da436c（单轨 200 条渲染上限+溢出汇总条；完整虚拟滚动仍留待后续） |
+| WO4-10 | 未用 locale key 清理（71 个 extra 警告）——评估后**暂不实施**：动态 key 与豆包高频改动下，误删风险大于收益；保持 check-i18n 告警级别 | — | 决策记录 | 决策维持 |
+
+**实施结果（2026-09-19）**：WO4-03/04/07 由并行会话落地于 2317dd1；WO4-01/02/05/06/08/09 落地于
+4da436c（多片段连续播放、Home 头像下拉退出登录、渐变占位去外链、Share/齿轮接线、单轨渲染上限、
+ExportDialog/Generate 组件测试）；6d32e8f 修复 WS 对不存在/越权渲染的握手误报。评审补丁：修复
+相邻片段共用同一素材时 `ended` 后不触发 loadedmetadata 导致的连播假死（直接 seek 下一片段素材内位置）。
+全部验证交远端 CI。
 
 ---
 
@@ -462,4 +470,5 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 | 2026-09-19 | v1.4 | 第三轮：豆包复测 P1×3/P2×5 → 新增 WO3-01～08 并全部实现（时间轴点击遮挡防御修复、编辑器模板按钮响应、删除项目二次确认、素材占位图去设计稿假图、mock 导出进度模拟、移除 Google Fonts、Router v7 flags、StrictMode 规避 findDOMNode）；另修复 WO2-09 提交遗留的 3 处编译错误。 |
 | 2026-09-19 | v1.3 | 复查产出第二轮工单 12 条（§8）：VideoPlayer 真播放器、Transcript/版本历史 UI、settings、素材删除、登录校验、GORM 集成测试、Vision 接入、性能与安全扫描等。 |
 | 2026-09-19 | v1.5 | 第三轮复查产出 WO4-01~09（§9，WO4-10 决策暂不实施）：多片段播放、退出登录、analyze 契约、security 降噪、占位本地化、compose worker 等。 |
+| 2026-09-19 | v1.6 | WO4-01~10 全部关闭：03/04/07 落地 2317dd1，01/02/05/06/08/09 落地 4da436c，6d32e8f 修 WS 握手误报，评审补丁修 same-asset 连播假死；WO2-10/11 遗留随 WO4-08/09 收口。验证交远端 CI。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |
