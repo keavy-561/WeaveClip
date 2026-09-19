@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/weaveclip/server/internal/model"
+	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
 	"gorm.io/datatypes"
 )

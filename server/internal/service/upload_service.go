@@ -112,7 +112,7 @@ func (s *UploadService) Confirm(assetID, userID uint) (*model.Asset, error) {
 		return nil, fmt.Errorf("%w: object size %d exceeds limit", ErrInvalidUpload, size)
 	}
 	// 局部回写确认字段：不整行覆盖并发流程（分析等）刚写入的列（工单 WO8-10）
-	if err := s.assets.UpdateMediaInfo(asset.ID, AssetMediaInfo{
+	if err := s.assets.UpdateMediaInfo(asset.ID, repository.AssetMediaInfo{
 		Status:   "ready",
 		FileSize: size,
 	}); err != nil {
