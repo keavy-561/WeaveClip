@@ -459,6 +459,41 @@ ExportDialog/Generate 组件测试）；6d32e8f 修复 WS 对不存在/越权渲
 
 ---
 
+## 10. 第四轮工单（2026-09-19 用户实测反馈 + 全面体验走查，WO5 系列）
+
+> 来源：用户实际使用反馈的三个问题（AI 对话框没有发送按钮、右侧侧边栏不能收起、
+> 编辑器中间一大块空白）+ 对 web/src 全量的静态体验走查（死按钮/假控件/空态/可达性，40+ 项）。
+> 走查中确认"中间一大块空白"根因：mock 素材无 playbackUrl，VideoPlayer 判定不可播后
+> 渲染整块无文字渐变占位，且播放键静默无效（WO5-02）。
+
+| 编号 | 标题 | 优先级 | 状态 |
+|---|---|---|---|
+| WO5-01 | AI 聊天发送按钮：TextArea 右侧 IconSend 按钮（空内容/发送中禁用），placeholder 补「Enter 发送」，mock 回复与 QuickActions prompt 全量 i18n | P0 | ✅ 本次 |
+| WO5-02 | 播放器空态说明化：占位层加图标+「暂无可播放预览」+引导文案；无可播源时播放键 disabled；控制条补 ：focus-within（触屏/键盘可达） | P0 | ✅ 本次 |
+| WO5-03 | 真实模式去 mock 素材回退：Editor displayAssets 与 MediaPanel 素材链路空时渲染 Semi Empty 引导，不再展示假素材 | P0 | ✅ 本次 |
+| WO5-04 | 编辑器顶栏撤销/重做接线：接 timelineStore undo/redo + canUndo/canRedo 禁用态；≤1280px 隐藏（时间轴工具条仍有） | P0 | ✅ 本次 |
+| WO5-05 | 左右面板可收起：editorUIStore 新增 mediaCollapsed/inspectorCollapsed；MediaPanel/InspectorPanel 头部收起按钮；折叠后 Editor 渲染 28px 窄条展开按钮 | P1 | ✅ 本次 |
+| WO5-06 | 编辑器内导入素材：Semi 按钮触发隐藏文件选择器，presign→PUT→confirm 后 invalidate assets 查询；mock 模式 Toast 提示不可用 | P1 | ✅ 本次 |
+| WO5-07 | MediaPanel 体验清理：移除假 tab（素材库/媒体）与假「AI 增强」控件区（风格迁移死按钮/自动字幕假 Switch/降噪假 Slider）、section 假箭头；素材卡点击追加入轨（role+tabIndex+键盘）；去 slice(0,4) 静默截断；「4K」徽标改真实分辨率；空素材/搜索无结果空态 | P1 | ✅ 本次 |
+| WO5-08 | 时间轴空态引导（pointer-events:none 不拦截拖入/点击标尺）+ 移除无功能齿轮死按钮 | P1 | ✅ 本次 |
+| WO5-09 | 编辑器头部清理：项目名/画幅去伪装箭头与指针样式，项目名溢出省略；「草稿」接 /projects 导航；headerCenter 绝对定位改弹性布局；新增 1440/1280px 断点收纳 | P1 | ✅ 本次 |
+| WO5-10 | InspectorPanel：IconMore 死按钮改为收起按钮；未选中片段空态改 Semi Empty | P1 | ✅ 本次 |
+| WO5-11 | Projects 项目卡 div+onClick 改 Link（键盘可达，AGENTS 规则 1） | P1 | ✅ 本次 |
+| WO5-12 | ErrorBoundary/App.tsx 硬编码英文清零（ErrorBoundary 经 i18n 单例本地化，测试同步改双语断言）；移除首帧 Loading 门控与内联样式 | P1 | ✅ 本次 |
+| WO5-13 | 分析完成 1.2s 强制跳转改手动「继续」按钮：AnalyzeProgress onComplete 改可选，Generate 不再传空回调 | P1 | ✅ 本次 |
+| WO5-14 | Home 侧边栏折叠能力 + 搜索框 <1024px 被隐藏后无替代入口 | P2 | 待排期 |
+| WO5-15 | 上传进行中 uploadingOverlay 整体替换 UploadStep：应保留文件列表/进度/取消重试 | P2 | 待排期 |
+| WO5-16 | Describe 无 projectId（模板入口）时表单可点但生成仅 Toast 的交互矛盾；表单重置与 Ctrl+Enter 提交 | P2 | 待排期 |
+| WO5-17 | VersionHistory 回滚成功后 invalidate 版本列表；SideSheet 宽度 min(380px, 90vw) | P2 | 待排期 |
+| WO5-18 | 死代码处置：components/editor/Assets/AssetPanel、Assets/AssetCard、components/test/TestI18n、VideoPlayer 死 CSS——属文件删除，**待人类按删除保护流程执行** | P2 | 待人类 |
+| WO5-19 | Playhead 仅 mouseDown 拖拽无键盘微调、Ruler 无 role；Playhead 用类名字符串匹配定位 canvas 的脆弱耦合 | P2 | 待排期 |
+| WO5-20 | 分析摘要数字仍取演示数据（真实模式受控完成也显示假统计）需标注或接真数据；上传失败文件无 error 态与重试 UI | P2 | 待排期 |
+
+**实施结果（2026-09-19）**：WO5-01~13 已实现并推送（编辑器体验批量修复），验证交远端 CI；
+WO5-14~20 登记待排期。i18n 新增键 zh/en 同步补齐（check-i18n 由 CI 裁决）。
+
+---
+
 ## 变更记录
 
 | 日期 | 版本 | 变更内容 |
@@ -471,4 +506,5 @@ ExportDialog/Generate 组件测试）；6d32e8f 修复 WS 对不存在/越权渲
 | 2026-09-19 | v1.3 | 复查产出第二轮工单 12 条（§8）：VideoPlayer 真播放器、Transcript/版本历史 UI、settings、素材删除、登录校验、GORM 集成测试、Vision 接入、性能与安全扫描等。 |
 | 2026-09-19 | v1.5 | 第三轮复查产出 WO4-01~09（§9，WO4-10 决策暂不实施）：多片段播放、退出登录、analyze 契约、security 降噪、占位本地化、compose worker 等。 |
 | 2026-09-19 | v1.6 | WO4-01~10 全部关闭：03/04/07 落地 2317dd1，01/02/05/06/08/09 落地 4da436c，6d32e8f 修 WS 握手误报，评审补丁修 same-asset 连播假死；WO2-10/11 遗留随 WO4-08/09 收口。验证交远端 CI。 |
+| 2026-09-19 | v1.7 | 第四轮（WO5，§10）：用户实测反馈三问题（AI 聊天无发送按钮/右侧栏不可收起/编辑器中部大块空白）+ 全量体验走查 40+ 项立项；WO5-01~13 本次实现（发送按钮、播放器空态说明化、面板可收起、编辑器内导入素材、顶栏撤销重做接线、假控件清理、时间轴空态、Projects 键盘可达、ErrorBoundary i18n、分析完成手动继续），WO5-14~20 登记待排期（含 WO5-18 死代码待人类删除）。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |
