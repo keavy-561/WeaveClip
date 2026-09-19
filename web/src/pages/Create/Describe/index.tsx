@@ -92,8 +92,8 @@ const Describe: React.FC = () => {
           name: payload.name,
           status: 'generating',
           duration: payload.duration ?? null,
-          aspectRatio: payload.aspectRatio,
-          style: payload.style,
+          aspectRatio: payload.aspectRatio ?? '9:16',
+          style: payload.style ?? 'energetic',
           createdAt: now,
           updatedAt: now,
         });
