@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Select, Slider } from '@douyinfe/semi-ui';
-import { IconPlay, IconPause, IconMute, IconVolume2 } from '@douyinfe/semi-icons';
+import { IconPlay, IconPause, IconMute, IconVolume2, IconVideo } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAssetsStore } from '@/stores/assetsStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -207,9 +207,14 @@ const VideoPlayer: React.FC = () => {
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
         />
-        {/* 无可播源且无缩略图时显示 Morandi 灰蓝渐变占位（外链占位图已移除，WO4-05） */}
+        {/* 无可播源且无缩略图时显示渐变占位（外链占位图已移除，WO4-05），
+            附说明文案避免"一大块空白"的观感（WO5-02） */}
         {!hasPlayableSource && !activeAsset?.thumbnailUrl && (
-          <div className={styles.screenPlaceholder} aria-hidden />
+          <div className={styles.screenPlaceholder}>
+            <IconVideo className={styles.placeholderIcon} aria-hidden />
+            <p className={styles.placeholderTitle}>{t('editor.videoPlayer.noPreviewTitle')}</p>
+            <p className={styles.placeholderHint}>{t('editor.videoPlayer.noPreviewHint')}</p>
+          </div>
         )}
         <div className={styles.mockTime}>{formatTime(currentTime)}</div>
 
@@ -220,6 +225,7 @@ const VideoPlayer: React.FC = () => {
               theme="borderless"
               size="small"
               onClick={togglePlay}
+              disabled={!hasPlayableSource}
               aria-label={isPlaying ? t('editor.videoPlayer.pause') : t('editor.videoPlayer.play')}
               className={styles.controlBtn}
             />

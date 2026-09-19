@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Spin, TextArea, Toast } from '@douyinfe/semi-ui';
+import { Button, Spin, TextArea, Toast } from '@douyinfe/semi-ui';
+import { IconSend } from '@douyinfe/semi-icons';
 import { useAIChatStore } from '@/stores/aiChatStore';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { chatService } from '@/services/generateService';
@@ -49,6 +50,9 @@ const AIChat: React.FC = () => {
 
     // mock 模式：本地模拟回复；真实模式：调用对话式编辑 API（工单 F07/B13）
     if (isMockMode) {
+      const reply = selectedClipId
+        ? t('editor.aiChat.mockReplySelected', { clipId: selectedClipId, prompt: text })
+        : t('editor.aiChat.mockReplyGeneral', { prompt: text });
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
       }
@@ -56,7 +60,7 @@ const AIChat: React.FC = () => {
         addMessage({
           id: generateId(),
           role: 'assistant',
-          content: mockAIReply(text, selectedClipId),
+          content: reply,
           timestamp: new Date().toISOString(),
         });
         setLoading(false);
@@ -128,17 +132,22 @@ const AIChat: React.FC = () => {
             }
           }}
         />
+        {/* 发送按钮：Enter 之外的可见提交入口（工单 WO5-01） */}
+        <Button
+          className={styles.sendBtn}
+          theme="solid"
+          icon={<IconSend />}
+          loading={isLoading}
+          disabled={!draft.trim() || isLoading}
+          onClick={() => {
+            handleSend(draft);
+            setDraft('');
+          }}
+          aria-label={t('editor.aiChat.send')}
+        />
       </div>
     </div>
   );
 };
-
-// Mock AI 回复
-function mockAIReply(userText: string, selectedClipId: string | null): string {
-  if (selectedClipId) {
-    return `I'll edit the selected clip (${selectedClipId}) based on your request: "${userText}". This targeted edit will be applied in Phase 3.`;
-  }
-  return `Got it: "${userText}". I'll adjust the timeline accordingly. (This is a mock response — AI editing lands in Phase 3.)`;
-}
 
 export default AIChat;

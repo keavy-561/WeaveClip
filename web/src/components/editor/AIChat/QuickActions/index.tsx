@@ -8,11 +8,11 @@ interface QuickActionsProps {
 }
 
 const QUICK_ACTIONS = [
-  { key: 'makeShorter', prompt: 'Make this video shorter and punchier.' },
-  { key: 'changeStyle', prompt: 'Change the overall style of this video.' },
-  { key: 'addCaptions', prompt: 'Add clean, minimal captions to this video.' },
-  { key: 'improveHook', prompt: 'Make the first 3 seconds more attention-grabbing.' },
-  { key: 'changeMusic', prompt: 'Use different background music with a better match.' },
+  { key: 'makeShorter', promptKey: 'editor.quickActions.promptMakeShorter' },
+  { key: 'changeStyle', promptKey: 'editor.quickActions.promptChangeStyle' },
+  { key: 'addCaptions', promptKey: 'editor.quickActions.promptAddCaptions' },
+  { key: 'improveHook', promptKey: 'editor.quickActions.promptImproveHook' },
+  { key: 'changeMusic', promptKey: 'editor.quickActions.promptChangeMusic' },
 ];
 
 const QuickActions: React.FC<QuickActionsProps> = ({ onAction }) => {
@@ -25,7 +25,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onAction }) => {
           key={action.key}
           theme="borderless"
           className={styles.actionBtn}
-          onClick={() => onAction(action.prompt)}
+          onClick={() => onAction(t(action.promptKey))}
         >
           {t(`editor.quickActions.${action.key}`)}
         </Button>

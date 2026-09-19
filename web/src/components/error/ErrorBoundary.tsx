@@ -1,6 +1,8 @@
 import { Component, ReactNode } from 'react';
 import { Button, Typography } from '@douyinfe/semi-ui';
 import { IconRefresh } from '@douyinfe/semi-icons';
+// 类组件不能用 useTranslation hook，直接取 i18n 单例（WO5-12 兜底 UI 文案本地化）
+import i18n from '@/locales/i18n';
 import styles from './ErrorBoundary.module.scss';
 
 interface Props {
@@ -47,9 +49,9 @@ class ErrorBoundary extends Component<Props, State> {
             <div className={styles.icon}>
               <IconRefresh size="extra-large" />
             </div>
-            <Title heading={4}>Something went wrong</Title>
+            <Title heading={4}>{i18n.t('common.errorTitle')}</Title>
             <Paragraph type="secondary">
-              An unexpected error occurred. Please try refreshing the page.
+              {i18n.t('common.errorDescription')}
             </Paragraph>
             {this.state.error && (
               <pre className={styles.errorDetails}>
@@ -62,7 +64,7 @@ class ErrorBoundary extends Component<Props, State> {
               onClick={this.handleReset}
               className={styles.button}
             >
-              Try Again
+              {i18n.t('common.retry')}
             </Button>
           </div>
         </div>

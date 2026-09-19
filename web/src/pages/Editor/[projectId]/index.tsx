@@ -8,6 +8,8 @@ import {
   IconShare,
   IconDownload,
   IconArrowLeft,
+  IconChevronLeft,
+  IconChevronRight,
 } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import SideNavBar from '@/components/editor/SideNavBar';
@@ -19,6 +21,7 @@ import ToolSidebar from '@/components/editor/ToolSidebar';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useProjectStore } from '@/stores/projectStore';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useEditorUIStore } from '@/stores/editorUIStore';
 import { useAIChatStore } from '@/stores/aiChatStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useQuery } from '@tanstack/react-query';
@@ -49,6 +52,15 @@ const Editor: React.FC = () => {
 
   const setCurrentProject = useProjectStore((s) => s.setCurrentProject);
   const setDSL = useTimelineStore((s) => s.setDSL);
+  // 面板折叠（WO5-05）与顶栏撤销/重做（WO5-04，与时间轴工具条共用 store）
+  const mediaCollapsed = useEditorUIStore((s) => s.mediaCollapsed);
+  const toggleMediaCollapsed = useEditorUIStore((s) => s.toggleMediaCollapsed);
+  const inspectorCollapsed = useEditorUIStore((s) => s.inspectorCollapsed);
+  const toggleInspectorCollapsed = useEditorUIStore((s) => s.toggleInspectorCollapsed);
+  const undo = useTimelineStore((s) => s.undo);
+  const redo = useTimelineStore((s) => s.redo);
+  const canUndo = useTimelineStore((s) => s.canUndo);
+  const canRedo = useTimelineStore((s) => s.canRedo);
   const setAssets = useAssetsStore((s) => s.setAssets);
   const addMessage = useAIChatStore((s) => s.addMessage);
   const clearMessages = useAIChatStore((s) => s.clearMessages);
@@ -130,14 +142,13 @@ const Editor: React.FC = () => {
   const tracks = useTimelineStore((s) => s.tracks);
   const timelineDuration = useTimelineStore((s) => s.duration);
 
-  const displayAssets =
-    !isMockMode && projectId
-      ? assetsLoading
-        ? []
-        : assets.length > 0
-          ? assets
-          : mockAssets
-      : mockAssets.filter((a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId));
+  // 素材来源（WO5-03）：真实模式只消费真实数据（空态由 MediaPanel 呈现引导，不再回退假素材），
+  // mock 模式按项目过滤演示素材
+  const displayAssets = !isMockMode
+    ? assetsLoading
+      ? []
+      : assets
+    : mockAssets.filter((a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId));
 
   // 素材注入全局 store：Clip/MediaPanel 由此读取真实素材信息
   useEffect(() => {
@@ -197,6 +208,7 @@ const Editor: React.FC = () => {
               theme="borderless"
               className={`${styles.navLink} ${styles.active}`}
               size="small"
+              onClick={() => navigate('/projects')}
             >
               {t('editor.header.drafts')}
             </Button>
@@ -211,15 +223,14 @@ const Editor: React.FC = () => {
           </nav>
         </div>
         <div className={styles.headerCenter}>
+          {/* 项目名与画幅为展示信息，去掉伪装可点的箭头/指针样式（WO5-09） */}
           <span className={styles.projectName}>
             {currentProject?.name || t('editor.header.projectName')}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
         </div>
         <div className={styles.headerRight}>
           <span className={styles.aspectBtn}>
             {t('editor.header.aspectRatio')}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </span>
           <LanguageSwitcher />
           <Button
@@ -234,14 +245,18 @@ const Editor: React.FC = () => {
             icon={<IconUndo />}
             theme="borderless"
             size="small"
-            className={styles.iconBtn}
+            className={`${styles.iconBtn} ${styles.headerUndoRedo}`}
+            disabled={!canUndo}
+            onClick={undo}
             aria-label={t('common.undo')}
           />
           <Button
             icon={<IconRedo />}
             theme="borderless"
             size="small"
-            className={styles.iconBtn}
+            className={`${styles.iconBtn} ${styles.headerUndoRedo}`}
+            disabled={!canRedo}
+            onClick={redo}
             aria-label={t('common.redo')}
           />
           <Button
@@ -276,7 +291,16 @@ const Editor: React.FC = () => {
       {/* 五区主体 */}
       <div className={styles.body}>
         <SideNavBar />
-        <MediaPanel assets={displayAssets} />
+        {mediaCollapsed ? (
+          <Button
+            className={styles.railBtn}
+            icon={<IconChevronRight />}
+            onClick={toggleMediaCollapsed}
+            aria-label={t('common.expand')}
+          />
+        ) : (
+          <MediaPanel assets={displayAssets} />
+        )}
         <main className={styles.centerPane}>
           {projectLoading ? (
             <div className={styles.loadingOverlay}>
@@ -308,7 +332,16 @@ const Editor: React.FC = () => {
             </>
           )}
         </main>
-        <InspectorPanel />
+        {inspectorCollapsed ? (
+          <Button
+            className={styles.railBtn}
+            icon={<IconChevronLeft />}
+            onClick={toggleInspectorCollapsed}
+            aria-label={t('common.expand')}
+          />
+        ) : (
+          <InspectorPanel />
+        )}
         <ToolSidebar />
       </div>
 

@@ -146,7 +146,7 @@ const Generate: React.FC = () => {
           </div>
         ) : (
           <>
-            <AnalyzeProgress controlled={controlled} onComplete={() => {}} />
+            <AnalyzeProgress controlled={controlled} />
             {failed && (
               <Button theme="solid" className={styles.retryBtn} onClick={() => navigate(-1)}>
                 {t('common.back')}

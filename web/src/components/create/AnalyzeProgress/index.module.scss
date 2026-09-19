@@ -95,6 +95,11 @@
   margin-bottom: 20px;
 }
 
+// 完成后的手动「继续」按钮（WO5-13：替代 1.2s 自动跳转，让用户看完摘要）
+.continueBtn {
+  margin-top: 24px;
+}
+
 .summaryGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

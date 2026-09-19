@@ -5,9 +5,8 @@ import {
   IconScissors,
   IconDelete,
   IconImage,
-  IconSetting,
 } from '@douyinfe/semi-icons';
-import { Button } from '@douyinfe/semi-ui';
+import { Button, Empty } from '@douyinfe/semi-ui';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useEditorUIStore } from '@/stores/editorUIStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -42,6 +41,8 @@ const Timeline: React.FC = () => {
 
   const pxPerSec = PX_PER_SEC * zoom;
   const totalWidth = Math.max(duration * pxPerSec + 120, 600);
+  // 空时间轴判定：所有轨道片段数为 0 时渲染引导空态（WO5-08）
+  const totalClips = tracks.reduce((sum, track) => sum + track.clips.length, 0);
 
   const handleDelete = () => {
     if (selectedClipId) deleteClip(selectedClipId);
@@ -147,13 +148,6 @@ const Timeline: React.FC = () => {
             </Button>
           </div>
           <span className={styles.divider} />
-          <Button
-            icon={<IconSetting />}
-            theme="borderless"
-            size="small"
-            className={styles.iconBtn}
-            aria-label={t('common.settings')}
-          />
         </div>
       </div>
 
@@ -199,6 +193,13 @@ const Timeline: React.FC = () => {
           ))}
 
           <Playhead pxPerSec={pxPerSec} />
+
+          {/* 空时间轴引导：pointer-events:none，不拦截素材拖入（WO5-08） */}
+          {totalClips === 0 && (
+            <div className={styles.emptyOverlay}>
+              <Empty description={t('editor.timeline.emptyHint')} />
+            </div>
+          )}
         </div>
       </div>
     </div>

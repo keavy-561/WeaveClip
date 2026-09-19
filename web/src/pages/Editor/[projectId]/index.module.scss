@@ -55,9 +55,11 @@
 }
 
 .headerCenter {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  // 改为弹性居中：绝对定位在窄屏会与两侧按钮重叠（WO5-09）
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .projectName {
@@ -68,18 +70,13 @@
   border-radius: 8px;
   border: 1px solid var(--color-editor-border);
   background: var(--color-surface-container-low);
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s;
   font-family: $font-sans;
   white-space: nowrap;
-
-  &:hover {
-    background: var(--color-surface-container-high);
-    color: var(--semi-color-text-0);
-  }
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .headerRight {
@@ -96,17 +93,10 @@
   border-radius: 8px;
   border: 1px solid var(--color-editor-border);
   background: transparent;
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
-  transition: all 0.2s;
   margin-right: 8px;
-
-  &:hover {
-    background: var(--color-surface-container-high);
-    color: var(--semi-color-text-0);
-  }
 }
 
 .iconBtn {
@@ -190,4 +180,37 @@
   display: flex;
   gap: 12px;
   margin-top: 12px;
+}
+
+// 折叠后的面板窄条展开按钮（WO5-05）
+.railBtn {
+  width: 28px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  height: auto;
+  align-self: stretch;
+  flex-shrink: 0;
+  border-radius: 0 !important;
+}
+
+// 窄屏收纳（WO5-09）：1440px 以下隐藏次级导航与画幅控件，
+// 1280px 最小宽度下顶栏只保留核心操作（撤销/重做在时间轴工具条仍有）
+@media (max-width: 1440px) {
+  .navLinks {
+    display: none;
+  }
+
+  .aspectBtn {
+    display: none;
+  }
+}
+
+@media (max-width: 1280px) {
+  .headerUndoRedo {
+    display: none;
+  }
+
+  .projectName {
+    display: none;
+  }
 }

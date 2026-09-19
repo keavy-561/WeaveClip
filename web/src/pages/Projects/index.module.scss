@@ -174,3 +174,8 @@
   height: 180px;
   border-radius: 12px;
 }
+// Link 化的卡片（WO5-11）：还原 a 标签默认样式，保持卡片视觉
+.card {
+  text-decoration: none;
+  color: inherit;
+}

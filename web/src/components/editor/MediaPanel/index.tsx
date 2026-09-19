@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Button, Empty, Input, Popconfirm, Slider, Switch, Toast } from '@douyinfe/semi-ui';
-import { IconPlus, IconArrowRight, IconDelete, IconSearch } from '@douyinfe/semi-icons';
+import React, { useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Button, Empty, Input, Popconfirm, Toast } from '@douyinfe/semi-ui';
+import { IconPlus, IconChevronLeft, IconDelete, IconSearch } from '@douyinfe/semi-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Asset } from '@/types/asset';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useEditorUIStore, type EditorTool } from '@/stores/editorUIStore';
 import { useAssetsStore } from '@/stores/assetsStore';
+import { useTimelineStore } from '@/stores/timelineStore';
 import { assetService } from '@/services/assetService';
 import { mockAssets } from '@/utils/mockData';
 import AIChat from '@/components/editor/AIChat';
@@ -23,17 +25,30 @@ const formatBadge = (duration: number): string =>
   `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}`;
 
 const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
-  const [tab, setTab] = useState<string>('library');
   const [query, setQuery] = useState<string>('');
-  const [autoCaptions, setAutoCaptions] = useState<boolean>(true);
-  const [noiseReduction, setNoiseReduction] = useState<number>(40);
+  const [importing, setImporting] = useState(false);
   // mock 模式下被本地删除的素材 id（mockAssets 为只读回退数据，无法真正移除）
   const [removedIds, setRemovedIds] = useState<Set<string>>(() => new Set());
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const activeTool = useEditorUIStore((s) => s.activeTool);
+  const toggleMediaCollapsed = useEditorUIStore((s) => s.toggleMediaCollapsed);
   const storedAssets = useAssetsStore((s) => s.assets);
   const setAssets = useAssetsStore((s) => s.setAssets);
+  const addClip = useTimelineStore((s) => s.addClip);
   const queryClient = useQueryClient();
+  const { projectId } = useParams<{ projectId: string }>();
   const { t } = useAppTranslation();
+
+  /** 面板头部通用：标题 + 收起按钮（WO5-05 左侧面板可收起） */
+  const collapseButton = (
+    <Button
+      size="small"
+      theme="borderless"
+      icon={<IconChevronLeft />}
+      onClick={toggleMediaCollapsed}
+      aria-label={t('common.collapse')}
+    />
+  );
 
   // 非 media 工具：渲染“开发中”占位面板（缺陷走查 P0-3）
   const toolLabels: Record<Exclude<EditorTool, 'media'>, string> = {
@@ -51,6 +66,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       <div className={styles.panel}>
         <div className={styles.header}>
           <span className={styles.title}>{toolLabels.content}</span>
+          {collapseButton}
         </div>
         <TranscriptPanel />
       </div>
@@ -63,6 +79,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       <div className={styles.panel}>
         <div className={styles.header}>
           <span className={styles.title}>{toolLabels.ai}</span>
+          {collapseButton}
         </div>
         <AIChat />
       </div>
@@ -75,6 +92,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       <div className={styles.panel}>
         <div className={styles.header}>
           <span className={styles.title}>{toolLabel}</span>
+          {collapseButton}
         </div>
         <div className={styles.toolPlaceholder}>
           <Empty description={t('editor.panel.developing', { tool: toolLabel })} />
@@ -83,12 +101,11 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     );
   }
 
-  // 素材来源：优先 assetsStore，其次父级传入的 assets，最后回退 mockAssets；
-  // 过滤掉本地已删除的素材（mock 回退数据无法真正移除，用本地列表兜底）
-  const sourceAssets = (storedAssets.length > 0 ? storedAssets : assets.length > 0 ? assets : mockAssets)
-    .filter((a) => !removedIds.has(a.id));
-  const videos = sourceAssets.filter((a) => a.type === 'video');
-  const filtered = videos.filter((a) =>
+  // 素材来源（WO5-03）：真实模式只消费真实数据（为空时渲染空态引导，不再回退假素材），
+  // mock 模式回退演示数据；过滤掉本地已删除的素材
+  const sourceAssets = (isMockMode ? mockAssets : storedAssets.length > 0 ? storedAssets : assets)
+    .filter((a) => a.type === 'video' && !removedIds.has(a.id));
+  const filtered = sourceAssets.filter((a) =>
     a.fileName.toLowerCase().includes(query.toLowerCase())
   );
 
@@ -96,6 +113,55 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const handleAssetDragStart = (asset: Asset) => (e: React.DragEvent) => {
     e.dataTransfer.setData('application/x-asset-id', asset.id);
     e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  /** 点击素材快速追加到视频轨末尾（WO5-07，拖拽之外的快捷路径） */
+  const handleAddToTimeline = (asset: Asset) => {
+    const videoTrack = useTimelineStore.getState().tracks.find((tr) => tr.type === 'video');
+    const end = videoTrack?.clips.reduce((max, c) => Math.max(max, c.start + c.duration), 0) ?? 0;
+    addClip(asset.id, end);
+    Toast.success(t('editor.mediaPanel.addedToTimeline'));
+  };
+
+  /** 编辑器内导入素材：presign → PUT 直传 → confirm（WO5-06） */
+  const handleImportFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    if (isMockMode) {
+      Toast.warning(t('editor.mediaPanel.importMockDisabled'));
+      return;
+    }
+    setImporting(true);
+    let ok = 0;
+    let fail = 0;
+    for (const file of Array.from(files)) {
+      try {
+        const type = file.type.startsWith('video')
+          ? 'video'
+          : file.type.startsWith('audio')
+            ? 'audio'
+            : 'image';
+        const { uploadUrl, assetId } = await assetService.presign(projectId ?? '', {
+          type,
+          fileName: file.name,
+          fileSize: file.size,
+        });
+        await assetService.uploadToPresigned(uploadUrl, file, file.type || 'application/octet-stream');
+        await assetService.confirm(projectId ?? '', assetId);
+        ok += 1;
+      } catch {
+        fail += 1;
+      }
+    }
+    setImporting(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (ok > 0) {
+      // 刷新 Editor 的 assets 查询，新素材经 assetsStore 同步到时间轴/检查器
+      void queryClient.invalidateQueries({ queryKey: ['assets'] });
+      Toast.success(t('editor.mediaPanel.importSuccess', { count: ok }));
+    }
+    if (fail > 0) {
+      Toast.error(t('editor.mediaPanel.importFailedCount', { count: fail }));
+    }
   };
 
   /** 素材删除（工单 WO2-05）：真实模式先调 API，失败 Toast 并中止；mock 模式仅本地移除 */
@@ -125,24 +191,24 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     <div className={styles.panel}>
       <div className={styles.header}>
         <span className={styles.title}>{t('editor.mediaPanel.title')}</span>
-        <Button size="small" theme="borderless" icon={<IconPlus />} aria-label={t('common.importMedia')} />
-      </div>
-
-      <div className={styles.tabBar}>
+        {collapseButton}
+        {/* 隐藏文件选择器由 Semi 按钮触发（WO5-06 编辑器内导入素材） */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="video/*,audio/*,image/*"
+          className={styles.hiddenFileInput}
+          onChange={(e) => void handleImportFiles(e.target.files)}
+        />
         <Button
+          size="small"
           theme="borderless"
-          className={`${styles.segment} ${tab === 'library' ? styles.segmentActive : ''}`}
-          onClick={() => setTab('library')}
-        >
-          {t('editor.mediaPanel.library')}
-        </Button>
-        <Button
-          theme="borderless"
-          className={`${styles.segment} ${tab === 'media' ? styles.segmentActive : ''}`}
-          onClick={() => setTab('media')}
-        >
-          {t('editor.mediaPanel.media')}
-        </Button>
+          icon={<IconPlus />}
+          loading={importing}
+          onClick={() => fileInputRef.current?.click()}
+          aria-label={t('common.importMedia')}
+        />
       </div>
 
       <div className={styles.search}>
@@ -158,128 +224,123 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       </div>
 
       <div className={styles.content}>
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.recentAssets')}</h3>
-            <IconArrowRight className={styles.sectionArrow} />
+        {sourceAssets.length === 0 ? (
+          <div className={styles.emptyWrap}>
+            <Empty description={t('editor.mediaPanel.emptyAssetsHint')} />
           </div>
-          <div className={styles.assetGrid}>
-            {filtered.slice(0, 4).map((asset) => (
-              <div
-                key={asset.id}
-                className={styles.assetCard}
-                draggable
-                onDragStart={handleAssetDragStart(asset)}
-                title={asset.fileName}
-              >
-                <div className={styles.assetImage}>
-                  {asset.thumbnailUrl ? (
-                    <img
-                      className={styles.assetImg}
-                      src={asset.thumbnailUrl}
-                      alt={asset.fileName}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className={styles.assetPlaceholder} aria-hidden="true" />
-                  )}
-                  <div className={styles.assetOverlay}>
-                    <IconPlus />
-                  </div>
-                  {asset.duration && (
-                    <span className={styles.durationBadge}>{formatBadge(asset.duration)}</span>
-                  )}
-                  <Popconfirm
-                    title={t('editor.mediaPanel.deleteConfirm')}
-                    onConfirm={() => void handleRemoveAsset(asset)}
+        ) : filtered.length === 0 ? (
+          <div className={styles.emptyWrap}>
+            <Empty description={t('editor.mediaPanel.noMatch')} />
+          </div>
+        ) : (
+          <>
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.recentAssets')}</h3>
+              </div>
+              <div className={styles.assetGrid}>
+                {filtered.map((asset) => (
+                  <div
+                    key={asset.id}
+                    className={styles.assetCard}
+                    draggable
+                    onDragStart={handleAssetDragStart(asset)}
+                    onClick={() => handleAddToTimeline(asset)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleAddToTimeline(asset);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    title={asset.fileName}
                   >
-                    <Button
-                      className={styles.deleteBtn}
-                      icon={<IconDelete />}
-                      size="small"
-                      theme="solid"
-                      type="danger"
-                      aria-label={t('editor.mediaPanel.deleteAsset')}
-                    />
-                  </Popconfirm>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.landscapeVideo')}</h3>
-            <IconArrowRight className={styles.sectionArrow} />
-          </div>
-          <div className={styles.horizontalList}>
-            {filtered.slice(0, 4).map((asset) => (
-              <div
-                key={asset.id}
-                className={styles.horizontalCard}
-                draggable
-                onDragStart={handleAssetDragStart(asset)}
-                title={asset.fileName}
-              >
-                <div className={styles.horizontalImage}>
-                  {asset.thumbnailUrl ? (
-                    <img
-                      className={styles.horizontalImg}
-                      src={asset.thumbnailUrl}
-                      alt={asset.fileName}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className={styles.assetPlaceholder} aria-hidden="true" />
-                  )}
-                  <div className={styles.horizontalOverlay}>
-                    <span className={styles.horizontalLabel}>{asset.fileName}</span>
+                    <div className={styles.assetImage}>
+                      {asset.thumbnailUrl ? (
+                        <img
+                          className={styles.assetImg}
+                          src={asset.thumbnailUrl}
+                          alt={asset.fileName}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className={styles.assetPlaceholder} aria-hidden="true" />
+                      )}
+                      <div className={styles.assetOverlay}>
+                        <IconPlus />
+                      </div>
+                      {asset.duration && (
+                        <span className={styles.durationBadge}>{formatBadge(asset.duration)}</span>
+                      )}
+                      <Popconfirm
+                        title={t('editor.mediaPanel.deleteConfirm')}
+                        onConfirm={() => void handleRemoveAsset(asset)}
+                      >
+                        <Button
+                          className={styles.deleteBtn}
+                          icon={<IconDelete />}
+                          size="small"
+                          theme="solid"
+                          type="danger"
+                          aria-label={t('editor.mediaPanel.deleteAsset')}
+                        />
+                      </Popconfirm>
+                    </div>
                   </div>
-                  {asset.duration && (
-                    <span className={styles.durationBadge}>
-                      {t('editor.mediaPanel.quality4K')} {formatBadge(asset.duration)}
-                    </span>
-                  )}
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
 
-        <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.aiEnhancements')}</h3>
-          <div className={styles.aiSection}>
-            <div className={styles.aiRow}>
-              <span className={styles.aiLabel}>{t('editor.mediaPanel.styleTransfer')}</span>
-              <Button size="small" theme="borderless">{t('editor.mediaPanel.selectStyle')}</Button>
-            </div>
-            <div className={styles.aiRow}>
-              <span className={styles.aiLabel}>{t('editor.mediaPanel.autoCaptions')}</span>
-              <Switch
-                size="small"
-                checked={autoCaptions}
-                onChange={(checked) => setAutoCaptions(checked)}
-                aria-label={t('editor.mediaPanel.autoCaptions')}
-              />
-            </div>
-            <div className={styles.aiRow}>
-              <span className={styles.aiLabel}>{t('editor.mediaPanel.noiseReduction')}</span>
-              <div className={styles.sliderRow}>
-                <Slider
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={noiseReduction}
-                  onChange={(v) => setNoiseReduction(v as number)}
-                  className={styles.slider}
-                  aria-label={t('editor.mediaPanel.noiseReduction')}
-                />
-                <span className={styles.sliderValue}>{noiseReduction}%</span>
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>{t('editor.mediaPanel.landscapeVideo')}</h3>
               </div>
-            </div>
-          </div>
-        </section>
+              <div className={styles.horizontalList}>
+                {filtered.map((asset) => (
+                  <div
+                    key={asset.id}
+                    className={styles.horizontalCard}
+                    draggable
+                    onDragStart={handleAssetDragStart(asset)}
+                    onClick={() => handleAddToTimeline(asset)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleAddToTimeline(asset);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    title={asset.fileName}
+                  >
+                    <div className={styles.horizontalImage}>
+                      {asset.thumbnailUrl ? (
+                        <img
+                          className={styles.horizontalImg}
+                          src={asset.thumbnailUrl}
+                          alt={asset.fileName}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className={styles.assetPlaceholder} aria-hidden="true" />
+                      )}
+                      <div className={styles.horizontalOverlay}>
+                        <span className={styles.horizontalLabel}>{asset.fileName}</span>
+                      </div>
+                      {asset.duration && (
+                        <span className={styles.durationBadge}>
+                          {asset.width && asset.height ? `${asset.width}×${asset.height} · ` : ''}
+                          {formatBadge(asset.duration)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </div>
   );

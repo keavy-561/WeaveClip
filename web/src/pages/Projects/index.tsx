@@ -1,7 +1,7 @@
 import React from 'react';
 import { Popconfirm, Skeleton, Empty, Button, Toast, Popover } from '@douyinfe/semi-ui';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { IconArrowLeft, IconPlus, IconMore, IconDelete } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
@@ -114,10 +114,10 @@ const Projects: React.FC = () => {
         ) : (
           <div className={styles.grid}>
             {projects.map((project) => (
-              <div
+              <Link
                 key={project.id}
+                to={`/editor/${project.id}`}
                 className={styles.card}
-                onClick={() => navigate(`/editor/${project.id}`)}
               >
                 <div className={styles.cardBody}>
                   <h3 className={styles.cardTitle}>{project.name}</h3>
@@ -163,7 +163,7 @@ const Projects: React.FC = () => {
                     </Popover>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

@@ -16,6 +16,12 @@ interface EditorUIState {
   setActiveTool: (tool: EditorTool) => void;
   activeInspectorTab: InspectorTab;
   setInspectorTab: (tab: InspectorTab) => void;
+  /** 左侧媒体面板是否折叠为窄条（工单 WO5-05） */
+  mediaCollapsed: boolean;
+  toggleMediaCollapsed: () => void;
+  /** 右侧检查器是否折叠为窄条（工单 WO5-05） */
+  inspectorCollapsed: boolean;
+  toggleInspectorCollapsed: () => void;
 }
 
 export const useEditorUIStore = create<EditorUIState>((set) => ({
@@ -23,4 +29,8 @@ export const useEditorUIStore = create<EditorUIState>((set) => ({
   setActiveTool: (tool) => set({ activeTool: tool }),
   activeInspectorTab: 'color',
   setInspectorTab: (tab) => set({ activeInspectorTab: tab }),
+  mediaCollapsed: false,
+  toggleMediaCollapsed: () => set((s) => ({ mediaCollapsed: !s.mediaCollapsed })),
+  inspectorCollapsed: false,
+  toggleInspectorCollapsed: () => set((s) => ({ inspectorCollapsed: !s.inspectorCollapsed })),
 }));

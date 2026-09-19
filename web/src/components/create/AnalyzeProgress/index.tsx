@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Button } from '@douyinfe/semi-ui';
 import { IconTick } from '@douyinfe/semi-icons';
 import { mockAnalyzeResult } from '@/utils/mockData';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -11,7 +12,8 @@ export interface AnalyzeControlledState {
 }
 
 interface AnalyzeProgressProps {
-  onComplete: () => void;
+  /** 提供时在完成后渲染「继续」按钮（不再自动 1.2s 跳转，WO5-13） */
+  onComplete?: () => void;
   /** 受控模式：由真实分析引擎驱动进度；缺省时本地自动模拟 */
   controlled?: AnalyzeControlledState;
 }
@@ -39,13 +41,6 @@ const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete, controlle
 
   const doneSteps = controlled ? controlled.doneSteps : autoDone;
   const allDone = controlled ? controlled.completed : autoDone >= STEP_TOTAL;
-
-  useEffect(() => {
-    if (allDone) {
-      const timer = setTimeout(onComplete, 1200);
-      return () => clearTimeout(timer);
-    }
-  }, [allDone, onComplete]);
 
   const summary = mockAnalyzeResult.summary;
   const labels = [
@@ -97,6 +92,11 @@ const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete, controlle
               <span className={styles.summaryLabel}>{t('create.analyzeProgress.duplicateScenes')}</span>
             </div>
           </div>
+          {onComplete && (
+            <Button theme="solid" size="large" className={styles.continueBtn} onClick={onComplete}>
+              {t('create.analyzeProgress.continue')}
+            </Button>
+          )}
         </div>
       )}
     </div>

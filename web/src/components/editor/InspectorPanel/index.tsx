@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Input, Select, Slider } from '@douyinfe/semi-ui';
-import { IconMore } from '@douyinfe/semi-icons';
+import { Button, Empty, Input, Select, Slider } from '@douyinfe/semi-ui';
+import { IconChevronRight } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useEditorUIStore, type InspectorTab } from '@/stores/editorUIStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -50,6 +50,7 @@ const ParamSliderRow: React.FC<ParamSliderRowProps> = ({
 const InspectorPanel: React.FC = () => {
   const activeTab = useEditorUIStore((s) => s.activeInspectorTab);
   const setInspectorTab = useEditorUIStore((s) => s.setInspectorTab);
+  const toggleInspectorCollapsed = useEditorUIStore((s) => s.toggleInspectorCollapsed);
   const { tracks, selectedClipId, updateClip } = useTimelineStore();
   const { t } = useAppTranslation();
 
@@ -121,12 +122,22 @@ const InspectorPanel: React.FC = () => {
             </Button>
           ))}
         </div>
-        <Button icon={<IconMore />} theme="borderless" size="small" className={styles.moreBtn} />
+        {/* 收起检查器（WO5-05 右侧面板可收起）：替代原先无功能的 IconMore 死按钮 */}
+        <Button
+          icon={<IconChevronRight />}
+          theme="borderless"
+          size="small"
+          className={styles.moreBtn}
+          onClick={toggleInspectorCollapsed}
+          aria-label={t('common.collapse')}
+        />
       </div>
 
       <div className={styles.content}>
         {!selectedClip ? (
-          <div className={styles.empty}>{t('editor.inspector.selectClip')}</div>
+          <div className={styles.empty}>
+            <Empty description={t('editor.inspector.selectClip')} />
+          </div>
         ) : (
           <>
             {activeTab === 'color' && (

@@ -188,3 +188,15 @@
   position: relative;
   min-width: 600px;
 }
+
+// 空时间轴引导层：整体不响应指针事件，保证拖入素材/点击标尺不受阻挡（WO5-08）
+.emptyOverlay {
+  position: absolute;
+  inset: 0;
+  top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+}

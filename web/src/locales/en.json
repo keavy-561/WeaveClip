@@ -24,7 +24,11 @@
     "back": "Back",
     "help": "Help",
     "user": "User",
-    "retry": "Retry"
+    "retry": "Retry",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "An unexpected error occurred. Please try refreshing the page."
   },
   "nav": {
     "home": "Home",
@@ -127,7 +131,13 @@
       "deleteFailed": "Failed to delete asset",
       "deleteSuccess": "Asset deleted",
       "deleteConfirm": "Delete this asset?",
-      "deleteAsset": "Delete asset"
+      "deleteAsset": "Delete asset",
+      "importSuccess": "Imported {{count}} asset(s)",
+      "importFailedCount": "{{count}} asset(s) failed to import",
+      "importMockDisabled": "Upload is unavailable in demo mode. Switch to real mode.",
+      "emptyAssetsHint": "No video assets yet. Click + to import, or upload from the New Video page.",
+      "noMatch": "No matching assets",
+      "addedToTimeline": "Added to timeline"
     },
     "inspector": {
       "adjustColors": "Adjust Colors",
@@ -178,7 +188,8 @@
       "clipDefault": "Clip",
       "effectSubtitle": "H: 20% R: 05%",
       "captionSubtitle": "Take the opportunity",
-      "hiddenClips": "{{count}} more clips hidden"
+      "hiddenClips": "{{count}} more clips hidden",
+      "emptyHint": "Timeline is empty: drag assets from the media panel, or click an asset card to add it"
     },
     "videoPlayer": {
       "preview": "Preview",
@@ -188,7 +199,9 @@
       "unmute": "Unmute",
       "previewAlt": "Video preview",
       "volume": "Volume",
-      "speed": "Speed"
+      "speed": "Speed",
+      "noPreviewTitle": "No playable preview yet",
+      "noPreviewHint": "Drag assets to the timeline below and the edited result will play here. Demo mode doesn't load real video."
     },
     "sidebar": {
       "filters": "Filters",
@@ -202,15 +215,23 @@
       "contextHintSelected": "Clip selected: {{id}}",
       "contextHintNone": "No clip selected",
       "loadingText": "Thinking...",
-      "inputPlaceholder": "Tell AI what to change... e.g. \"Make the first 5 seconds more impactful\"",
-      "sendFailed": "Failed to send: {{reason}}"
+      "inputPlaceholder": "Tell AI what to change... e.g. \"Make the first 5 seconds more impactful\" (Enter to send)",
+      "sendFailed": "Failed to send: {{reason}}",
+      "send": "Send",
+      "mockReplySelected": "Got it — I'll work on the selected clip ({{clipId}}): \"{{prompt}}\".",
+      "mockReplyGeneral": "Got it: \"{{prompt}}\". I'll adjust the timeline accordingly. (Demo response)"
     },
     "quickActions": {
       "makeShorter": "Make shorter",
       "changeStyle": "Change style",
       "addCaptions": "Add captions",
-      "improveHook": "Improve hook",
-      "changeMusic": "Change music"
+      "improveHook": "Improve the hook",
+      "changeMusic": "Change music",
+      "promptMakeShorter": "Make this video shorter and punchier.",
+      "promptChangeStyle": "Change the overall style of this video.",
+      "promptAddCaptions": "Add clean, minimal captions to this video.",
+      "promptImproveHook": "Make the first 3 seconds more attention-grabbing.",
+      "promptChangeMusic": "Use different background music with a better match."
     },
     "assetPanel": {
       "title": "Assets",
@@ -264,7 +285,8 @@
       "talkingHead": "talking-head clips",
       "bRoll": "B-roll clips",
       "duplicateScenes": "duplicate scenes",
-      "ready": "Your footage is ready."
+      "ready": "Your footage is ready.",
+      "continue": "Continue"
     },
     "analyze": {
       "degradedTip": "Analysis service unavailable, using local preview",

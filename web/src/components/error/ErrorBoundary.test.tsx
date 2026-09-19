@@ -28,10 +28,10 @@ describe('ErrorBoundary', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
+      expect(screen.getByText(/Something went wrong|页面出错了/i)).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Try Again')).toBeInTheDocument();
+    expect(screen.getByText(/Try Again|重试/)).toBeInTheDocument();
   });
 
   it('calls onReset when Try Again is clicked', async () => {
@@ -46,10 +46,10 @@ describe('ErrorBoundary', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
+      expect(screen.getByText(/Something went wrong|页面出错了/i)).toBeInTheDocument();
     });
 
-    const button = screen.getByText('Try Again');
+    const button = screen.getByText(/Try Again|重试/);
     button.click();
 
     expect(onReset).toHaveBeenCalled();

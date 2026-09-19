@@ -14,17 +14,33 @@
 .header {
   height: $editor-toolbar-height;
   display: flex;
-  flex-direction: column;
-  padding: 12px 12px 0;
+  align-items: center;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--color-editor-border);
   flex-shrink: 0;
-  gap: 12px;
+  gap: 4px;
 }
 
 .title {
+  flex: 1;
+  min-width: 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--semi-color-text-0);
+}
+
+// 隐藏文件选择器：由 Semi Button 触发（WO5-06 编辑器内导入素材）
+.hiddenFileInput {
+  display: none;
+}
+
+// 空态容器：素材为空/搜索无结果时占满内容区（WO5-07）
+.emptyWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 12px;
 }
 
 .tabBar {
@@ -104,7 +120,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
 }
 
 .sectionTitle {

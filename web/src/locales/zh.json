@@ -24,7 +24,11 @@
     "back": "返回",
     "help": "帮助",
     "user": "用户",
-    "retry": "重试"
+    "retry": "重试",
+    "collapse": "收起",
+    "expand": "展开",
+    "errorTitle": "页面出错了",
+    "errorDescription": "发生了意外错误，请刷新页面重试。"
   },
   "nav": {
     "home": "首页",
@@ -127,7 +131,13 @@
       "deleteFailed": "删除素材失败",
       "deleteSuccess": "素材已删除",
       "deleteConfirm": "确定删除该素材吗？",
-      "deleteAsset": "删除素材"
+      "deleteAsset": "删除素材",
+      "importSuccess": "已导入 {{count}} 个素材",
+      "importFailedCount": "{{count}} 个素材导入失败",
+      "importMockDisabled": "演示模式不支持上传，请使用真实模式",
+      "emptyAssetsHint": "暂无视频素材。点击右上角 + 导入，或从「新视频」页上传",
+      "noMatch": "没有匹配的素材",
+      "addedToTimeline": "已添加到时间轴"
     },
     "inspector": {
       "adjustColors": "调色",
@@ -178,7 +188,8 @@
       "clipDefault": "片段",
       "effectSubtitle": "H: 20% R: 05%",
       "captionSubtitle": "把握机会",
-      "hiddenClips": "还有 {{count}} 个片段未显示"
+      "hiddenClips": "还有 {{count}} 个片段未显示",
+      "emptyHint": "时间轴还是空的：从左侧素材库拖入素材，或点击素材卡片快速添加"
     },
     "videoPlayer": {
       "preview": "预览",
@@ -188,7 +199,9 @@
       "unmute": "取消静音",
       "previewAlt": "视频预览",
       "volume": "音量",
-      "speed": "倍速"
+      "speed": "倍速",
+      "noPreviewTitle": "暂无可播放预览",
+      "noPreviewHint": "把素材拖入下方时间轴后，这里将播放成片画面；演示模式不加载真实视频。"
     },
     "sidebar": {
       "filters": "滤镜",
@@ -202,15 +215,23 @@
       "contextHintSelected": "已选择片段：{{id}}",
       "contextHintNone": "未选择片段",
       "loadingText": "思考中...",
-      "inputPlaceholder": "告诉 AI 你要改什么... 例如：「让前 5 秒更有冲击力」",
-      "sendFailed": "发送失败：{{reason}}"
+      "inputPlaceholder": "告诉 AI 你要改什么... 例如：「让前 5 秒更有冲击力」（Enter 发送）",
+      "sendFailed": "发送失败：{{reason}}",
+      "send": "发送",
+      "mockReplySelected": "好的，我会针对选中的片段（{{clipId}}）处理：“{{prompt}}”。",
+      "mockReplyGeneral": "收到：“{{prompt}}”。我会据此调整时间线。（当前为演示回复）"
     },
     "quickActions": {
       "makeShorter": "更短更精炼",
       "changeStyle": "更换风格",
       "addCaptions": "添加字幕",
       "improveHook": "强化开头",
-      "changeMusic": "更换背景音乐"
+      "changeMusic": "更换背景音乐",
+      "promptMakeShorter": "把这条视频剪得更短、更有节奏感。",
+      "promptChangeStyle": "给这条视频换一种整体风格。",
+      "promptAddCaptions": "给视频加上简洁的字幕。",
+      "promptImproveHook": "让开头 3 秒更抓人。",
+      "promptChangeMusic": "换一首更合适的背景音乐。"
     },
     "assetPanel": {
       "title": "素材",
@@ -264,7 +285,8 @@
       "talkingHead": "口播片段",
       "bRoll": "空镜片段",
       "duplicateScenes": "重复场景",
-      "ready": "素材已就绪"
+      "ready": "素材已就绪",
+      "continue": "继续"
     },
     "analyze": {
       "degradedTip": "分析服务暂时不可用，已切换为本地模拟",
