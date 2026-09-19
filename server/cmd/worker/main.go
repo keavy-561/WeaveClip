@@ -36,7 +36,13 @@ func main() {
 
 	// worker 不跑迁移：迁移由 server 负责，避免并发冷启动冲突
 	db := database.MustConnectWithOptions(cfg, false)
-	store, _, err := storage.Init(cfg.Storage, "./.worker-storage", "", slog.Default())
+	// 本地盘回退时与 server 共享同一目录（MOCK_STORAGE_DIR），
+	// 保证 worker 产出对 server 的回环下载端点可见
+	workerRoot := os.Getenv("MOCK_STORAGE_DIR")
+	if workerRoot == "" {
+		workerRoot = "./.worker-storage"
+	}
+	store, _, err := storage.Init(cfg.Storage, workerRoot, "", slog.Default())
 	if err != nil {
 		slog.Error("storage init failed", "error", err)
 		os.Exit(1)
