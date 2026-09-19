@@ -29,7 +29,7 @@ func FetchObject(ctx context.Context, store storage.Storage, key string, maxByte
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
+		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
 		return "", nil, fmt.Errorf("fetch object %s: unexpected status %d", key, resp.StatusCode)
 	}
 
