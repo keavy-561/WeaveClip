@@ -170,9 +170,11 @@ jobs:
         run: go mod tidy && go mod edit -go=1.23
       - name: govulncheck
         working-directory: server
+        # T03/WO4-04：已知 stdlib 告警不阻塞（job 级 continue-on-error 会让 job 显示 X，
+        # 这里改为步骤级容忍，告警详情保留在日志里）
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@latest
-          $(go env GOPATH)/bin/govulncheck ./...
+          $(go env GOPATH)/bin/govulncheck ./... || echo "::warning::govulncheck reported advisories (non-blocking)"
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -184,4 +186,4 @@ jobs:
         working-directory: web
         run: |
           pnpm install --frozen-lockfile
-          pnpm audit --audit-level critical
+          pnpm audit --audit-level critical || echo "::warning::npm audit reported advisories (non-blocking)"

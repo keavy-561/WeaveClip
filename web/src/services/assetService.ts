@@ -56,7 +56,7 @@ export const assetService = {
 
 export const analyzeService = {
   /** POST /api/projects/:id/analyze */
-  start: async (projectId: string, assetIds: string[]): Promise<{ analysisId: string; status: string }> => {
+  start: async (projectId: string, assetIds: number[] = []): Promise<{ analysisId: string; status: string }> => {
     const { data } = await api.post(`/projects/${projectId}/analyze`, { assetIds });
     return data;
   },

@@ -163,6 +163,14 @@ cd server && go mod download && cd ..
 # Option 2: Manual
 docker-compose up -d                              # Infra (PostgreSQL + Redis + MinIO)
 cd server && go run ./cmd/server                  # Backend → http://localhost:8080
+cd server && go run ./cmd/worker                  # Async worker (Analyze / Render queue consumer)
+
+
+> **真实模式联调**：默认前端走 Mock（`web/.env` 的 `VITE_API_MODE=mock`）、后端 Mock 模式（`MOCK_MODE=true`）。
+> 联调真实链路时：后端设 `MOCK_MODE=false`（需要 PostgreSQL/Redis/MinIO，可用 `docker-compose up -d` 启动）、
+> 前端设 `VITE_API_MODE=real`；AI 能力可选注入 `ANTHROPIC_API_KEY`（缺失时自动降级为 mock 客户端与启发式生成）。
+> 渲染/分析依赖 ffmpeg/ffprobe（本机安装）与 worker 进程（`go run ./cmd/worker`）。
+
 cd web && pnpm dev                                # Frontend → http://localhost:3000
 ```
 
