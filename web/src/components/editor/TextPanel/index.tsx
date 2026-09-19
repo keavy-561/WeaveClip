@@ -8,9 +8,9 @@ import styles from './index.module.scss';
 
 type CaptionPosition = CaptionStyle['position'];
 
-const POSITION_OPTIONS: Array<{ value: CaptionPosition }> = ['top', 'center', 'bottom'].map(
-  (value) => ({ value })
-);
+const POSITION_OPTIONS: Array<{ value: CaptionPosition }> = (
+  ['top', 'center', 'bottom'] as const
+).map((value) => ({ value }));
 
 /**
  * 文本面板（工单 WO6-08）：添加字幕片段到字幕轨。
