@@ -2,6 +2,8 @@
 
 .clip {
   position: absolute;
+  /* 片段提层：确保任何轨道背景/播放头层都不会盖住片段的命中区域 */
+  z-index: 1;
   top: 4px;
   bottom: 4px;
   display: flex;
@@ -57,6 +59,7 @@
 }
 
 .filmstrip {
+  pointer-events: none;
   position: absolute;
   inset: 0;
   display: flex;
@@ -76,6 +79,7 @@
 }
 
 .filmstripFrame {
+  pointer-events: none;
   flex: 1;
   background: var(--color-slate-blue);
   opacity: 0.3;
@@ -84,6 +88,7 @@
 
 // 片段真实缩略图（asset.thumbnailUrl 存在时铺满整段）
 .filmstripImg {
+  pointer-events: none;
   position: absolute;
   inset: 0;
   width: 100%;
@@ -92,6 +97,7 @@
 }
 
 .waveform {
+  pointer-events: none;
   position: absolute;
   inset: 0;
   display: flex;
@@ -102,6 +108,7 @@
 }
 
 .waveformBar {
+  pointer-events: none;
   flex: 1;
   background: var(--color-dusty-rose);
   border-radius: 1px 1px 0 0;
@@ -109,6 +116,7 @@
 }
 
 .pillContent {
+  pointer-events: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -116,6 +124,7 @@
 }
 
 .pillIcon {
+  pointer-events: none;
   display: flex;
   align-items: center;
   color: var(--semi-color-primary);
@@ -124,12 +133,14 @@
 }
 
 .pillText {
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
 .pillTitle {
+  pointer-events: none;
   font-size: 10px;
   font-weight: 600;
   color: var(--semi-color-primary);
@@ -140,6 +151,7 @@
 }
 
 .pillSub {
+  pointer-events: none;
   font-size: 9px;
   color: var(--semi-color-text-2);
   line-height: 1.2;
@@ -150,6 +162,7 @@
 }
 
 .clipIcon {
+  pointer-events: none;
   display: flex;
   align-items: center;
   color: var(--semi-color-text-1);
@@ -158,6 +171,7 @@
 }
 
 .clipLabel {
+  pointer-events: none;
   font-size: 11px;
   color: var(--semi-color-text-0);
   white-space: nowrap;

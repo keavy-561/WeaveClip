@@ -354,6 +354,38 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 
 ---
 
+## 8. 第三轮工单（WO3，豆包复测产出，2026-09-19）
+
+> 来源：`audit/走查报告.md`（第二轮）+ 代码核实。全部已实现并推送，验证交远端 CI。
+> 归属说明：WO2-01/04/06/07 有并行会话在制品（VideoPlayer/Settings/Login/RequireAuth），本轮未触碰，避免冲突。
+
+| 编号 | 标题 | 级别 | 状态 |
+|---|---|---|---|
+| WO3-01 | 时间轴片段点不中（element center is obscured）：clip 提层 z-index + 12 个装饰子层 pointer-events:none，命中统一收敛到片段根元素 | P1 | ✅ |
+| WO3-02 | 编辑器顶部"模板"按钮无响应：接 Toast 占位提示（模板浏览属未实现功能登记，不做假入口） | P1 | ✅ |
+| WO3-03 | 删除项目无二次确认：Semi Popconfirm + 不可恢复提示文案 | P1 | ✅ |
+| WO3-04 | 素材卡"花卉"假图与标签：移除设计稿外链 ASSET_IMAGES 与 horizontalLabel，无缩略图时渲染中性占位块，横版卡显示真实文件名 | P2 | ✅ |
+| WO3-05 | mock 模式导出进度不可用（WS/渲染接口不可达属预期）：ExportDialog 本地模拟进度到 100%；真实模式 vite /ws 代理与后端路由已核对正确 | P2 | ✅ |
+| WO3-06 | Google Fonts 国内超时：移除外链，字体栈已有 Manrope→系统字体回退 | P2 | ✅ |
+| WO3-07 | React Router v7 future flag 警告：BrowserRouter 预启 v7_startTransition / v7_relativeSplatPath | P2 | ✅ |
+| WO3-08 | Semi findDOMNode 弃用警告：暂不启用 StrictMode（附注释说明），待 Semi 适配后恢复 | P2 | ✅ |
+| WO3-09 | 修复 WO2-09 提交遗留编译错误：Vision 消息 map 类型、系统提示词未使用、集成测试 user repo 构造器归属 | P0 | ✅ |
+
+### 后续登记（未实现功能，延续走查清单）
+
+| 功能 | 优先级 | 归属 |
+|---|---|---|
+| 模板浏览页/面板 | P1 | 待排期 |
+| 播放器倍速/逐帧（含 WO2-01 真播放器收尾） | P1 | 并行会话在制品 |
+| /settings 页面收尾（WO2-04） | P1 | 并行会话在制品 |
+| 登录/注册客户端校验收尾（WO2-06） | P1 | 并行会话在制品 |
+| RequireAuth 接 /auth/me（WO2-07） | P1 | 并行会话在制品 |
+| Timeline 虚拟滚动（100+ clips） | P2 | 待排期 |
+| 录制/内容/文本/品牌面板 | P2 | 待排期 |
+| 项目重命名/复制 | P2 | 待排期 |
+
+---
+
 ## 7. 建议执行顺序
 
 | 批次 | 内容 | 出口标准（里程碑对齐 development-plan.md:1329–1337） |
@@ -402,4 +434,6 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 | 2026-09-18 | v1.0 | 初始版本：基于全量代码审查产出后端 21 / 前端 15 / 治理 3 共 39 条工单，附 7 项待裁定决策与执行批次建议 |
 | 2026-09-19 | v1.1 | 并入走查工单（audit/工单清单.md WC-P0/P1/P2 与 WC-NI 系列）；B08（项目更新）已由 main 分支 PATCH /api/projects/:id 实现；D1–D7 裁定落地。 |
 | 2026-09-19 | v1.2 | 全量工单实现完成并推送：后端新增存储/上传/时间轴/AI/分析/渲染/WebSocket 服务与迁移 002，前端接入真实上传、持久化、聊天、生成页与导出；smoke 扩至 7 个脚本；本机零验证，待 CI 裁决。 |
+| 2026-09-19 | v1.3 | 第二轮工单 WO2-01～WO2-12 登记；随后 WO2-02/03/08/09/10/12 由并行会话完成（转录面板/版本历史/GORM集成测试/Vision/前端测试/安全job）。 |
+| 2026-09-19 | v1.4 | 第三轮：豆包复测 P1×3/P2×5 → 新增 WO3-01～08 并全部实现（时间轴点击遮挡防御修复、编辑器模板按钮响应、删除项目二次确认、素材占位图去设计稿假图、mock 导出进度模拟、移除 Google Fonts、Router v7 flags、StrictMode 规避 findDOMNode）；另修复 WO2-09 提交遗留的 3 处编译错误。 |
 | 2026-09-19 | v1.3 | 复查产出第二轮工单 12 条（§8）：VideoPlayer 真播放器、Transcript/版本历史 UI、settings、素材删除、登录校验、GORM 集成测试、Vision 接入、性能与安全扫描等。 |

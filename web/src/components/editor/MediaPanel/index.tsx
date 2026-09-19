@@ -14,14 +14,6 @@ import styles from './index.module.scss';
 
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
-const ASSET_IMAGES: Record<string, string> = {
-  asset_01: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD5t2CMfKsH5ke_RmKFLCqdOHPnI6M8Zn-U1hNep4ehXBzfPdebI2P_ty6oBddArLpHMVSWdxQNjrfLMZwxKr2-INNOU8OHHztNAVmHXsv1c7FNNZruoDHtUtHLoTCCKXzLG754ZS7wRao2jvEPIDQo66VCyf55Ipt_qi8L3UuQpNjDu0NYyNli6oPgL3soui-qoqM17VYGSknDdpIseFBR-ilcETv0isAoGU5MaX5VruxRiaBlZI-c_g',
-  asset_02: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCC7qJIQ1KQOs8_H0eY8vdsK55JlBwMB5BpLHREjyLE6MZMjxwSCBUBWa8eVuomkWrlEn-xp0QY6Pj3CmjGZNrYFfHQz2wXi0sC5GJFyZYRJ4d8jyUoL1qL64lzdMUVWHiRZM2NxN73PbIWZDqMVxZ2m2JoFYJ8Jq7eLCdjoRPp-tbYu_TnYuzMF0C0Dff7-yJ-BCn_6uH2bE_RGca_G5BD0UTaGd1JnzjScesPyy9mX2sEeY0Cf4gw1w',
-  asset_03: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDJ2zMKwMFws3IuXEdm7iG4rVF1bcj66rog5fF8_njEt33ONfeCb0XiyWp6Hyv5x18QGQGRZCzER1pNM5Ywg_E0eY42xE3uGIxbGyah8dmt5WCR_kMUXwlB04pE149OjZMZKu7bvpeoU8CamPVWKvQB9KZY1YkIJ4T-0WJQoJ-KBsbcJKdNkTk3WEFvLgdHUD0U0heQZYBoixp9uyrkAEBjoIwafTqfI_AzP-94AGFLZhzSdmgnacng3w',
-  asset_04: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDXpyJ05fJFVnRUe2X3XLDyAWZTHwWPTLBglUUazIkhQPXx-6lty2Q2lUx3eIqMxgAIoMO9YuvP9OKdIHIQQMcOWQrGlO2juOxxGkaYVBYQlIWotvwDLbHFXwhJoTdKiGC9t-0rdv9MShl2QGgiiYucA97dsP4UMb25jSCjYi9qml_oT77Pi2GjBr7BtBnK20OWhPALc_MZi8mWwfvvBbwEuf4phkLRB61b-vnqfmp7F1DOeIImycNfg',
-  asset_05: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDrRUynQrsKtloYqXPqHJ66v4aX7Wx4e4ZRARDS_f0cZjDMKve_KjyVdUmfN_mCV16KaphvR24Ra6hito-9v3HjHlphizj3EpkD3UweWxQ40N5pYieHpSYLM_QN3zWCaZigytPGpsZpUD0EovYKiEh_S8iuzFTLzqN98qtWy-bRBvyDiHMNys1R_QY8YyeeBot_MZHyLfMxClO_Q7OgJCEiTlO-orI5ZZH2WQ0axS7NkxGcuXKrbDO-Tw',
-};
-
 interface MediaPanelProps {
   assets: Asset[];
 }
@@ -181,12 +173,16 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                 title={asset.fileName}
               >
                 <div className={styles.assetImage}>
-                  <img
-                    className={styles.assetImg}
-                    src={asset.thumbnailUrl ?? ASSET_IMAGES[asset.id] ?? ''}
-                    alt={asset.fileName}
-                    loading="lazy"
-                  />
+                  {asset.thumbnailUrl ? (
+                    <img
+                      className={styles.assetImg}
+                      src={asset.thumbnailUrl}
+                      alt={asset.fileName}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className={styles.assetPlaceholder} aria-hidden="true" />
+                  )}
                   <div className={styles.assetOverlay}>
                     <IconPlus />
                   </div>
@@ -227,14 +223,18 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                 title={asset.fileName}
               >
                 <div className={styles.horizontalImage}>
-                  <img
-                    className={styles.horizontalImg}
-                    src={asset.thumbnailUrl ?? ASSET_IMAGES[asset.id] ?? ''}
-                    alt={asset.fileName}
-                    loading="lazy"
-                  />
+                  {asset.thumbnailUrl ? (
+                    <img
+                      className={styles.horizontalImg}
+                      src={asset.thumbnailUrl}
+                      alt={asset.fileName}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className={styles.assetPlaceholder} aria-hidden="true" />
+                  )}
                   <div className={styles.horizontalOverlay}>
-                    <span className={styles.horizontalLabel}>{t('editor.mediaPanel.horizontalLabel')}</span>
+                    <span className={styles.horizontalLabel}>{asset.fileName}</span>
                   </div>
                   {asset.duration && (
                     <span className={styles.durationBadge}>

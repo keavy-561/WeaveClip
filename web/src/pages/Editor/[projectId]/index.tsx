@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Empty, Skeleton } from '@douyinfe/semi-ui';
+import { Button, Empty, Skeleton, Toast } from '@douyinfe/semi-ui';
 import {
   IconUndo,
   IconRedo,
@@ -200,7 +200,12 @@ const Editor: React.FC = () => {
             >
               {t('editor.header.drafts')}
             </Button>
-            <Button theme="borderless" className={styles.navLink} size="small">
+            <Button
+              theme="borderless"
+              className={styles.navLink}
+              size="small"
+              onClick={() => Toast.warning(t('editor.header.templatesSoon'))}
+            >
               {t('editor.header.templates')}
             </Button>
           </nav>

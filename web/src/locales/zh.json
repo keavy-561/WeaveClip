@@ -91,14 +91,16 @@
     "actions": "操作",
     "deleteSuccess": "项目已删除",
     "deleteError": "删除项目失败",
-    "loadError": "加载项目失败"
+    "loadError": "加载项目失败",
+    "deleteConfirmTitle": "确定删除该项目吗？删除后不可恢复。"
   },
   "editor": {
     "header": {
       "drafts": "草稿",
       "templates": "模板",
       "projectName": "项目名称",
-      "aspectRatio": "16:9"
+      "aspectRatio": "16:9",
+      "templatesSoon": "模板中心开发中，敬请期待"
     },
     "panel": {
       "developing": "{{tool}} 功能开发中"

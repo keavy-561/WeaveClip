@@ -1,5 +1,5 @@
 import React from 'react';
-import { Skeleton, Empty, Button, Toast, Popover } from '@douyinfe/semi-ui';
+import { Popconfirm, Skeleton, Empty, Button, Toast, Popover } from '@douyinfe/semi-ui';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -136,15 +136,19 @@ const Projects: React.FC = () => {
                       trigger="click"
                       content={
                         <div className={styles.popoverMenu}>
-                          <Button
-                            theme="borderless"
-                            size="small"
-                            icon={<IconDelete />}
-                            className={styles.popoverItem}
-                            onClick={() => confirmDelete(project.id)}
+                          <Popconfirm
+                            title={t('projects.deleteConfirmTitle')}
+                            onConfirm={() => confirmDelete(project.id)}
                           >
-                            {t('projects.delete', 'Delete')}
-                          </Button>
+                            <Button
+                              theme="borderless"
+                              size="small"
+                              icon={<IconDelete />}
+                              className={styles.popoverItem}
+                            >
+                              {t('projects.delete', 'Delete')}
+                            </Button>
+                          </Popconfirm>
                         </div>
                       }
                       position="bottomRight"

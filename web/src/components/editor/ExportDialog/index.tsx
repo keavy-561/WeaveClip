@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Button, Select, InputNumber, Progress, Toast } from '@douyinfe/semi-ui';
 import { useRenderProgress } from '@/hooks/useRenderProgress';
+
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 import { renderService } from '@/services/generateService';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
@@ -19,9 +21,27 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ projectId, visible, onClose
   const [fps, setFps] = useState(30);
   const [renderId, setRenderId] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  // mock 模式：后端渲染链路不可达，用本地定时器模拟进度（真实模式走 WS/轮询）
+  const [mockPhase, setMockPhase] = useState<'idle' | 'rendering' | 'completed'>('idle');
+  const [mockProgress, setMockProgress] = useState(0);
   const { phase, progress, downloadUrl, error } = useRenderProgress(renderId);
 
   const handleStart = async () => {
+    if (isMockMode) {
+      setMockPhase('rendering');
+      setMockProgress(0);
+      const timer = window.setInterval(() => {
+        setMockProgress((prev) => {
+          const next = Math.min(prev + 8, 100);
+          if (next >= 100) {
+            window.clearInterval(timer);
+            setMockPhase('completed');
+          }
+          return next;
+        });
+      }, 250);
+      return;
+    }
     setStarting(true);
     try {
       const resp = await renderService.start(projectId, { format, resolution, fps }) as { renderId: string };
@@ -48,7 +68,18 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ projectId, visible, onClose
       footer={null}
       closeOnEsc
     >
-      {renderId == null ? (
+      {isMockMode && mockPhase !== 'idle' ? (
+        <div className={styles.progressArea}>
+          {mockPhase === 'completed' ? (
+            <p className={styles.doneText}>{t('editor.export.completed', 'Rendering completed!')}</p>
+          ) : (
+            <>
+              <p className={styles.progressText}>{t('editor.export.rendering', 'Rendering...')}</p>
+              <Progress percent={mockProgress} />
+            </>
+          )}
+        </div>
+      ) : renderId == null ? (
         <div className={styles.form}>
           <label className={styles.field}>
             <span className={styles.label}>{t('editor.export.format', 'Format')}</span>

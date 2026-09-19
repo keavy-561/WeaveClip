@@ -91,14 +91,16 @@
     "actions": "Actions",
     "deleteSuccess": "Project deleted",
     "deleteError": "Failed to delete project",
-    "loadError": "Failed to load projects"
+    "loadError": "Failed to load projects",
+    "deleteConfirmTitle": "Delete this project? This cannot be undone."
   },
   "editor": {
     "header": {
       "drafts": "Drafts",
       "templates": "Templates",
       "projectName": "Project Name",
-      "aspectRatio": "16:9"
+      "aspectRatio": "16:9",
+      "templatesSoon": "Template center is coming soon"
     },
     "panel": {
       "developing": "{{tool}} is under development"
