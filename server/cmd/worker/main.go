@@ -40,7 +40,7 @@ func main() {
 	// 保证 worker 产出对 server 的回环下载端点可见
 	workerRoot := os.Getenv("MOCK_STORAGE_DIR")
 	if workerRoot == "" {
-		workerRoot = "./.worker-storage"
+		workerRoot = "./.mock-storage"
 	}
 	store, _, err := storage.Init(cfg.Storage, workerRoot, "", slog.Default())
 	if err != nil {
