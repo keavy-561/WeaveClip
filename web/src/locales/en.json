@@ -116,7 +116,11 @@
       "noiseReduction": "Noise Reduction",
       "duration": "Duration",
       "horizontalLabel": "Floral",
-      "quality4K": "4K"
+      "quality4K": "4K",
+      "deleteFailed": "Failed to delete asset",
+      "deleteSuccess": "Asset deleted",
+      "deleteConfirm": "Delete this asset?",
+      "deleteAsset": "Delete asset"
     },
     "inspector": {
       "adjustColors": "Adjust Colors",
@@ -342,5 +346,22 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "nameTooLong": "Name must be at most 255 characters",
     "emailRegistered": "This email is already registered"
+  },
+  "auth": {
+    "validation": {
+      "emailFormat": "Invalid email format",
+      "passwordLength": "Password must be at least 8 characters"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "email": "Email",
+    "language": "Language",
+    "languageLabel": "Interface language",
+    "loginStatus": "Login status",
+    "loggedIn": "Logged in (token valid)",
+    "notLoggedIn": "Not logged in",
+    "mockHint": "Demo mode — data is stored locally only"
   }
 }

@@ -40,13 +40,13 @@ describe('TranscriptPanel', () => {
 
   it('seeks timeline on timestamp click', () => {
     render(<TranscriptPanel />, { wrapper: Wrapper });
-    fireEvent.click(screen.getByText('02:00'));
+    fireEvent.click(screen.getByText('00:02'));
     expect(useTimelineStore.getState().currentTime).toBe(2);
   });
 
   it('shows empty state without transcripts', () => {
     useAssetsStore.getState().setAssets([]);
     render(<TranscriptPanel />, { wrapper: Wrapper });
-    expect(screen.getByText(/转录|Transcript/i)).toBeTruthy();
+    expect(screen.getAllByText(/暂无转录|No transcript/i).length).toBeGreaterThan(0);
   });
 });

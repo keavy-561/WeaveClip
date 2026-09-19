@@ -23,5 +23,7 @@ type Asset struct {
 	Transcript   datatypes.JSON `gorm:"type:jsonb" json:"transcript"`
 	Metadata     datatypes.JSON `gorm:"type:jsonb" json:"metadata"`
 	Analysis     datatypes.JSON `gorm:"type:jsonb" json:"analysis"`
+	// PlaybackURL 非持久化：响应时由服务层经存储预签名生成，前端播放器直接使用
+	PlaybackURL string `gorm:"-" json:"playbackUrl,omitempty"`
 	CreatedAt    time.Time      `json:"createdAt"`
 }

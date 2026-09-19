@@ -52,6 +52,7 @@ func (h *AssetHandler) List(c *gin.Context) {
 	}
 	for i := range assets {
 		h.uploads.DecorateThumbnail(&assets[i])
+		h.uploads.DecoratePlayback(&assets[i])
 	}
 	OK(c, gin.H{"assets": assets})
 }
@@ -112,6 +113,7 @@ func (h *AssetHandler) Get(c *gin.Context) {
 		return
 	}
 	h.uploads.DecorateThumbnail(asset)
+	h.uploads.DecoratePlayback(asset)
 	OK(c, gin.H{"asset": asset})
 }
 
@@ -180,6 +182,7 @@ func (h *AssetHandler) Confirm(c *gin.Context) {
 		return
 	}
 	h.uploads.DecorateThumbnail(asset)
+	h.uploads.DecoratePlayback(asset)
 	OK(c, gin.H{"asset": asset})
 }
 

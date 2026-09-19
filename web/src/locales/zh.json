@@ -116,7 +116,11 @@
       "noiseReduction": "降噪",
       "duration": "时长",
       "horizontalLabel": "花卉",
-      "quality4K": "4K"
+      "quality4K": "4K",
+      "deleteFailed": "删除素材失败",
+      "deleteSuccess": "素材已删除",
+      "deleteConfirm": "确定删除该素材吗？",
+      "deleteAsset": "删除素材"
     },
     "inspector": {
       "adjustColors": "调色",
@@ -342,5 +346,22 @@
     "passwordTooShort": "密码长度至少 8 位",
     "nameTooLong": "昵称不能超过 255 个字符",
     "emailRegistered": "该邮箱已被注册"
+  },
+  "auth": {
+    "validation": {
+      "emailFormat": "邮箱格式不正确",
+      "passwordLength": "密码至少 8 位"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "account": "账号",
+    "email": "邮箱",
+    "language": "语言",
+    "languageLabel": "界面语言",
+    "loginStatus": "登录状态",
+    "loggedIn": "已登录（token 有效）",
+    "notLoggedIn": "未登录",
+    "mockHint": "当前为演示模式，数据仅存于本地"
   }
 }

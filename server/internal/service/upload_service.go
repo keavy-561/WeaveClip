@@ -221,6 +221,25 @@ func marshalProcessingMeta(status, msg string) []byte {
 	return b
 }
 
+// DecoratePlayback 为音视频素材生成可播放的预签名 URL（展示层关注点）。
+func (s *UploadService) DecoratePlayback(asset *model.Asset) {
+	if s == nil || asset == nil || asset.StoragePath == "" || s.store == nil {
+		return
+	}
+	if strings.HasPrefix(asset.StoragePath, "http://") || strings.HasPrefix(asset.StoragePath, "/mock/") {
+		return
+	}
+	if strings.HasPrefix(asset.StoragePath, "http") {
+		asset.PlaybackURL = asset.StoragePath
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if u, err := s.store.PresignGet(ctx, asset.StoragePath, 24*time.Hour); err == nil {
+		asset.PlaybackURL = u
+	}
+}
+
 // DecorateThumbnail 把缩略图存储 key 换成可访问的预签名 URL（展示层关注点）。
 func (s *UploadService) DecorateThumbnail(asset *model.Asset) {
 	if s == nil || asset == nil || asset.ThumbnailURL == "" || s.store == nil {

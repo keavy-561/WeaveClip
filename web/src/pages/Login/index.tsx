@@ -75,8 +75,23 @@ const Login: React.FC = () => {
           onSubmit={handleSubmit}
           labelPosition="top"
         >
-          <Form.Input field="email" label={t('login.email')} rules={[{ required: true, message: t('login.emailRequired') }]} />
-          <Form.Input field="password" label={t('login.password')} type="password" rules={[{ required: true, message: t('login.passwordRequired') }]} />
+          <Form.Input
+            field="email"
+            label={t('login.email')}
+            rules={[
+              { required: true, message: t('login.emailRequired') },
+              { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: t('auth.validation.emailFormat') },
+            ]}
+          />
+          <Form.Input
+            field="password"
+            label={t('login.password')}
+            type="password"
+            rules={[
+              { required: true, message: t('login.passwordRequired') },
+              { min: 8, message: t('auth.validation.passwordLength') },
+            ]}
+          />
           {mode === 'register' && (
             <Form.Input field="name" label={t('login.name')} />
           )}

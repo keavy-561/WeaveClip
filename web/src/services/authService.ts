@@ -50,4 +50,18 @@ export const authService = {
     const { data } = await api.post<AuthResponse>('/auth/login', { email, password });
     return data;
   },
+
+  /** GET /auth/me —— 校验 token 有效性并返回当前用户（工单 WO2-07） */
+  async me(): Promise<User> {
+    if (isMockMode) {
+      await delay(150);
+      return mockAccount.user;
+    }
+    // 兼容两种返回结构：直接返回用户对象，或包裹在 { user } 中（与 login 响应一致）
+    const { data } = await api.get<{ user?: User } | User>('/auth/me');
+    if ('user' in data && data.user) {
+      return data.user;
+    }
+    return data as User;
+  },
 };

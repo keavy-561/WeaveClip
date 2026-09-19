@@ -7,6 +7,7 @@ import Describe from '@/pages/Create/Describe';
 import Generate from '@/pages/Create/Generate';
 import Editor from '@/pages/Editor/[projectId]';
 import Login from '@/pages/Login';
+import Settings from '@/pages/Settings';
 import Home from '@/pages/Home';
 import RequireAuth from '@/components/auth/RequireAuth';
 
@@ -43,6 +44,11 @@ const Router: React.FC = () => {
       <Route path="/editor/:projectId" element={
         <RequireAuth>
           <Editor />
+        </RequireAuth>
+      } />
+      <Route path="/settings" element={
+        <RequireAuth>
+          <Settings />
         </RequireAuth>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,99 @@
+@use "@/styles/variables" as *;
+
+.page {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.navbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+}
+
+.backBtn {
+  color: var(--color-on-surface);
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navCenter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: $radius-card;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rowLabel {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.rowValue {
+  font-size: 13px;
+  color: var(--color-on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+// 邮箱加载骨架的宽度约束
+.emailSkeleton {
+  width: 160px;
+}
+
+// mock 模式提示条
+.mockHint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container);
+  border-radius: 6px;
+  padding: 8px 12px;
+}

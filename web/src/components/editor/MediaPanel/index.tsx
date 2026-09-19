@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { Button, Empty, Input, Slider, Switch } from '@douyinfe/semi-ui';
-import { IconPlus, IconArrowRight, IconSearch } from '@douyinfe/semi-icons';
+import { Button, Empty, Input, Popconfirm, Slider, Switch, Toast } from '@douyinfe/semi-ui';
+import { IconPlus, IconArrowRight, IconDelete, IconSearch } from '@douyinfe/semi-icons';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Asset } from '@/types/asset';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useEditorUIStore, type EditorTool } from '@/stores/editorUIStore';
 import { useAssetsStore } from '@/stores/assetsStore';
+import { assetService } from '@/services/assetService';
 import { mockAssets } from '@/utils/mockData';
 import AIChat from '@/components/editor/AIChat';
+import TranscriptPanel from '@/components/editor/TranscriptPanel';
 import styles from './index.module.scss';
+
+const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const ASSET_IMAGES: Record<string, string> = {
   asset_01: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD5t2CMfKsH5ke_RmKFLCqdOHPnI6M8Zn-U1hNep4ehXBzfPdebI2P_ty6oBddArLpHMVSWdxQNjrfLMZwxKr2-INNOU8OHHztNAVmHXsv1c7FNNZruoDHtUtHLoTCCKXzLG754ZS7wRao2jvEPIDQo66VCyf55Ipt_qi8L3UuQpNjDu0NYyNli6oPgL3soui-qoqM17VYGSknDdpIseFBR-ilcETv0isAoGU5MaX5VruxRiaBlZI-c_g',
@@ -30,8 +35,12 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const [query, setQuery] = useState<string>('');
   const [autoCaptions, setAutoCaptions] = useState<boolean>(true);
   const [noiseReduction, setNoiseReduction] = useState<number>(40);
+  // mock 模式下被本地删除的素材 id（mockAssets 为只读回退数据，无法真正移除）
+  const [removedIds, setRemovedIds] = useState<Set<string>>(() => new Set());
   const activeTool = useEditorUIStore((s) => s.activeTool);
   const storedAssets = useAssetsStore((s) => s.assets);
+  const setAssets = useAssetsStore((s) => s.setAssets);
+  const queryClient = useQueryClient();
   const { t } = useAppTranslation();
 
   // 非 media 工具：渲染“开发中”占位面板（缺陷走查 P0-3）
@@ -43,6 +52,18 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     brand: t('nav.brand'),
     help: t('common.help'),
   };
+
+  if (activeTool === 'content') {
+    // 内容面板：展示素材转录文本（工单 WO2-02）
+    return (
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span className={styles.title}>{toolLabels.content}</span>
+        </div>
+        <TranscriptPanel />
+      </div>
+    );
+  }
 
   if (activeTool === 'ai') {
     // AI 对话面板接入真实的对话式编辑（工单 F07）
@@ -70,8 +91,10 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     );
   }
 
-  // 素材来源：优先 assetsStore，其次父级传入的 assets，最后回退 mockAssets
-  const sourceAssets = storedAssets.length > 0 ? storedAssets : assets.length > 0 ? assets : mockAssets;
+  // 素材来源：优先 assetsStore，其次父级传入的 assets，最后回退 mockAssets；
+  // 过滤掉本地已删除的素材（mock 回退数据无法真正移除，用本地列表兜底）
+  const sourceAssets = (storedAssets.length > 0 ? storedAssets : assets.length > 0 ? assets : mockAssets)
+    .filter((a) => !removedIds.has(a.id));
   const videos = sourceAssets.filter((a) => a.type === 'video');
   const filtered = videos.filter((a) =>
     a.fileName.toLowerCase().includes(query.toLowerCase())
@@ -81,6 +104,29 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const handleAssetDragStart = (asset: Asset) => (e: React.DragEvent) => {
     e.dataTransfer.setData('application/x-asset-id', asset.id);
     e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  /** 素材删除（工单 WO2-05）：真实模式先调 API，失败 Toast 并中止；mock 模式仅本地移除 */
+  const handleRemoveAsset = async (asset: Asset) => {
+    if (!isMockMode) {
+      try {
+        await assetService.remove(asset.id);
+      } catch {
+        Toast.error(t('editor.mediaPanel.deleteFailed'));
+        return;
+      }
+      // 后端已删除：刷新素材查询缓存（Editor 加载效果会把新列表重新注入 assetsStore）
+      void queryClient.invalidateQueries({ queryKey: ['assets'] });
+    }
+    // 本地兜底过滤（真实模式下用于覆盖 refetch 返回前的窗口期）
+    setRemovedIds((prev) => {
+      const next = new Set(prev);
+      next.add(asset.id);
+      return next;
+    });
+    // 同步移除 assetsStore，保证 Timeline/Clip 等消费方立即感知
+    setAssets(useAssetsStore.getState().assets.filter((a) => a.id !== asset.id));
+    Toast.success(t('editor.mediaPanel.deleteSuccess'));
   };
 
   return (
@@ -147,6 +193,19 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                   {asset.duration && (
                     <span className={styles.durationBadge}>{formatBadge(asset.duration)}</span>
                   )}
+                  <Popconfirm
+                    title={t('editor.mediaPanel.deleteConfirm')}
+                    onConfirm={() => void handleRemoveAsset(asset)}
+                  >
+                    <Button
+                      className={styles.deleteBtn}
+                      icon={<IconDelete />}
+                      size="small"
+                      theme="solid"
+                      type="danger"
+                      aria-label={t('editor.mediaPanel.deleteAsset')}
+                    />
+                  </Popconfirm>
                 </div>
               </div>
             ))}

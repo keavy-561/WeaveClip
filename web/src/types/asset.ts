@@ -13,6 +13,7 @@ export interface Asset {
   thumbnailUrl: string | null;
   fps: number | null;
   codec: string | null;
+  playbackUrl?: string | null;
   transcript: Record<string, unknown> | null;
   metadata: Record<string, unknown> | null;
   analysis: AssetAnalysis | null;
