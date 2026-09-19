@@ -84,6 +84,11 @@ func (s *ChatService) Chat(projectID, userID uint, message, selectedClipID strin
 	if err != nil {
 		return nil, fmt.Errorf("apply operations: %w", err)
 	}
+	// 应用后的时间线必须可直接渲染：全量校验（含同轨无重叠），LLM 产出非法时
+	// 明确报错而不是把脏数据落库（工单 WO8-13）
+	if err := newDSL.Validate(); err != nil {
+		return nil, fmt.Errorf("applied timeline invalid: %w", err)
+	}
 	raw, err := newDSL.Marshal()
 	if err != nil {
 		return nil, err

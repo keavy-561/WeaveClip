@@ -69,6 +69,8 @@ type RenderDeps struct {
 type repositoryRenderRepo interface {
 	Get(id uint) (*model.Render, error)
 	Update(render *model.Render) error
+	// UpdateProgress 进度单列更新：进度 goroutine 与主流程并发时不再整行覆盖/竞态（工单 WO8-10）
+	UpdateProgress(id uint, progress int) error
 }
 
 // HandleRender 注册渲染任务处理器。
@@ -166,6 +168,10 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 	if parsed == nil {
 		return fail("invalid timeline structure")
 	}
+	// 渲染前全量校验（含同轨无重叠）：入队快照可能来自未校验的历史数据（工单 WO8-13）
+	if err := parsed.Validate(); err != nil {
+		return fail("timeline validation: %v", err)
+	}
 	output := filepath.Join(workDir, fmt.Sprintf("render-%d.mp4", p.RenderID))
 	plan, err := render.Compile(parsed, assetFiles, render.Options{
 		Width: width, Height: height, FPS: p.FPS, WorkDir: workDir,
@@ -196,7 +202,8 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 	if err := cmd.Start(); err != nil {
 		return fail("start ffmpeg: %v", err)
 	}
-	// 读取 out_time_ms 进度
+	// 读取 out_time_ms 进度：只做单列进度更新（GREATEST 单调），
+	// 不再触碰主流程持有的 renderRow 结构体，消除数据竞争（工单 WO8-10）
 	go func() {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
@@ -211,8 +218,7 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 					if pct > 90 {
 						pct = 90
 					}
-					renderRow.Progress = pct
-					_ = d.Renders.Update(renderRow)
+					_ = d.Renders.UpdateProgress(p.RenderID, pct)
 					notify(pct, "rendering", "")
 				}
 			}

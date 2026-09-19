@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -66,6 +67,15 @@ func (w *timeoutWriter) writeTimeoutResponse() {
 		`{"success":false,"code":"GATEWAY_TIMEOUT","message":"request timeout","request_id":""}`))
 }
 
+// timeoutExemptPrefixes 不受请求超时约束的路由（工单 WO8-12）：
+// - chat 为同步 LLM 长请求（可达分钟级），30s 即 504 但 handler 会继续执行完，
+//   副作用已发生而客户端以为失败重试 → 重复版本/重复调用；
+// - /ws/ 已 hijack 连接，对 hijacked ResponseWriter 写 504 只产生噪音。
+var timeoutExemptPrefixes = []string{
+	"/api/projects/:id/chat",
+	"/ws/",
+}
+
 // RequestTimeout 为每个请求加处理时限：超时后向客户端返回 504，
 // 处理器的后续写入会被丢弃。timeout <= 0 时不启用。
 // 与 http.TimeoutHandler 同思路：处理器同步执行（请求 goroutine 等它返回，
@@ -77,6 +87,15 @@ func RequestTimeout(timeout time.Duration) gin.HandlerFunc {
 		}
 	}
 	return func(c *gin.Context) {
+		// gin 中间件在路由匹配后执行，FullPath() 返回注册的路由模式
+		if fp := c.FullPath(); fp != "" {
+			for _, prefix := range timeoutExemptPrefixes {
+				if strings.HasPrefix(fp, prefix) {
+					c.Next()
+					return
+				}
+			}
+		}
 		tw := &timeoutWriter{ResponseWriter: c.Writer}
 		c.Writer = tw
 		timer := time.AfterFunc(timeout, tw.writeTimeoutResponse)

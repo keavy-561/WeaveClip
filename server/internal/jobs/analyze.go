@@ -202,8 +202,9 @@ func (d Deps) saveAnalysis(asset *model.Asset, analysis map[string]any) {
 		slog.Error("marshal analysis", "assetId", asset.ID, "error", err)
 		return
 	}
-	asset.Analysis = b
-	if err := d.Assets.Update(asset); err != nil {
+	// 单列更新：分析耗时最长数分钟，整行回写会覆盖上传管线并发写入的
+	// metadata/探针字段（工单 WO8-10）
+	if err := d.Assets.UpdateAnalysis(asset.ID, b); err != nil {
 		slog.Error("save analysis", "assetId", asset.ID, "error", err)
 	}
 }

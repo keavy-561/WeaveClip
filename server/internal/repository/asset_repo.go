@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/weaveclip/server/internal/model"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +14,25 @@ type AssetRepository interface {
 	Create(asset *model.Asset) error
 	Update(asset *model.Asset) error
 	Delete(id uint) error
+	// UpdateAnalysis 只更新 analysis 列：分析 worker 与上传处理管线并发写同一素材，
+	// 整行 Save 会互相清空对方刚写入的字段（工单 WO8-10）。
+	UpdateAnalysis(assetID uint, analysis []byte) error
+	// UpdateMediaInfo 只更新上传处理产物列（status/file_size/探针字段/缩略图/metadata），
+	// 供处理管线局部回写（工单 WO8-10）。
+	UpdateMediaInfo(assetID uint, info AssetMediaInfo) error
+}
+
+// AssetMediaInfo 上传处理管线的产物字段（UpdateMediaInfo 局部更新用，工单 WO8-10）。
+type AssetMediaInfo struct {
+	Status       string
+	FileSize     int64
+	Duration     float64
+	Width        int
+	Height       int
+	FPS          float64
+	Codec        string
+	ThumbnailURL string
+	Metadata     []byte
 }
 
 type gormAssetRepo struct {
@@ -45,6 +65,27 @@ func (r *gormAssetRepo) Create(asset *model.Asset) error {
 
 func (r *gormAssetRepo) Update(asset *model.Asset) error {
 	return r.db.Save(asset).Error
+}
+
+// UpdateAnalysis 单列更新 analysis（工单 WO8-10）。
+func (r *gormAssetRepo) UpdateAnalysis(assetID uint, analysis []byte) error {
+	return r.db.Model(&model.Asset{}).Where("id = ?", assetID).
+		Update("analysis", datatypes.JSON(analysis)).Error
+}
+
+// UpdateMediaInfo 局部更新处理产物列，不触碰 analysis/transcript（工单 WO8-10）。
+func (r *gormAssetRepo) UpdateMediaInfo(assetID uint, info AssetMediaInfo) error {
+	return r.db.Model(&model.Asset{}).Where("id = ?", assetID).Updates(map[string]any{
+		"status":        info.Status,
+		"file_size":     info.FileSize,
+		"duration":      info.Duration,
+		"width":         info.Width,
+		"height":        info.Height,
+		"fps":           info.FPS,
+		"codec":         info.Codec,
+		"thumbnail_url": info.ThumbnailURL,
+		"metadata":      datatypes.JSON(info.Metadata),
+	}).Error
 }
 
 func (r *gormAssetRepo) Delete(id uint) error {
@@ -108,6 +149,59 @@ func (r *mockAssetRepo) Update(asset *model.Asset) error {
 			r.assets[i] = *asset
 			return nil
 		}
+	}
+	return gorm.ErrRecordNotFound
+}
+
+// UpdateAnalysis mock 实现（工单 WO8-10）。
+func (r *mockAssetRepo) UpdateAnalysis(assetID uint, analysis []byte) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for i := range r.assets {
+		if r.assets[i].ID == assetID {
+			r.assets[i].Analysis = datatypes.JSON(analysis)
+			return nil
+		}
+	}
+	return gorm.ErrRecordNotFound
+}
+
+// UpdateMediaInfo mock 实现（工单 WO8-10）。
+func (r *mockAssetRepo) UpdateMediaInfo(assetID uint, info AssetMediaInfo) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for i := range r.assets {
+		if r.assets[i].ID != assetID {
+			continue
+		}
+		if info.Status != "" {
+			r.assets[i].Status = info.Status
+		}
+		if info.FileSize > 0 {
+			r.assets[i].FileSize = info.FileSize
+		}
+		if info.Duration > 0 {
+			r.assets[i].Duration = info.Duration
+		}
+		if info.Width > 0 {
+			r.assets[i].Width = info.Width
+		}
+		if info.Height > 0 {
+			r.assets[i].Height = info.Height
+		}
+		if info.FPS > 0 {
+			r.assets[i].FPS = info.FPS
+		}
+		if info.Codec != "" {
+			r.assets[i].Codec = info.Codec
+		}
+		if info.ThumbnailURL != "" {
+			r.assets[i].ThumbnailURL = info.ThumbnailURL
+		}
+		if len(info.Metadata) > 0 {
+			r.assets[i].Metadata = datatypes.JSON(info.Metadata)
+		}
+		return nil
 	}
 	return gorm.ErrRecordNotFound
 }

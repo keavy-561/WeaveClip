@@ -3,6 +3,7 @@ package ai
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	"github.com/weaveclip/server/internal/model"
 )
@@ -60,8 +61,19 @@ func (c *DSLClip) assetKey() string {
 	}
 }
 
-// Validate 结构校验：时间合法、轨道类型合法、片段时间轴无重叠（同轨内）。
+// Validate 全量校验：结构 + 同轨时间轴无重叠。
+// AI 管线与渲染入口使用——LLM 产出或入队快照必须可直接渲染（工单 WO8-13）。
 func (t *DSLTimeline) Validate() error {
+	if err := t.ValidateStructure(); err != nil {
+		return err
+	}
+	return t.validateNoOverlap()
+}
+
+// ValidateStructure 结构校验：时间合法、轨道类型合法、片段引用合法。
+// 不含同轨重叠检查——前端编辑器允许拖拽/裁剪产生临时重叠，PUT 持久化入口用本方法；
+// 渲染前由渲染入口做全量 Validate 拦截（工单 WO8-13）。
+func (t *DSLTimeline) ValidateStructure() error {
 	if t.FPS <= 0 {
 		return fmt.Errorf("invalid fps %d", t.FPS)
 	}
@@ -90,6 +102,26 @@ func (t *DSLTimeline) Validate() error {
 			}
 			if track.Type == "video" && clip.assetKey() == "" {
 				return fmt.Errorf("video clip %s missing assetId", clip.ID)
+			}
+		}
+	}
+	return nil
+}
+
+// validateNoOverlap 同轨内片段时间轴无重叠：按 start 排序后检查相邻片段（容差 1ms）。
+func (t *DSLTimeline) validateNoOverlap() error {
+	for ti := range t.Tracks {
+		clips := make([]*DSLClip, len(t.Tracks[ti].Clips))
+		for ci := range t.Tracks[ti].Clips {
+			clips[ci] = &t.Tracks[ti].Clips[ci]
+		}
+		sort.Slice(clips, func(i, j int) bool { return clips[i].Start < clips[j].Start })
+		for i := 1; i < len(clips); i++ {
+			if clips[i].Start < clips[i-1].End-0.001 {
+				return fmt.Errorf(
+					"track %s: clip %s overlaps clip %s",
+					t.Tracks[ti].ID, clips[i-1].ID, clips[i].ID,
+				)
 			}
 		}
 	}

@@ -6,8 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"gorm.io/datatypes"
-
+	"github.com/weaveclip/server/internal/ai"
 	"github.com/weaveclip/server/internal/model"
 	"github.com/weaveclip/server/internal/repository"
 )
@@ -82,26 +81,17 @@ func (s *TimelineService) SaveInternal(projectID uint, raw []byte, label string)
 	if err := validateTimelineJSON(raw); err != nil {
 		return nil, err
 	}
-	versions, err := s.timelines.ListVersions(projectID)
-	if err != nil {
-		return nil, err
+	// 结构校验（不含同轨重叠：前端编辑器允许拖拽产生的临时重叠，渲染入口做全量校验，
+	// 工单 WO8-13）
+	var dsl ai.DSLTimeline
+	if err := json.Unmarshal(raw, &dsl); err != nil {
+		return nil, fmt.Errorf("%w: malformed dsl: %v", ErrInvalidTimeline, err)
 	}
-	next := 1
-	for _, t := range versions {
-		if t.Version >= next {
-			next = t.Version + 1
-		}
+	if err := dsl.ValidateStructure(); err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrInvalidTimeline, err)
 	}
-	timeline := &model.Timeline{
-		ProjectID:    projectID,
-		Version:      next,
-		TimelineJSON: datatypes.JSON(raw),
-		Label:        label,
-	}
-	if err := s.timelines.Create(timeline); err != nil {
-		return nil, err
-	}
-	return timeline, nil
+	// 版本号在仓库层事务内分配，消除 check-then-act 竞态（工单 WO8-11）
+	return s.timelines.CreateNextVersion(projectID, raw, label)
 }
 
 // validateTimelineJSON 校验请求体是合法 JSON 对象（Video DSL 的最小约束）。

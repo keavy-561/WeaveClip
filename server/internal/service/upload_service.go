@@ -111,11 +111,15 @@ func (s *UploadService) Confirm(assetID, userID uint) (*model.Asset, error) {
 	if size > MaxUploadSize {
 		return nil, fmt.Errorf("%w: object size %d exceeds limit", ErrInvalidUpload, size)
 	}
-	asset.FileSize = size
-	asset.Status = "ready"
-	if err := s.assets.Update(asset); err != nil {
+	// 局部回写确认字段：不整行覆盖并发流程（分析等）刚写入的列（工单 WO8-10）
+	if err := s.assets.UpdateMediaInfo(asset.ID, AssetMediaInfo{
+		Status:   "ready",
+		FileSize: size,
+	}); err != nil {
 		return nil, err
 	}
+	asset.FileSize = size
+	asset.Status = "ready"
 
 	// 异步处理：失败只记 metadata，不影响上传结果
 	go s.processAsset(*asset)
@@ -139,7 +143,7 @@ func (s *UploadService) processAsset(asset model.Asset) {
 	case "video":
 		if !s.toolsOK {
 			asset.Metadata = marshalProcessingMeta("skipped", "ffmpeg/ffprobe not available")
-			s.saveAsset(asset)
+			s.persistMediaInfo(asset)
 			return
 		}
 		if err := s.processVideo(ctx, &asset); err != nil {
@@ -149,7 +153,7 @@ func (s *UploadService) processAsset(asset model.Asset) {
 	default:
 		asset.Metadata = marshalProcessingMeta("skipped", "no processing for type "+asset.Type)
 	}
-	s.saveAsset(asset)
+	s.persistMediaInfo(asset)
 }
 
 func (s *UploadService) processVideo(ctx context.Context, asset *model.Asset) error {
@@ -206,8 +210,20 @@ func (s *UploadService) processVideo(ctx context.Context, asset *model.Asset) er
 	return nil
 }
 
-func (s *UploadService) saveAsset(asset model.Asset) {
-	if err := s.assets.Update(&asset); err != nil {
+// persistMediaInfo 局部回写处理产物列：不整行覆盖，避免清空并发流程（分析 worker）
+// 刚写入的 analysis/transcript 列（工单 WO8-10）。
+func (s *UploadService) persistMediaInfo(asset model.Asset) {
+	if err := s.assets.UpdateMediaInfo(asset.ID, repository.AssetMediaInfo{
+		Status:       asset.Status,
+		FileSize:     asset.FileSize,
+		Duration:     asset.Duration,
+		Width:        asset.Width,
+		Height:       asset.Height,
+		FPS:          asset.FPS,
+		Codec:        asset.Codec,
+		ThumbnailURL: asset.ThumbnailURL,
+		Metadata:     asset.Metadata,
+	}); err != nil {
 		slog.Error("save processed asset failed", "assetId", asset.ID, "error", err)
 	}
 }

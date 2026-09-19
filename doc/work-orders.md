@@ -555,14 +555,14 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 | WO8-08 | P2 | 前端：timelineStore 的 updateClip/splitClip 对不存在的片段也压撤销历史（空操作污染撤销栈）。补存在性/范围守卫 | P2 | ✅ 本次 |
 | WO8-09 | P2 | 前端：Editor displayAssets 在 mock 分支每次渲染产生新数组，注入 assetsStore 的 effect 空转。useMemo 稳定标识 | P2 | ✅ 本次 |
 
-### 已登记待排期（审查新发现，未在本轮修复）
+### 已登记待排期（审查新发现；WO8-10~13 已于本轮修复，见下）
 
 | 编号 | 严重度 | 标题 |
 |---|---|---|
-| WO8-10 | P1 | repo 层全员 `db.Save` 整行覆盖丢更新：processAsset 持副本最长 2 分钟后回写会清空期间写入的 analysis/transcript；渲染进度 goroutine 与主流程并发读写同一 renderRow（数据竞争）。需改 Select/Updates 局部更新 + 进度单 goroutine 拥有状态 |
-| WO8-11 | P1 | timeline 版本号 check-then-act 竞态（max+1 后 Create，无唯一索引）：并发 PUT/chat/generate 产生重复版本号。需 (project_id, version) 唯一索引 + 冲突重试 |
-| WO8-12 | P1 | prod 30s 请求超时 vs chat 同步 LLM 最长 3 分钟：504 返回后 handler 继续执行完，副作用已发生，客户端重试导致重复版本/重复调用。chat 异步化或按路由豁免超时 |
-| WO8-13 | P1 | DSL Validate 缺同轨重叠校验，且 PUT /timeline、chat、render 全部绕过 Validate——重叠/负 trim/非法 transition 一路进 ffmpeg。统一入口 + 补校验（注意同步修订 smoke/测试夹具） |
+| WO8-10 | P1 | ✅ 已修复：repo 层全员 `db.Save` 整行覆盖丢更新——新增 AssetRepository.UpdateAnalysis/UpdateMediaInfo、RenderRepository.UpdateProgress（GREATEST 单调）局部更新；analyze 的 saveAnalysis、upload 的 confirm/processAsset/persistMediaInfo、渲染进度 goroutine 全部改为单列回写，goroutine 不再触碰主流程的 renderRow 结构体（数据竞争消除） |
+| WO8-11 | P1 | ✅ 已修复：TimelineRepository 新增 CreateNextVersion——gorm 实现用事务 + `pg_advisory_xact_lock(projectID)` 串行化版本号分配（MAX+1 后插入），mock 实现锁内 max+1；SaveInternal 不再做 check-then-act |
+| WO8-12 | P1 | ✅ 已修复：RequestTimeout 按 FullPath 豁免 `/api/projects/:id/chat`（同步 LLM 长请求，504 后副作用已发生会诱导重试）与 `/ws/`（hijack 连接写 504 纯噪音） |
+| WO8-13 | P1 | ✅ 已修复：dsl.Validate 拆分为 ValidateStructure（结构）+ validateNoOverlap（同轨无重叠，容差 1ms），Validate=两者；SaveInternal 调 ValidateStructure（PUT 允许前端拖拽产生的临时重叠）、chat 应用操作后与渲染 worker 入队快照调全量 Validate——脏 DSL 在渲染前被拦截 |
 | WO8-14 | P2 | 上传链路：presign 后失败留 uploading 孤儿行（无清理）；confirm 非幂等；不校验对象实际内容；PUT 后对象仍可在有效期内被改写 |
 | WO8-15 | P2 | WS：无写超时/ping-pong，死连接滞留；Hub 非阻塞丢弃对 completed/error 终态消息也生效，缓冲满时客户端收不到完成事件 |
 | WO8-16 | P2 | 存储：MinIO 失败静默回落本地盘（prod 应 fail-fast）；mock-storage PUT 整读内存（600MB 峰值）应流式写盘；上限 600MB 与 500MB 不一致 |
@@ -589,4 +589,5 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 | 2026-09-19 | v1.8 | 第五轮（WO6，§11）：用户指令"所有开发中占位全部实现"——模板中心 SideSheet+AI 预填、分享系统分享/复制链接、社区/教程/定价三页+路由、升级套餐接定价、录制面板（MediaRecorder→素材库）、文本面板（字幕轨片段）、品牌面板（水印+字幕默认色），全部"开发中"Toast/占位入口清零；i18n 约 70 键补齐。 |
 | 2026-09-19 | v1.9 | 第六轮（WO7，§12）：用户复核"占位要有真实实现"——字幕预览真实渲染（按样式叠加）、调色/滤镜/效果 CSS filter 实时作用于预览、模板中心补「用模板新建」走 Describe→Generate 生成链；并复核确认 WO6 主体真实性与数据层限制申报。 |
 | 2026-09-19 | v2.0 | 第七轮（WO8，§13）：代码逻辑与健壮性专项审查（后端代理全量+前端自查）。修复 9 项：WS Hub cancel 幂等（P0 崩进程）、xfade 白名单防滤镜注入、task_id 零值毒丸、资产 IDOR、日志 token 脱敏、前端 local_ 素材删除/blob 释放/mock 定时器清理/撤销栈防污染/displayAssets 稳定化；新登记 P1×4、P2×7 待排期（§13）。 |
+| 2026-09-19 | v2.1 | WO8-10~13 四个 P1 修复：repo 局部更新（UpdateAnalysis/UpdateMediaInfo/UpdateProgress GREATEST 单调）消除整行覆盖丢更新与渲染进度数据竞争；timeline CreateNextVersion（事务+pg_advisory_xact_lock）消除版本号竞态；RequestTimeout 豁免 chat 与 WS 路由；DSL 校验拆分 ValidateStructure/validateNoOverlap 并统一接线（PUT 结构校验、chat 与渲染入口全量校验）。测试假实现同步补齐新接口方法。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |
