@@ -147,9 +147,10 @@ func TestGormRepos_CRUD(t *testing.T) {
 	assert.Equal(t, 100, renderGot.Progress)
 
 	// 任务轨迹：LatestByProject
-	task := &model.TaskResult{TaskType: "analyze", ProjectID: project.ID, Status: "pending"}
+	// TaskID 有唯一约束（空串也会互相冲突），显式给不同值
+	task := &model.TaskResult{TaskType: "analyze", ProjectID: project.ID, Status: "pending", TaskID: "it-task-1"}
 	require.NoError(t, taskRepo.Create(task))
-	task2 := &model.TaskResult{TaskType: "analyze", ProjectID: project.ID, Status: "completed"}
+	task2 := &model.TaskResult{TaskType: "analyze", ProjectID: project.ID, Status: "completed", TaskID: "it-task-2"}
 	require.NoError(t, taskRepo.Create(task2))
 	latest, err := taskRepo.LatestByProject(project.ID, "analyze")
 	require.NoError(t, err)

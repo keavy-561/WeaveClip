@@ -180,7 +180,9 @@
       "pause": "Pause",
       "mute": "Mute",
       "unmute": "Unmute",
-      "previewAlt": "Video preview"
+      "previewAlt": "Video preview",
+      "volume": "Volume",
+      "speed": "Speed"
     },
     "sidebar": {
       "filters": "Filters",

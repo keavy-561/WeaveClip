@@ -180,7 +180,9 @@
       "pause": "暂停",
       "mute": "静音",
       "unmute": "取消静音",
-      "previewAlt": "视频预览"
+      "previewAlt": "视频预览",
+      "volume": "音量",
+      "speed": "倍速"
     },
     "sidebar": {
       "filters": "滤镜",
