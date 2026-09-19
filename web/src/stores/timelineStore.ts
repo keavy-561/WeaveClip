@@ -222,9 +222,6 @@ export const useTimelineStore = create<TimelineState>((set) => ({
 
   addClip: (assetId, startTime) =>
     set((state) => {
-      const videoTrack = state.tracks.find((t) => t.type === 'video');
-      if (!videoTrack) return state;
-
       // 优先从 assetsStore 查素材时长，查不到回退 mockAssets，最后给默认值
       const storedAssets = useAssetsStore.getState().assets;
       const asset =
@@ -240,11 +237,20 @@ export const useTimelineStore = create<TimelineState>((set) => ({
         sourceStart: 0,
         sourceDuration: duration,
       };
-      // 插入后按开始时间排序，保持轨道内片段时序
-      const clips = [...videoTrack.clips, newClip].sort((a, b) => a.start - b.start);
-      const newTracks = state.tracks.map((track) =>
-        track.type === 'video' ? { ...track, clips } : track
-      );
+      // 视频轨不存在时自动创建（空时间轴/新项目）：此前直接 return 导致
+      // "已添加"toast 撒谎、点素材→时间轴→检查器的编辑链路断裂
+      //（走查第三轮 P1-N1，工单 WO10-01）
+      const hasVideoTrack = state.tracks.some((track) => track.type === 'video');
+      const insertSorted = (clips: Clip[]) =>
+        [...clips, newClip].sort((a, b) => a.start - b.start);
+      const newTracks = hasVideoTrack
+        ? state.tracks.map((track) =>
+            track.type === 'video' ? { ...track, clips: insertSorted(track.clips) } : track
+          )
+        : [
+            { id: `video_${Date.now()}`, type: 'video' as const, clips: [newClip] },
+            ...state.tracks,
+          ];
       const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
       return {
         past,
@@ -254,6 +260,8 @@ export const useTimelineStore = create<TimelineState>((set) => ({
         tracks: newTracks,
         clips: newTracks.flatMap((t) => t.clips),
         selectedClipId: newClip.id,
+        // 时长不足以容纳新片段时自动扩展，保证标尺/画布/导出覆盖全部内容
+        duration: Math.max(state.duration, newClip.start + newClip.duration),
       };
     }),
 

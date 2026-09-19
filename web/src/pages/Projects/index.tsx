@@ -207,7 +207,14 @@ const Projects: React.FC = () => {
                     <span>{t(`mockData.style.${project.style}`, project.style)}</span>
                   </div>
                   <span className={styles.status}>{t(`home.${statusTextMap[project.status] || 'statusReady'}`)}</span>
-                  <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
+                  {/* preventDefault 拦下 Link 的默认导航，菜单才能正常打开（走查 P2-N2，工单 WO10-04） */}
+                  <div
+                    className={styles.cardActions}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                  >
                     <Popover
                       trigger="click"
                       content={

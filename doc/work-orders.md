@@ -596,6 +596,24 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 
 ---
 
+## 15. 第九轮工单（2026-09-19 第三轮真机走查 @ 9292bd5，WO10 系列）
+
+> 来源：`audit/走查报告.md` 第三轮。新功能 12 项全部验证通过；2 个 P1、2 个 P2。
+> P1-N1 根因：addClip 在视频轨不存在（新项目空时间轴）时直接 return，"已添加"toast 撒谎；
+> P1-N2 根因：Semi SideSheet 的 closeOnEsc 默认关闭，未开启。
+
+| 编号 | 严重度 | 标题 | 状态 |
+|---|---|---|---|
+| WO10-01 | P1 | timelineStore.addClip 视频轨不存在时自动建轨并选中；时长自动扩展覆盖新片段（拖拽入空时间轴同路径一并修复） | ✅ 本次 |
+| WO10-02 | P1 | VersionHistory SideSheet 开启 closeOnEsc + 显式 maskClosable——ESC/遮罩/X 三条关闭路径全部可用 | ✅ 本次 |
+| WO10-03 | P2 | 媒体面板搜索占位改"搜索素材"（原"搜索模板"是 Home 模板搜索的键被误用） | ✅ 本次 |
+| WO10-04 | P2 | 项目卡片 Link 化后操作菜单点击被锚点默认导航吞掉：cardActions 补 preventDefault，删除/重命名/复制入口恢复 | ✅ 本次 |
+
+**实施结果（2026-09-19）**：WO10-01~04 已实现并推送，验证交远端 CI。
+走查报告 Sprint 3 三项（播放器真实播放/字幕实时渲染/模板中心完整链路）已在 WO7 完成。
+
+---
+
 ## 变更记录
 
 | 日期 | 版本 | 变更内容 |
@@ -614,4 +632,5 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 | 2026-09-19 | v2.0 | 第七轮（WO8，§13）：代码逻辑与健壮性专项审查（后端代理全量+前端自查）。修复 9 项：WS Hub cancel 幂等（P0 崩进程）、xfade 白名单防滤镜注入、task_id 零值毒丸、资产 IDOR、日志 token 脱敏、前端 local_ 素材删除/blob 释放/mock 定时器清理/撤销栈防污染/displayAssets 稳定化；新登记 P1×4、P2×7 待排期（§13）。 |
 | 2026-09-19 | v2.1 | WO8-10~13 四个 P1 修复：repo 局部更新（UpdateAnalysis/UpdateMediaInfo/UpdateProgress GREATEST 单调）消除整行覆盖丢更新与渲染进度数据竞争；timeline CreateNextVersion（事务+pg_advisory_xact_lock）消除版本号竞态；RequestTimeout 豁免 chat 与 WS 路由；DSL 校验拆分 ValidateStructure/validateNoOverlap 并统一接线（PUT 结构校验、chat 与渲染入口全量校验）。测试假实现同步补齐新接口方法。 |
 | 2026-09-19 | v2.2 | 第八轮（WO9，§14）：「没写完的功能都写完」——项目重命名/复制、上传取消/重试/进度面板、Describe 模板入口生成闭环+重置+Ctrl+Enter、首页侧栏折叠+搜索响应式、版本历史 invalidate+宽度自适应、播放头键盘微调+canvas ref、播放器逐帧、Timeline 视口窗口化（替代 200 条截断）、分析摘要演示数据标注。功能类工单全部关闭。 |
+| 2026-09-19 | v2.3 | 第九轮（WO10，§15）：第三轮真机走查修复——addClip 空轨自动建视频轨+时长扩展（修"toast 撒谎"的编辑链路断裂 P1）、版本历史 SideSheet 开启 ESC/遮罩关闭（P1）、媒体搜索占位改"搜索素材"、项目卡片菜单 preventDefault 恢复入口。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |

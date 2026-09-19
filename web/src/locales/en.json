@@ -143,6 +143,7 @@
       "deleteSuccess": "Asset deleted",
       "deleteConfirm": "Delete this asset?",
       "deleteAsset": "Delete asset",
+      "searchPlaceholder": "Search assets",
       "importSuccess": "Imported {{count}} asset(s)",
       "importFailedCount": "{{count}} asset(s) failed to import",
       "importMockDisabled": "Upload is unavailable in demo mode. Switch to real mode.",

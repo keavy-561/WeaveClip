@@ -255,7 +255,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
       <div className={styles.search}>
         <Input
           prefix={<IconSearch />}
-          placeholder={t('common.searchPlaceholder')}
+          placeholder={t('editor.mediaPanel.searchPlaceholder')}
           value={query}
           onChange={(v) => setQuery(v)}
           aria-label={t('common.search')}

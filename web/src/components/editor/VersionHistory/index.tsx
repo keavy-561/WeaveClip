@@ -60,6 +60,9 @@ const VersionHistory: React.FC<VersionHistoryProps> = ({ projectId, visible, onC
       }
       visible={visible}
       onCancel={onClose}
+      // ESC 关闭（Semi 默认不开）+ 点遮罩关闭：修复"只能刷新"的关闭死路（走查 P1-N2，工单 WO10-02）
+      closeOnEsc
+      maskClosable
       // 小屏自适应：不超过视口宽度（工单 WO9-05）
       width={Math.min(380, Math.max(280, window.innerWidth * 0.9))}
     >

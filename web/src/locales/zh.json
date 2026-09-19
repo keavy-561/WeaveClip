@@ -143,6 +143,7 @@
       "deleteSuccess": "素材已删除",
       "deleteConfirm": "确定删除该素材吗？",
       "deleteAsset": "删除素材",
+      "searchPlaceholder": "搜索素材",
       "importSuccess": "已导入 {{count}} 个素材",
       "importFailedCount": "{{count}} 个素材导入失败",
       "importMockDisabled": "演示模式不支持上传，请使用真实模式",
