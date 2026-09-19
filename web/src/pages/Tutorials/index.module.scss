@@ -1,0 +1,67 @@
+@use "@/styles/variables" as *;
+
+.page {
+  min-height: 100vh;
+  background: var(--semi-color-bg-0);
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: $editor-toolbar-height;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-editor-border, var(--semi-color-border));
+  background: var(--semi-color-bg-1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--semi-color-text-0);
+}
+
+.navRight {
+  width: 48px;
+}
+
+.main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--semi-color-text-2);
+}
+
+.collapse {
+  margin-bottom: 24px;
+}
+
+.steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--semi-color-text-1);
+}
+
+.cta {
+  margin-top: 8px;
+}

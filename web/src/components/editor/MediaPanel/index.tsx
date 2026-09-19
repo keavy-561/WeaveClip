@@ -1,17 +1,20 @@
 import React, { useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Empty, Input, Popconfirm, Toast } from '@douyinfe/semi-ui';
 import { IconPlus, IconChevronLeft, IconDelete, IconSearch } from '@douyinfe/semi-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Asset } from '@/types/asset';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
-import { useEditorUIStore, type EditorTool } from '@/stores/editorUIStore';
+import { useEditorUIStore } from '@/stores/editorUIStore';
 import { useAssetsStore } from '@/stores/assetsStore';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { assetService } from '@/services/assetService';
 import { mockAssets } from '@/utils/mockData';
 import AIChat from '@/components/editor/AIChat';
 import TranscriptPanel from '@/components/editor/TranscriptPanel';
+import RecordPanel from '@/components/editor/RecordPanel';
+import TextPanel from '@/components/editor/TextPanel';
+import BrandPanel from '@/components/editor/BrandPanel';
 import styles from './index.module.scss';
 
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
@@ -37,6 +40,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   const addClip = useTimelineStore((s) => s.addClip);
   const queryClient = useQueryClient();
   const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const { t } = useAppTranslation();
 
   /** 面板头部通用：标题 + 收起按钮（WO5-05 左侧面板可收起） */
@@ -50,22 +54,12 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     />
   );
 
-  // 非 media 工具：渲染“开发中”占位面板（缺陷走查 P0-3）
-  const toolLabels: Record<Exclude<EditorTool, 'media'>, string> = {
-    record: t('nav.record'),
-    content: t('nav.content'),
-    ai: t('nav.aiTools'),
-    text: t('nav.text'),
-    brand: t('nav.brand'),
-    help: t('common.help'),
-  };
-
   if (activeTool === 'content') {
     // 内容面板：展示素材转录文本（工单 WO2-02）
     return (
       <div className={styles.panel}>
         <div className={styles.header}>
-          <span className={styles.title}>{toolLabels.content}</span>
+          <span className={styles.title}>{t('nav.content')}</span>
           {collapseButton}
         </div>
         <TranscriptPanel />
@@ -78,7 +72,7 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     return (
       <div className={styles.panel}>
         <div className={styles.header}>
-          <span className={styles.title}>{toolLabels.ai}</span>
+          <span className={styles.title}>{t('nav.aiTools')}</span>
           {collapseButton}
         </div>
         <AIChat />
@@ -86,16 +80,57 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     );
   }
 
-  if (activeTool !== 'media') {
-    const toolLabel = toolLabels[activeTool];
+  if (activeTool === 'record') {
+    // 录制面板（工单 WO6-07）：摄像头录制 → 素材库
     return (
       <div className={styles.panel}>
         <div className={styles.header}>
-          <span className={styles.title}>{toolLabel}</span>
+          <span className={styles.title}>{t('nav.record')}</span>
+          {collapseButton}
+        </div>
+        <RecordPanel />
+      </div>
+    );
+  }
+
+  if (activeTool === 'text') {
+    // 文本面板（工单 WO6-08）：添加字幕片段
+    return (
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span className={styles.title}>{t('nav.text')}</span>
+          {collapseButton}
+        </div>
+        <TextPanel />
+      </div>
+    );
+  }
+
+  if (activeTool === 'brand') {
+    // 品牌面板（工单 WO6-09）：水印 + 字幕默认色
+    return (
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span className={styles.title}>{t('nav.brand')}</span>
+          {collapseButton}
+        </div>
+        <BrandPanel />
+      </div>
+    );
+  }
+
+  if (activeTool === 'help') {
+    // 帮助面板（工单 WO6-04）：接入教程页
+    return (
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span className={styles.title}>{t('common.help')}</span>
           {collapseButton}
         </div>
         <div className={styles.toolPlaceholder}>
-          <Empty description={t('editor.panel.developing', { tool: toolLabel })} />
+          <Button theme="solid" onClick={() => navigate('/tutorials')}>
+            {t('tutorials.openTutorials')}
+          </Button>
         </div>
       </div>
     );

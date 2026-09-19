@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Spin, TextArea, Toast } from '@douyinfe/semi-ui';
 import { IconSend } from '@douyinfe/semi-icons';
@@ -16,13 +16,15 @@ const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
 
 const AIChat: React.FC = () => {
   const { messages, isLoading, addMessage, setLoading } = useAIChatStore();
+  // 草稿提升到 store：模板中心/快捷指令可从外部预填（工单 WO6-01）
+  const draft = useAIChatStore((s) => s.draft);
+  const setDraft = useAIChatStore((s) => s.setDraft);
   const selectedClipId = useTimelineStore((s) => s.selectedClipId);
   const setDSL = useTimelineStore((s) => s.setDSL);
   const { projectId } = useParams<{ projectId: string }>();
   const { t } = useAppTranslation();
   const listRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
-  const [draft, setDraft] = useState('');
 
   useEffect(() => {
     return () => {

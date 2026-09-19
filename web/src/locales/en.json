@@ -109,7 +109,9 @@
       "templates": "Templates",
       "projectName": "Project Name",
       "aspectRatio": "16:9",
-      "templatesSoon": "Template center is coming soon"
+      "templatesSoon": "Template center is coming soon",
+      "linkCopied": "Link copied to clipboard",
+      "shareFailed": "Copy failed. Please copy the URL from the address bar"
     },
     "panel": {
       "developing": "{{tool}} is under development"
@@ -271,6 +273,41 @@
     },
     "share": {
       "comingSoon": "Sharing is coming soon"
+    },
+    "templates": {
+      "title": "Template gallery",
+      "subtitle": "Pick a template — AI will generate or restyle your timeline in that style",
+      "use": "Use template"
+    },
+    "record": {
+      "start": "Start recording",
+      "stop": "Stop recording",
+      "previewHint": "Click \"Start recording\" to capture your camera",
+      "permissionDenied": "Cannot access camera/microphone. Check browser permissions.",
+      "unsupported": "Recording is not supported in this browser",
+      "savedToLibrary": "Recording saved to the media library",
+      "uploadFailed": "Upload failed. The local copy is still available",
+      "note": "Recordings are added to the media library; in real mode they are also uploaded to cloud storage."
+    },
+    "text": {
+      "add": "Add caption",
+      "textLabel": "Caption text",
+      "colorLabel": "Color",
+      "positionLabel": "Position",
+      "durationLabel": "Duration (s)",
+      "positionTop": "Top",
+      "positionCenter": "Center",
+      "positionBottom": "Bottom",
+      "placeholder": "Enter caption text...",
+      "added": "Caption added to timeline",
+      "note": "Captions are added at the playhead on the caption track. Edit them in the inspector's Caption tab."
+    },
+    "brand": {
+      "nameLabel": "Brand name (shown as preview watermark)",
+      "namePlaceholder": "Your brand name",
+      "primaryLabel": "Primary color (default caption color)",
+      "secondaryLabel": "Secondary color",
+      "autoSaveNote": "Changes are saved locally and applied to the caption color and the player watermark."
     }
   },
   "create": {
@@ -398,5 +435,62 @@
     "loggedIn": "Logged in (token valid)",
     "notLoggedIn": "Not logged in",
     "mockHint": "Demo mode — data is stored locally only"
+  },
+  "community": {
+    "title": "Community",
+    "subtitle": "Discover trending templates and creations",
+    "trendingTemplates": "Trending templates",
+    "trendingProjects": "Trending projects"
+  },
+  "tutorials": {
+    "title": "Tutorials",
+    "subtitle": "Master WeaveClip from scratch",
+    "openTutorials": "Open tutorials",
+    "cta": "Start creating",
+    "basicsTitle": "Quick start: your first video in three steps",
+    "basicsStep1": "Upload your footage on the New Video page (video/audio/image supported)",
+    "basicsStep2": "Tell AI the result you want in one sentence on the Describe page",
+    "basicsStep3": "Wait for AI to generate the timeline, then click \"Open editor\"",
+    "basicsStep4": "Drag assets, trim clips and reorder them in the editor",
+    "aiTitle": "Generate and re-edit with AI",
+    "aiStep1": "Open the AI panel from the left toolbar in the editor",
+    "aiStep2": "Describe your change in natural language, e.g. \"Make the first 3 seconds punchier\"",
+    "aiStep3": "Or open Templates from the editor header to restyle with one click",
+    "aiStep4": "Once you're happy, AI applies the edits to the timeline directly",
+    "exportTitle": "Export and share",
+    "exportStep1": "Click Export Video in the header, then pick format, resolution and fps",
+    "exportStep2": "Click Start rendering — download your video when it completes",
+    "exportStep3": "Click Share to send the project link to collaborators",
+    "exportStep4": "Use Version History to roll back to any saved version",
+    "recordTitle": "Recording and media",
+    "recordStep1": "Click Record in the left toolbar and grant camera/microphone access",
+    "recordStep2": "Click Start recording, click again to stop — it lands in your library",
+    "recordStep3": "Click any asset card in the Media panel to append it to the timeline",
+    "recordStep4": "Set your watermark and brand colors in the Brand panel"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Choose the plan that fits your creation",
+    "perMonth": "per month",
+    "currentPlan": "Current plan",
+    "upgrade": "Upgrade",
+    "upgradeConfirmTitle": "Upgrade to {{plan}}?",
+    "upgradeConfirmContent": "This is a demo environment with no real payment. Your plan is recorded locally after confirmation.",
+    "upgradeSuccess": "Upgraded to {{plan}}",
+    "freeName": "Free",
+    "proName": "Pro",
+    "teamName": "Team",
+    "freeFeature1": "3 exported videos per month",
+    "freeFeature2": "720p export resolution",
+    "freeFeature3": "Starter AI generation credits",
+    "freeFeature4": "Local media management",
+    "proFeature1": "Unlimited video exports",
+    "proFeature2": "1080p/4K export resolution",
+    "proFeature3": "Priority render queue",
+    "proFeature4": "Brand watermark and custom captions",
+    "teamFeature1": "Everything in Pro",
+    "teamFeature2": "Multi-member workspaces",
+    "teamFeature3": "Shared team asset library",
+    "teamFeature4": "Dedicated support"
   }
 }

@@ -3,6 +3,7 @@ import { Button, Select, Slider } from '@douyinfe/semi-ui';
 import { IconPlay, IconPause, IconMute, IconVolume2, IconVideo } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAssetsStore } from '@/stores/assetsStore';
+import { useBrandStore } from '@/stores/brandStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { formatTime } from '@/utils/format';
 import { mockAssets } from '@/utils/mockData';
@@ -24,6 +25,7 @@ const VideoPlayer: React.FC = () => {
   const togglePlay = useTimelineStore((s) => s.togglePlay);
   const tracks = useTimelineStore((s) => s.tracks);
   const assets = useAssetsStore((s) => s.assets);
+  const brandName = useBrandStore((s) => s.brand.name);
   const { t } = useAppTranslation();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -217,6 +219,8 @@ const VideoPlayer: React.FC = () => {
           </div>
         )}
         <div className={styles.mockTime}>{formatTime(currentTime)}</div>
+        {/* 品牌水印（工单 WO6-09）：品牌面板填写名称后显示 */}
+        {brandName.trim() && <div className={styles.brandWatermark}>{brandName.trim()}</div>}
 
         <div className={styles.overlay}>
           <div className={styles.controls}>

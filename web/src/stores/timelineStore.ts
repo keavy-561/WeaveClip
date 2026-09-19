@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Clip, Track, VideoDSL } from '@/types/timeline';
+import type { Clip, Track, VideoDSL, CaptionStyle } from '@/types/timeline';
 import { useAssetsStore } from '@/stores/assetsStore';
 import { mockAssets } from '@/utils/mockData';
 
@@ -45,6 +45,8 @@ interface TimelineState {
   splitClip: (clipId: string, splitPoint: number) => void;
   /** 在视频轨道的指定时间点创建新 clip（素材拖入时间轴） */
   addClip: (assetId: string, startTime: number) => void;
+  /** 在字幕轨道的播放头位置添加字幕片段（文本面板，工单 WO6-08；轨道不存在时自动创建） */
+  addCaption: (text: string, start: number, duration: number, style?: CaptionStyle) => void;
   /** 手动压入一条快照（Trim 拖拽开始时调用，保证一次拖拽只占一条历史） */
   pushHistory: () => void;
   undo: () => void;
@@ -228,6 +230,39 @@ export const useTimelineStore = create<TimelineState>((set) => ({
         track.type === 'video' ? { ...track, clips } : track
       );
       const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
+      return {
+        past,
+        future: [],
+        canUndo: past.length > 0,
+        canRedo: false,
+        tracks: newTracks,
+        clips: newTracks.flatMap((t) => t.clips),
+        selectedClipId: newClip.id,
+      };
+    }),
+
+  addCaption: (text, start, duration, style) =>
+    set((state) => {
+      const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
+      const newClip: Clip = {
+        id: `cap_${Date.now()}`,
+        text,
+        start: Math.max(0, start),
+        duration,
+        ...(style ? { style } : {}),
+      };
+      // 字幕轨：存在则按时间序插入，不存在则新建轨道（工单 WO6-08）
+      const hasCaptionTrack = state.tracks.some((track) => track.type === 'caption');
+      const newTracks = hasCaptionTrack
+        ? state.tracks.map((track) =>
+            track.type === 'caption'
+              ? { ...track, clips: [...track.clips, newClip].sort((a, b) => a.start - b.start) }
+              : track
+          )
+        : [
+            ...state.tracks,
+            { id: `caption_${Date.now()}`, type: 'caption' as const, clips: [newClip] },
+          ];
       return {
         past,
         future: [],

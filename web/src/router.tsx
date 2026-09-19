@@ -9,6 +9,9 @@ import Editor from '@/pages/Editor/[projectId]';
 import Login from '@/pages/Login';
 import Settings from '@/pages/Settings';
 import Home from '@/pages/Home';
+import Community from '@/pages/Community';
+import Tutorials from '@/pages/Tutorials';
+import Pricing from '@/pages/Pricing';
 import RequireAuth from '@/components/auth/RequireAuth';
 
 const Router: React.FC = () => {
@@ -16,6 +19,9 @@ const Router: React.FC = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/community" element={<Community />} />
+      <Route path="/tutorials" element={<Tutorials />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/projects" element={
         <RequireAuth>
           <Projects />

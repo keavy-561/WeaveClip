@@ -79,13 +79,13 @@ const Home: React.FC = () => {
           <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick('/projects')}>
             {t('nav.projects')}
           </Button>
-          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick(null)}>
+          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick('/community')}>
             {t('nav.community')}
           </Button>
-          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick(null)}>
+          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick('/tutorials')}>
             {t('nav.tutorials')}
           </Button>
-          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick(null)}>
+          <Button theme="borderless" className={styles.navLink} onClick={() => handleNavClick('/pricing')}>
             {t('nav.pricing')}
           </Button>
         </nav>

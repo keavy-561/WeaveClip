@@ -1,0 +1,84 @@
+.subtitle {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--semi-color-text-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-editor-border, var(--semi-color-border));
+  border-radius: 12px;
+  background: var(--semi-color-bg-1);
+}
+
+.thumb {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+
+.toneSlate {
+  background: linear-gradient(135deg, #899aab, #5d6b7a);
+}
+
+.toneRose {
+  background: linear-gradient(135deg, #d18e85, #a86b62);
+}
+
+.toneSage {
+  background: linear-gradient(135deg, #a8c0bb, #7a9a94);
+}
+
+.toneSteel {
+  background: linear-gradient(135deg, #b5c2ce, #8a97a5);
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tag {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--semi-color-text-0);
+}
+
+.prompt {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--semi-color-text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.useBtn {
+  flex-shrink: 0;
+}

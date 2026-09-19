@@ -1,0 +1,92 @@
+@use "@/styles/variables" as *;
+
+.page {
+  min-height: 100vh;
+  background: var(--semi-color-bg-0);
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: $editor-toolbar-height;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-editor-border, var(--semi-color-border));
+  background: var(--semi-color-bg-1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--semi-color-text-0);
+}
+
+.navRight {
+  width: 48px;
+}
+
+.main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.subtitle {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--semi-color-text-2);
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.planCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.planCurrent {
+  border-color: var(--semi-color-primary);
+}
+
+.price {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--semi-color-text-0);
+  margin-bottom: 12px;
+}
+
+.perMonth {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--semi-color-text-2);
+  margin-left: 4px;
+}
+
+.features {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--semi-color-text-1);
+}
+
+.planTag {
+  align-self: flex-start;
+}

@@ -109,7 +109,9 @@
       "templates": "模板",
       "projectName": "项目名称",
       "aspectRatio": "16:9",
-      "templatesSoon": "模板中心开发中，敬请期待"
+      "templatesSoon": "模板中心开发中，敬请期待",
+      "linkCopied": "链接已复制到剪贴板",
+      "shareFailed": "复制失败，请手动复制浏览器地址栏链接"
     },
     "panel": {
       "developing": "{{tool}} 功能开发中"
@@ -271,6 +273,41 @@
     },
     "share": {
       "comingSoon": "分享功能开发中"
+    },
+    "templates": {
+      "title": "模板中心",
+      "subtitle": "选择一个模板，AI 将按该风格为你的时间线生成或调整内容",
+      "use": "使用模板"
+    },
+    "record": {
+      "start": "开始录制",
+      "stop": "停止录制",
+      "previewHint": "点击「开始录制」录制摄像头画面",
+      "permissionDenied": "无法访问摄像头/麦克风，请检查浏览器权限",
+      "unsupported": "当前浏览器不支持录制",
+      "savedToLibrary": "录制完成，已加入素材库",
+      "uploadFailed": "录制上传失败，本地副本仍可用",
+      "note": "录制将作为视频素材加入素材库；真实模式下同时上传云端保存。"
+    },
+    "text": {
+      "add": "添加字幕",
+      "textLabel": "字幕内容",
+      "colorLabel": "颜色",
+      "positionLabel": "位置",
+      "durationLabel": "显示时长（秒）",
+      "positionTop": "顶部",
+      "positionCenter": "居中",
+      "positionBottom": "底部",
+      "placeholder": "输入字幕内容...",
+      "added": "字幕已添加到时间轴",
+      "note": "字幕将添加到字幕轨的播放头位置，可在右侧检查器的「字幕」标签继续编辑。"
+    },
+    "brand": {
+      "nameLabel": "品牌名称（显示为预览水印）",
+      "namePlaceholder": "你的品牌名",
+      "primaryLabel": "主色（字幕默认色）",
+      "secondaryLabel": "辅色",
+      "autoSaveNote": "更改实时保存到本地，并应用到字幕默认颜色与播放器右下角水印。"
     }
   },
   "create": {
@@ -398,5 +435,62 @@
     "loggedIn": "已登录（token 有效）",
     "notLoggedIn": "未登录",
     "mockHint": "当前为演示模式，数据仅存于本地"
+  },
+  "community": {
+    "title": "社区",
+    "subtitle": "发现热门模板与灵感创作",
+    "trendingTemplates": "热门模板",
+    "trendingProjects": "热门作品"
+  },
+  "tutorials": {
+    "title": "教程",
+    "subtitle": "从零开始掌握 WeaveClip",
+    "openTutorials": "打开使用教程",
+    "cta": "开始创作",
+    "basicsTitle": "快速上手：三步做出第一条视频",
+    "basicsStep1": "在「新视频」页上传你的素材（支持视频/音频/图片）",
+    "basicsStep2": "在描述页用一句话告诉 AI 你想要的成片效果",
+    "basicsStep3": "等待 AI 生成时间线，点击「打开编辑器」查看",
+    "basicsStep4": "在编辑器里拖拽素材、裁剪片段、调整顺序",
+    "aiTitle": "用 AI 生成与改剪",
+    "aiStep1": "编辑器左侧点击「AI 工具」打开对话面板",
+    "aiStep2": "用自然语言描述修改，例如「把开头 3 秒剪得更抓人」",
+    "aiStep3": "也可以在编辑器顶部点「模板」，一键按模板风格让 AI 改剪",
+    "aiStep4": "确认效果后 AI 会把修改直接应用到时间线",
+    "exportTitle": "导出与分享",
+    "exportStep1": "点击右上角「导出视频」，选择格式、分辨率与帧率",
+    "exportStep2": "点击「开始渲染」，渲染完成后即可下载成片",
+    "exportStep3": "点击「分享」把项目链接发给协作者",
+    "exportStep4": "在「版本历史」中可随时回滚到任意保存的版本",
+    "recordTitle": "录制与素材管理",
+    "recordStep1": "编辑器左侧点击「录制」，授权摄像头与麦克风",
+    "recordStep2": "点击「开始录制」，再次点击结束，素材自动入库",
+    "recordStep3": "在「媒体」面板点击素材卡片可直接追加到时间轴",
+    "recordStep4": "在「品牌」面板设置水印与品牌色，应用到成片预览"
+  },
+  "pricing": {
+    "title": "定价方案",
+    "subtitle": "选择适合你的创作方案",
+    "perMonth": "每月",
+    "currentPlan": "当前方案",
+    "upgrade": "升级",
+    "upgradeConfirmTitle": "升级到 {{plan}}？",
+    "upgradeConfirmContent": "当前为演示环境，不接入真实支付；确认后将在本地记录新方案。",
+    "upgradeSuccess": "已升级到 {{plan}}",
+    "freeName": "免费版",
+    "proName": "专业版",
+    "teamName": "团队版",
+    "freeFeature1": "每月 3 个导出视频",
+    "freeFeature2": "720p 分辨率导出",
+    "freeFeature3": "基础 AI 生成额度",
+    "freeFeature4": "本地素材管理",
+    "proFeature1": "无限导出视频",
+    "proFeature2": "1080p/4K 分辨率导出",
+    "proFeature3": "高速渲染队列",
+    "proFeature4": "品牌水印与自定义字幕",
+    "teamFeature1": "包含专业版全部能力",
+    "teamFeature2": "多人协作工作区",
+    "teamFeature3": "团队素材库共享",
+    "teamFeature4": "专属客户支持"
   }
 }

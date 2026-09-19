@@ -1,6 +1,7 @@
 import React from 'react';
-import { Nav, Progress, Button, Toast } from '@douyinfe/semi-ui';
+import { Nav, Progress, Button } from '@douyinfe/semi-ui';
 import { IconFolder, IconCloud, IconUserGroup, IconDelete } from '@douyinfe/semi-icons';
+import { useNavigate } from 'react-router-dom';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
@@ -16,6 +17,7 @@ interface SidebarNavProps {
 
 const SidebarNav: React.FC<SidebarNavProps> = ({ active, onSelect, usedGB, totalGB }) => {
   const { t } = useAppTranslation();
+  const navigate = useNavigate();
   const percent = Math.min(100, Math.round((usedGB / totalGB) * 100));
 
   const menus: Array<{ itemKey: ProjectFilter; text: string; icon: React.ReactNode }> = [
@@ -49,7 +51,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ active, onSelect, usedGB, total
             theme="borderless"
             size="small"
             className={styles.upgrade}
-            onClick={() => Toast.info(t('home.upgradeSoon'))}
+            onClick={() => navigate('/pricing')}
           >
             {t('home.upgradePlan')}
           </Button>

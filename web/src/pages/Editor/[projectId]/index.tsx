@@ -33,6 +33,7 @@ import { useEditorShortcuts } from '@/hooks/useEditorShortcuts';
 import { backendToFront, frontToBackend } from '@/utils/dslAdapter';
 import ExportDialog from '@/components/editor/ExportDialog';
 import VersionHistory from '@/components/editor/VersionHistory';
+import TemplatesSideSheet from '@/components/editor/TemplatesSideSheet';
 import { IconHistory } from '@douyinfe/semi-icons';
 import { mockProjects, mockAssets, mockTimelineDSL, mockChatMessages } from '@/utils/mockData';
 import styles from './index.module.scss';
@@ -45,6 +46,7 @@ const Editor: React.FC = () => {
   const { t } = useAppTranslation();
   const [exportOpen, setExportOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   // 自动保存：时间线水合完成后才允许写回，避免“加载即保存”
   const hydratedRef = useRef(false);
@@ -189,6 +191,41 @@ const Editor: React.FC = () => {
 
   const apiError = projectError || assetsError;
 
+  // 分享真实化（WO6-02）：优先系统分享面板，否则复制项目链接到剪贴板
+  const handleShare = async () => {
+    const url = `${window.location.origin}/editor/${projectId}`;
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share({ title: currentProject?.name ?? t('common.appName'), url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      Toast.success(t('editor.header.linkCopied'));
+    } catch (error) {
+      // 用户取消系统分享面板不视为失败
+      if ((error as DOMException)?.name === 'AbortError') return;
+      // 非安全上下文（http）没有 clipboard API：退化为 execCommand 复制
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        Toast.success(t('editor.header.linkCopied'));
+      } catch {
+        Toast.error(t('editor.header.shareFailed'));
+      }
+    }
+  };
+
+  // 模板中心（WO6-01）：模板 prompt 预填进 AI 对话并切到 AI 面板
+  const handleUseTemplate = (prompt: string) => {
+    setTemplatesOpen(false);
+    useAIChatStore.getState().setDraft(prompt);
+    useEditorUIStore.getState().setActiveTool('ai');
+  };
+
   return (
     <div className={styles.page}>
       {/* 顶部栏 */}
@@ -216,7 +253,7 @@ const Editor: React.FC = () => {
               theme="borderless"
               className={styles.navLink}
               size="small"
-              onClick={() => Toast.warning(t('editor.header.templatesSoon'))}
+              onClick={() => setTemplatesOpen(true)}
             >
               {t('editor.header.templates')}
             </Button>
@@ -271,7 +308,7 @@ const Editor: React.FC = () => {
             theme="borderless"
             size="small"
             className={styles.shareBtn}
-            onClick={() => Toast.info(t('editor.share.comingSoon'))}
+            onClick={() => void handleShare()}
           >
             <IconShare />
             {t('common.share')}
@@ -347,6 +384,7 @@ const Editor: React.FC = () => {
 
       <ExportDialog projectId={projectId ?? ''} visible={exportOpen} onClose={() => setExportOpen(false)} />
       <VersionHistory projectId={projectId ?? ''} visible={historyOpen} onClose={() => setHistoryOpen(false)} />
+      <TemplatesSideSheet visible={templatesOpen} onClose={() => setTemplatesOpen(false)} onUse={handleUseTemplate} />
     </div>
   );
 };
