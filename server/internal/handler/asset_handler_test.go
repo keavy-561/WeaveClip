@@ -8,7 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/weaveclip/server/internal/model"
+	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
+	"gorm.io/datatypes"
 )
 
 // fakeAssetRepo is an in-memory implementation for testing.
@@ -52,6 +54,55 @@ func (r *fakeAssetRepo) Update(asset *model.Asset) error {
 			r.assets[i] = *asset
 			return nil
 		}
+	}
+	return nil
+}
+
+// UpdateAnalysis 补齐 AssetRepository 新增接口方法（工单 WO8-10）。
+func (r *fakeAssetRepo) UpdateAnalysis(assetID uint, analysis []byte) error {
+	for i := range r.assets {
+		if r.assets[i].ID == assetID {
+			r.assets[i].Analysis = datatypes.JSON(analysis)
+			return nil
+		}
+	}
+	return nil
+}
+
+// UpdateMediaInfo 补齐 AssetRepository 新增接口方法（工单 WO8-10）。
+func (r *fakeAssetRepo) UpdateMediaInfo(assetID uint, info repository.AssetMediaInfo) error {
+	for i := range r.assets {
+		if r.assets[i].ID != assetID {
+			continue
+		}
+		if info.Status != "" {
+			r.assets[i].Status = info.Status
+		}
+		if info.FileSize > 0 {
+			r.assets[i].FileSize = info.FileSize
+		}
+		if info.Duration > 0 {
+			r.assets[i].Duration = info.Duration
+		}
+		if info.Width > 0 {
+			r.assets[i].Width = info.Width
+		}
+		if info.Height > 0 {
+			r.assets[i].Height = info.Height
+		}
+		if info.FPS > 0 {
+			r.assets[i].FPS = info.FPS
+		}
+		if info.Codec != "" {
+			r.assets[i].Codec = info.Codec
+		}
+		if info.ThumbnailURL != "" {
+			r.assets[i].ThumbnailURL = info.ThumbnailURL
+		}
+		if len(info.Metadata) > 0 {
+			r.assets[i].Metadata = datatypes.JSON(info.Metadata)
+		}
+		return nil
 	}
 	return nil
 }
