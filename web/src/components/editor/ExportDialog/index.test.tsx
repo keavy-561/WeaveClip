@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { Wrapper } from '@/utils/test-utils';
 import ExportDialog from './index';
 
-/** ExportDialog 冒烟：表单字段渲染（工单 WO4-10）。
+/** ExportDialog 冒烟：表单字段渲染（工单 WO4-08）。
  * 渲染链路的进度交互依赖 env 模式与网络层，覆盖在 e2e；此处保证面板结构稳定 */
 describe('ExportDialog', () => {
   it('renders export form fields when visible', () => {

@@ -7,7 +7,7 @@ import { ConfigProvider } from '@douyinfe/semi-ui';
 import { I18nProvider } from '@/contexts/I18nContext';
 import Generate from './index';
 
-/** Generate 页守卫：无 projectId 时应重定向到上传页（工单 WO4-10） */
+/** Generate 页守卫：无 projectId 时应重定向到上传页（工单 WO4-08） */
 const renderAtGenerate = () =>
   render(
     <QueryClientProvider

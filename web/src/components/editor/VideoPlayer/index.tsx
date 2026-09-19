@@ -138,6 +138,21 @@ const VideoPlayer: React.FC = () => {
     if (next) {
       isLocalUpdateRef.current = true;
       setCurrentTime(next.start + 0.001);
+      // 素材源不变时不会触发 loadedmetadata，挂起的 seek 无人消费：
+      // 直接定位到下一片段的素材内位置并恢复播放，否则画面停在已播完的素材末尾（假死）
+      const video = videoRef.current;
+      if (video && hasPlayableSource) {
+        const target = (next.sourceStart ?? 0) + 0.001;
+        pendingSeekRef.current = null;
+        if (Math.abs(video.currentTime - target) > SYNC_EPSILON) {
+          video.currentTime = target;
+        }
+        if (video.paused) {
+          video.play().catch(() => {
+            useTimelineStore.setState({ isPlaying: false });
+          });
+        }
+      }
       if (!isPlaying) {
         useTimelineStore.setState({ isPlaying: true });
       }
