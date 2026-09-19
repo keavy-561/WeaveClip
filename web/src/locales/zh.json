@@ -81,7 +81,12 @@
     "templatePrompt1": "帮我把素材剪成 45 秒的赛博朋克都市短片，电影质感",
     "templatePrompt2": "把素材剪成 90 年代胶片感的复古短片",
     "templatePrompt3": "做一个 30 秒的快节奏卡点短视频",
-    "templatePrompt4": "把生活素材剪成一段宁静治愈的 Vlog"
+    "templatePrompt4": "把生活素材剪成一段宁静治愈的 Vlog",
+    "menu": {
+      "settings": "设置",
+      "logout": "退出登录"
+    },
+    "logoutSuccess": "已退出登录"
   },
   "projects": {
     "title": "项目",
@@ -172,7 +177,8 @@
       "vividEffects": "Vivid 特效",
       "clipDefault": "片段",
       "effectSubtitle": "H: 20% R: 05%",
-      "captionSubtitle": "把握机会"
+      "captionSubtitle": "把握机会",
+      "hiddenClips": "还有 {{count}} 个片段未显示"
     },
     "videoPlayer": {
       "preview": "预览",
@@ -241,6 +247,9 @@
       "restoreDone": "已回滚到 v{{version}}",
       "restoreFailed": "回滚失败",
       "unlabeled": "未命名"
+    },
+    "share": {
+      "comingSoon": "分享功能开发中"
     }
   },
   "create": {

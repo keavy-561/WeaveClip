@@ -9,6 +9,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import HeroSection from '@/components/home/HeroSection';
 import TemplateGrid from '@/components/home/TemplateGrid';
 import SidebarNav, { type ProjectFilter } from '@/components/home/SidebarNav';
+import { logout } from '@/utils/auth';
 import ProjectCard from '@/components/home/ProjectCard';
 import { projectService } from '@/services/projectService';
 import { mockProjects, mockTemplates, mockStorage } from '@/utils/mockData';
@@ -34,6 +35,12 @@ const Home: React.FC = () => {
     filter === 'team' || filter === 'trash'
       ? []
       : baseProjects.filter((p) => p.name.toLowerCase().includes(query.trim().toLowerCase()));
+
+  const handleLogout = () => {
+    logout();
+    Toast.success(t('home.logoutSuccess'));
+    navigate('/login');
+  };
 
   const handleNavClick = (path: string | null) => {
     if (path) {
@@ -85,9 +92,18 @@ const Home: React.FC = () => {
 
         <div className={styles.navRight}>
           <LanguageSwitcher />
-          <Avatar size="default" className={styles.avatar}>
-            {t('home.ownerMe').charAt(0)}
-          </Avatar>
+          <Dropdown
+            trigger="click"
+            position="bottomRight"
+            menu={[
+              { node: 'item' as const, name: t('home.menu.settings'), onClick: () => navigate('/settings') },
+              { node: 'item' as const, name: t('home.menu.logout'), onClick: handleLogout },
+            ]}
+          >
+            <Avatar size="default" className={styles.avatar}>
+              {t('home.ownerMe').charAt(0)}
+            </Avatar>
+          </Dropdown>
         </div>
       </header>
 

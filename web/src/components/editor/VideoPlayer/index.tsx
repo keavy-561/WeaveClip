@@ -6,14 +6,12 @@ import { useAssetsStore } from '@/stores/assetsStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { formatTime } from '@/utils/format';
 import { mockAssets } from '@/utils/mockData';
+import type { Clip } from '@/types/timeline';
+import type { Asset } from '@/types/asset';
 import styles from './index.module.scss';
 
 /** 倍速档位 */
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
-
-/** 占位图：无真实可播放素材时保持原有视觉 */
-const PLACEHOLDER_IMAGE =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuB5JApBOE5ibho-CY0MmltucxXxPsymmJ6TbumNUrcbSQzXrrZp5S_P6IIWygvuAlf9vDdLscZo8bsbvzB-hRab_TmD4YficAjetaLisUEdrNMKJDJW0t_wLF4PbeqjVtXPnCRN8UTKyPKzdw8Hy6Hahq5KUDhOW3MzoayX5MYg16-q0WB-KKycLfYgOkPyM_L-YDsIE1eCxZvcal4h9K4m-yMqE6tpqmghg9eEcoA71q8ka_DX_SOF9d9TiL9tvoq4yuQ';
 
 /** 双向同步的容差（秒）：小于该差异视为播放中的正常增量，不触发程序化 seek */
 const SYNC_EPSILON = 0.01;
@@ -32,31 +30,72 @@ const VideoPlayer: React.FC = () => {
   // 标志位：本次 store currentTime 更新来自 video 的 timeupdate（video → store），
   // 同步 effect 据此跳过回写，避免 video ↔ store 双向回环
   const isLocalUpdateRef = useRef(false);
+  // clip 切换后待设置的素材内偏移（loadedmetadata 时消费）
+  const pendingSeekRef = useRef<number | null>(null);
 
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [playbackRate, setPlaybackRate] = useState(1);
 
-  // 视频源：时间轴视频轨按 start 排序的第一个片段对应的素材
-  // （多片段连续切换播放留待后续，当前预览器聚焦第一个素材的真实播放）
-  const activeAsset = useMemo(() => {
+  const videoTrackClips = useMemo(() => {
     const videoTrack = tracks.find((tr) => tr.type === 'video');
-    const firstClip = videoTrack
-      ? [...videoTrack.clips].sort((a, b) => a.start - b.start)[0]
-      : undefined;
-    if (!firstClip) return null;
+    if (!videoTrack) return [] as Clip[];
+    return [...videoTrack.clips].sort((a, b) => a.start - b.start);
+  }, [tracks]);
+
+  // 当前应播的 clip：start <= currentTime < start+duration；找不到（片间空隙）沿用最后一个
+  const activeClip = useMemo(() => {
+    if (videoTrackClips.length === 0) return null;
     return (
-      assets.find((a) => a.id === firstClip.assetId) ??
-      mockAssets.find((a) => a.id === firstClip.assetId) ??
+      videoTrackClips.find(
+        (c) => currentTime >= c.start && currentTime < c.start + (c.duration ?? 0)
+      ) ?? videoTrackClips[videoTrackClips.length - 1]
+    );
+  }, [videoTrackClips, currentTime]);
+
+  const activeAsset: Asset | null = useMemo(() => {
+    if (!activeClip?.assetId) return null;
+    return (
+      assets.find((a) => a.id === activeClip.assetId) ??
+      mockAssets.find((a) => a.id === activeClip.assetId) ??
       null
     );
-  }, [tracks, assets]);
+  }, [activeClip, assets]);
 
-  // 播放地址取素材的可播放地址（storagePath）。mock 数据是本地假路径（/mock/*），
-  // 没有真实可播 URL 时不绑定 src，由 poster 展示现有占位图，但播放器逻辑始终为真实实现
-  // 可播放地址：后端预签名 playbackUrl 优先；mock 本地路径不可播，回退占位图
+  // 可播放地址：后端预签名 playbackUrl 优先；mock 本地路径不可播，回退 CSS 渐变占位
   const videoSrc = activeAsset?.playbackUrl ?? null;
   const hasPlayableSource = !!videoSrc;
+
+  // 当前 clip 的素材内偏移与时间轴起点（timeupdate 换算绝对时间用，ref 防闭包过期）
+  const clipCtxRef = useRef({ start: 0, sourceStart: 0 });
+  useEffect(() => {
+    clipCtxRef.current = {
+      start: activeClip?.start ?? 0,
+      sourceStart: activeClip?.sourceStart ?? 0,
+    };
+  }, [activeClip]);
+
+  // clip 切换（素材源变化）：挂起待 seek 的素材内位置
+  const activeClipId = activeClip?.id ?? null;
+  useEffect(() => {
+    if (!activeClip || !hasPlayableSource) return;
+    pendingSeekRef.current = currentTime - activeClip.start + (activeClip.sourceStart ?? 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeClipId, videoSrc]);
+
+  const handleLoadedMetadata = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (pendingSeekRef.current != null) {
+      video.currentTime = Math.max(0, pendingSeekRef.current);
+      pendingSeekRef.current = null;
+    }
+    if (isPlaying) {
+      video.play().catch(() => {
+        useTimelineStore.setState({ isPlaying: false });
+      });
+    }
+  };
 
   // isPlaying → video：驱动真实播放/暂停
   useEffect(() => {
@@ -77,23 +116,37 @@ const VideoPlayer: React.FC = () => {
     });
   }, [isPlaying, hasPlayableSource]);
 
-  // video → store：timeupdate 驱动时间轴播放头
+  // video → store：timeupdate 换算为时间轴绝对时间驱动播放头
   const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video) return;
-    const time = video.currentTime;
-    // 值未变化时不写 store：store 不重渲染会导致标志位悬空无法被消费
-    if (time === currentTime) return;
+    const { start, sourceStart } = clipCtxRef.current;
+    const absolute = video.currentTime - sourceStart + start;
+    if (Math.abs(absolute - currentTime) < SYNC_EPSILON) return;
     isLocalUpdateRef.current = true;
-    setCurrentTime(time);
+    setCurrentTime(absolute);
   };
 
-  // 播放结束：回写播放状态
+  // 播放到当前片段末尾：有下一片段则跳过去继续播，否则暂停
   const handleEnded = () => {
-    useTimelineStore.setState({ isPlaying: false });
+    if (!activeClip) {
+      useTimelineStore.setState({ isPlaying: false });
+      return;
+    }
+    const idx = videoTrackClips.findIndex((c) => c.id === activeClip.id);
+    const next = videoTrackClips[idx + 1];
+    if (next) {
+      isLocalUpdateRef.current = true;
+      setCurrentTime(next.start + 0.001);
+      if (!isPlaying) {
+        useTimelineStore.setState({ isPlaying: true });
+      }
+    } else {
+      useTimelineStore.setState({ isPlaying: false });
+    }
   };
 
-  // store → video：外部 seek（如时间轴标尺点击）同步到 video；
+  // store → video：外部 seek（如时间轴标尺点击）换算为素材内时间同步到 video；
   // 由 timeupdate 引发的更新通过标志位跳过，防止回环
   useEffect(() => {
     const video = videoRef.current;
@@ -102,8 +155,10 @@ const VideoPlayer: React.FC = () => {
       isLocalUpdateRef.current = false;
       return;
     }
-    if (Math.abs(video.currentTime - currentTime) > SYNC_EPSILON) {
-      video.currentTime = currentTime;
+    const { start, sourceStart } = clipCtxRef.current;
+    const materialTime = currentTime - start + sourceStart;
+    if (materialTime >= 0 && Math.abs(video.currentTime - materialTime) > SYNC_EPSILON) {
+      video.currentTime = materialTime;
     }
   }, [currentTime, hasPlayableSource]);
 
@@ -130,12 +185,17 @@ const VideoPlayer: React.FC = () => {
           ref={videoRef}
           className={styles.video}
           src={hasPlayableSource ? videoSrc ?? undefined : undefined}
-          poster={activeAsset?.thumbnailUrl ?? PLACEHOLDER_IMAGE}
+          poster={activeAsset?.thumbnailUrl || undefined}
           preload="metadata"
           playsInline
+          onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
         />
+        {/* 无可播源且无缩略图时显示 Morandi 灰蓝渐变占位（外链占位图已移除，WO4-05） */}
+        {!hasPlayableSource && !activeAsset?.thumbnailUrl && (
+          <div className={styles.screenPlaceholder} aria-hidden />
+        )}
         <div className={styles.mockTime}>{formatTime(currentTime)}</div>
 
         <div className={styles.overlay}>

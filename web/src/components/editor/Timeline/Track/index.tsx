@@ -1,8 +1,13 @@
 import React from 'react';
 import type { Track as TrackType } from '@/types/timeline';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import Clip from '../Clip';
 import styles from './index.module.scss';
+
+/** 单轨直接渲染的片段数上限：超出部分折叠为汇总占位条，
+ * 避免 DOM 数量失控导致整页卡死（完整虚拟滚动留待后续，工单 WO4-09） */
+const MAX_VISIBLE_CLIPS = 200;
 
 interface TrackProps {
   track: TrackType;
@@ -19,6 +24,10 @@ const Track: React.FC<TrackProps> = ({
 }) => {
   const addClip = useTimelineStore((s) => s.addClip);
   const reorderClips = useTimelineStore((s) => s.reorderClips);
+  const { t } = useAppTranslation();
+  // 折叠渲染：只渲染前 MAX_VISIBLE_CLIPS 个片段，其余以汇总条呈现（不可交互）
+  const visibleClips = track.clips.slice(0, MAX_VISIBLE_CLIPS);
+  const hiddenCount = track.clips.length - visibleClips.length;
 
   /** 根据放下位置计算轨道内时间点（秒） */
   const getDropTime = (e: React.DragEvent<HTMLDivElement>): number => {
@@ -83,7 +92,7 @@ const Track: React.FC<TrackProps> = ({
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >
-      {track.clips.map((clip) => (
+      {visibleClips.map((clip) => (
         <Clip
           key={clip.id}
           clip={clip}
@@ -93,6 +102,14 @@ const Track: React.FC<TrackProps> = ({
           onSelect={() => onSelectClip(clip.id)}
         />
       ))}
+      {hiddenCount > 0 && (
+        <div
+          className={styles.overflowBadge}
+          title={t('editor.timeline.hiddenClips', { count: hiddenCount })}
+        >
+          {t('editor.timeline.hiddenClips', { count: hiddenCount })}
+        </div>
+      )}
     </div>
   );
 };

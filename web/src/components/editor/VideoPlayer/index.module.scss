@@ -119,3 +119,9 @@
   width: 72px;
   flex-shrink: 0;
 }
+
+.screenPlaceholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #8a97a5, #5d6b7a);
+}

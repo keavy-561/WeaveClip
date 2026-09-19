@@ -250,8 +250,14 @@ const Editor: React.FC = () => {
             size="small"
             className={styles.iconBtn}
             aria-label={t('common.settings')}
+            onClick={() => navigate('/settings')}
           />
-          <Button theme="borderless" size="small" className={styles.shareBtn}>
+          <Button
+            theme="borderless"
+            size="small"
+            className={styles.shareBtn}
+            onClick={() => Toast.info(t('editor.share.comingSoon'))}
+          >
             <IconShare />
             {t('common.share')}
           </Button>

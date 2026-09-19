@@ -10,3 +10,16 @@
     border-bottom: none;
   }
 }
+
+.overflowBadge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  z-index: 2;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--semi-color-text-2);
+  background: var(--semi-color-fill-1);
+  pointer-events: none;
+}

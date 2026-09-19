@@ -81,7 +81,12 @@
     "templatePrompt1": "Turn my footage into a 45-second cinematic cyberpunk city short",
     "templatePrompt2": "Edit the footage into a retro 90s-film-look short",
     "templatePrompt3": "Make a 30-second beat-synced vertical short",
-    "templatePrompt4": "Cut my daily life footage into a calm, healing vlog"
+    "templatePrompt4": "Cut my daily life footage into a calm, healing vlog",
+    "menu": {
+      "settings": "Settings",
+      "logout": "Log out"
+    },
+    "logoutSuccess": "Logged out"
   },
   "projects": {
     "title": "Projects",
@@ -172,7 +177,8 @@
       "vividEffects": "Vivid Effects",
       "clipDefault": "Clip",
       "effectSubtitle": "H: 20% R: 05%",
-      "captionSubtitle": "Take the opportunity"
+      "captionSubtitle": "Take the opportunity",
+      "hiddenClips": "{{count}} more clips hidden"
     },
     "videoPlayer": {
       "preview": "Preview",
@@ -241,6 +247,9 @@
       "restoreDone": "Restored to v{{version}}",
       "restoreFailed": "Restore failed",
       "unlabeled": "Unlabeled"
+    },
+    "share": {
+      "comingSoon": "Sharing is coming soon"
     }
   },
   "create": {

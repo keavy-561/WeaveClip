@@ -141,6 +141,7 @@
 
 // ===== 五区布局 =====
 .body {
+  min-width: 0;
   display: flex;
   flex: 1;
   min-height: 0;
