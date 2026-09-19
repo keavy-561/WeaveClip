@@ -28,6 +28,17 @@ type LLMClient interface {
 // ErrLLMNotConfigured 未配置 API key 时的降级信号。
 var ErrLLMNotConfigured = errors.New("llm not configured")
 
+// VisionImage 多模态输入图片（base64）。
+type VisionImage struct {
+	Base64    string
+	MediaType string // image/jpeg
+}
+
+// VisionClient 可选的多模态能力：素材 Vision 分析用（类型断言按需取用）。
+type VisionClient interface {
+	CompleteVision(ctx context.Context, system, userText string, images []VisionImage) (string, error)
+}
+
 // CompleteJSON 请求补全并解析 JSON 响应（容忍代码围栏包裹）。
 func CompleteJSON(ctx context.Context, client LLMClient, system, user string, out any) error {
 	text, err := client.Complete(ctx, system, []Message{{Role: "user", Content: user}})
@@ -144,6 +155,67 @@ func (c *AnthropicClient) Complete(ctx context.Context, system string, messages 
 	return "", errors.New("llm response has no text content")
 }
 
+// CompleteVision 多模态补全：图片 + 文本消息。
+func (c *AnthropicClient) CompleteVision(ctx context.Context, system, userText string, images []VisionImage) (string, error) {
+	if c.apiKey == "" {
+		return "", ErrLLMNotConfigured
+	}
+	content := make([]map[string]any, 0, len(images)+1)
+	for _, img := range images {
+		content = append(content, map[string]any{
+			"type": "image",
+			"source": map[string]string{
+				"type":      "base64",
+				"media_type": img.MediaType,
+				"data":      img.Base64,
+			},
+		})
+	}
+	content = append(content, map[string]string{"type": "text", "text": userText})
+
+	body, err := json.Marshal(map[string]any{
+		"model":      c.model,
+		"max_tokens": c.maxTokens,
+		"system":     system,
+		"messages":   []map[string]any{{"role": "user", "content": content}},
+	})
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://api.anthropic.com/v1/messages", bytes.NewReader(body))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("x-api-key", c.apiKey)
+	req.Header.Set("anthropic-version", "2023-06-01")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("llm vision request: %w", err)
+	}
+	defer resp.Body.Close()
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
+	if err != nil {
+		return "", fmt.Errorf("read llm response: %w", err)
+	}
+	if resp.StatusCode >= 400 {
+		return "", fmt.Errorf("llm api status %d: %.200s", resp.StatusCode, string(respBody))
+	}
+	var parsed anthropicResponse
+	if err := json.Unmarshal(respBody, &parsed); err != nil {
+		return "", fmt.Errorf("parse llm response: %w", err)
+	}
+	if parsed.Error != nil {
+		return "", fmt.Errorf("llm api error: %s", parsed.Error.Message)
+	}
+	for _, part := range parsed.Content {
+		if part.Type == "text" {
+			return part.Text, nil
+		}
+	}
+	return "", errors.New("llm response has no text content")
+}
+
 // ---- Mock 实现（MOCK_MODE / 单测） ----
 
 // MockLLM 可编程桩：Func 为空时返回固定应答。
@@ -160,4 +232,9 @@ func (m *MockLLM) Complete(ctx context.Context, system string, messages []Messag
 		return m.Func(system, messages)
 	}
 	return `{"mock":true}`, nil
+}
+
+// CompleteVision 实现 VisionClient（mock 返回空结果结构）。
+func (m *MockLLM) CompleteVision(ctx context.Context, system, userText string, images []VisionImage) (string, error) {
+	return `{"strongMoments":[],"talkingHead":false,"bRoll":[],"duplicates":[]}`, nil
 }

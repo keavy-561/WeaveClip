@@ -44,6 +44,40 @@ func DetectScenes(ctx context.Context, tools Tools, localFile string) ([]SceneMa
 	return marks, nil
 }
 
+// ExtractFramesAt 在指定时间点各抽一帧 JPEG，供 Vision 分析。
+// 单帧失败跳过（返回成功抽到的帧）；全部失败返回错误。
+func ExtractFramesAt(ctx context.Context, tools Tools, localFile string, seconds []float64) ([]string, error) {
+	tmpDir, err := os.MkdirTemp("", "weaveclip-frames-*")
+	if err != nil {
+		return nil, fmt.Errorf("create frames dir: %w", err)
+	}
+	frames := make([]string, 0, len(seconds))
+	for i, sec := range seconds {
+		out := filepath.Join(tmpDir, fmt.Sprintf("frame-%d.jpg", i))
+		cmd := exec.CommandContext(ctx, tools.FFmpeg,
+			"-y", "-hide_banner", "-loglevel", "error",
+			"-ss", strconv.FormatFloat(sec, 'f', 2, 64),
+			"-i", localFile, "-frames:v", "1", "-f", "image2", out)
+		if err := cmd.Run(); err != nil {
+			continue // 该时间点抽帧失败（可能超出时长），跳过
+		}
+		frames = append(frames, out)
+	}
+	if len(frames) == 0 {
+		os.RemoveAll(tmpDir)
+		return nil, fmt.Errorf("no frames extracted")
+	}
+	return frames, nil
+}
+
+// CleanupFiles 删除抽帧临时文件（含目录内其余产物）。
+func CleanupFiles(paths []string) {
+	if len(paths) == 0 {
+		return
+	}
+	os.RemoveAll(filepath.Dir(paths[0]))
+}
+
 // whisperOutput whisper --output_format json 的结构（节选）。
 type whisperOutput struct {
 	Text     string `json:"text"`

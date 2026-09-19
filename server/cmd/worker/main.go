@@ -60,6 +60,10 @@ func main() {
 	}
 
 	q := queue.New(cfg.Redis.Addr)
+	var visionClient ai.VisionClient
+	if _, isMock := llmClient.(*ai.MockLLM); !isMock {
+		visionClient = llmClient.(ai.VisionClient)
+	}
 	jobs.Register(q, jobs.Deps{
 		Tasks:   repository.NewGormTaskResultRepo(db),
 		Assets:  repository.NewGormAssetRepo(db),
@@ -67,6 +71,7 @@ func main() {
 		Tools:   tools,
 		ToolsOK: toolsOK,
 		LLM:     llmClient,
+		Vision:  visionClient,
 	})
 	// 渲染任务：进度经 Redis pub/sub 推给 server 的 WebSocket Hub
 	jobs.HandleRender(q, jobs.RenderDeps{

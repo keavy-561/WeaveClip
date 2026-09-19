@@ -153,6 +153,10 @@ func main() {
 		taskRepo = repository.NewMockTaskResultRepo()
 	}
 	tools, toolsOK := media.LookupTools(cfg.FFmpeg.FFprobePath, cfg.FFmpeg.BinaryPath)
+	var visionClient ai.VisionClient
+	if _, isMock := llmClient.(*ai.MockLLM); !isMock {
+		visionClient = llmClient.(ai.VisionClient)
+	}
 	jobs.Register(taskQueue, jobs.Deps{
 		Tasks:   taskRepo,
 		Assets:  assetRepo,
@@ -160,6 +164,7 @@ func main() {
 		Tools:   tools,
 		ToolsOK: toolsOK,
 		LLM:     llmClient,
+		Vision:  visionClient,
 	})
 	analyzeService := service.NewAnalyzeService(taskRepo, projectService, assetRepo, taskQueue)
 	analyzeHandler := handler.NewAnalyzeHandler(analyzeService)
