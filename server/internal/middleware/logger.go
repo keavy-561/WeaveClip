@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,7 @@ func Logger() gin.HandlerFunc {
 			"ip", c.ClientIP(),
 		}
 		if query != "" {
-			attrs = append(attrs, "query", query)
+			attrs = append(attrs, "query", redactSensitiveQuery(query))
 		}
 		if len(c.Errors) > 0 {
 			attrs = append(attrs, "errors", c.Errors.String())
@@ -42,4 +43,16 @@ func Logger() gin.HandlerFunc {
 			slog.Info("request", attrs...)
 		}
 	}
+}
+
+// redactSensitiveQuery 脱敏查询串中的敏感参数（WS 鉴权 token 等），
+// 避免 JWT 泄入访问日志后被复用（工单 WO8-05）。
+func redactSensitiveQuery(query string) string {
+	parts := strings.Split(query, "&")
+	for i, part := range parts {
+		if strings.HasPrefix(part, "token=") {
+			parts[i] = "token=REDACTED"
+		}
+	}
+	return strings.Join(parts, "&")
 }

@@ -16,6 +16,22 @@ type Step struct {
 	Args []string `json:"args"`
 }
 
+// xfadeTransitions 白名单：transition 来自 DSL（PUT /timeline、chat 的 LLM 输出均可能携带
+// 任意字符串），未校验直接拼入 filter_complex 可打碎滤镜链甚至注入滤镜参数（工单 WO8-02）。
+// 非白名单值一律回退 fade。
+var xfadeTransitions = map[string]bool{
+	"fade": true, "wipeleft": true, "wiperight": true, "wipeup": true, "wipedown": true,
+	"slideleft": true, "slideright": true, "slideup": true, "slidedown": true,
+	"circlecrop": true, "rectcrop": true, "distance": true, "fadeblack": true, "fadewhite": true,
+	"radial": true, "smoothleft": true, "smoothright": true, "smoothup": true, "smoothdown": true,
+	"circleopen": true, "circleclose": true, "vertopen": true, "vertclose": true,
+	"horzopen": true, "horzclose": true, "dissolve": true, "pixelize": true,
+	"diagtl": true, "diagtr": true, "diagbl": true, "diagbr": true,
+	"hlslice": true, "hrslice": true, "vuslice": true, "vdslice": true,
+	"hblur": true, "fadegrays": true, "wipetl": true, "wipetr": true, "wipebl": true, "wipebr": true,
+	"squeezeh": true, "squeezev": true,
+}
+
 // Plan 编译产物：按序执行的命令 + 副产物文件内容。
 type Plan struct {
 	Steps     []Step `json:"steps"`
@@ -116,7 +132,7 @@ func Compile(dsl *ai.DSLTimeline, assetFiles map[string]string, opt Options) (*P
 		for i := 1; i < len(clips); i++ {
 			out := fmt.Sprintf("x%d", i)
 			transition := clips[i-1].Transition
-			if transition == "" {
+			if !xfadeTransitions[transition] {
 				transition = "fade"
 			}
 			chain = append(chain, fmt.Sprintf("[%s][v%d]xfade=transition=%s:duration=%.3f:offset=%.3f[%s]",

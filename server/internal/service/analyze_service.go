@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/weaveclip/server/internal/model"
 	"github.com/weaveclip/server/internal/queue"
@@ -61,7 +63,14 @@ func (s *AnalyzeService) Start(projectID, userID uint, assetIDs []uint) (*model.
 		}
 	}
 
-	task := &model.TaskResult{TaskType: "analyze", ProjectID: projectID, Status: "pending"}
+	// task_id 有 UNIQUE 约束（迁移 002）：入队前先落唯一占位值，避免 Enqueue 失败路径
+	// 把零值 "" 永久留在表里，之后所有 Create 撞唯一索引形成毒丸（工单 WO8-03）
+	task := &model.TaskResult{
+		TaskType:  "analyze",
+		ProjectID: projectID,
+		Status:    "pending",
+		TaskID:    fmt.Sprintf("pending-%d-%d", projectID, time.Now().UnixNano()),
+	}
 	if err := s.tasks.Create(task); err != nil {
 		return nil, err
 	}

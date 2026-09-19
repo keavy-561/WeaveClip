@@ -87,6 +87,10 @@ func (h *AssetHandler) Create(c *gin.Context) {
 	}
 	created, err := h.assetService.CreateAsset(uint(projectID), uid, asset)
 	if err != nil {
+		if errors.Is(err, service.ErrInvalidStoragePath) {
+			BadRequest(c, "storage path does not belong to this project")
+			return
+		}
 		if err.Error() == "project not found" {
 			NotFound(c, "project not found")
 			return

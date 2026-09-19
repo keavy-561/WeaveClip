@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Empty, Skeleton, Toast } from '@douyinfe/semi-ui';
 import {
@@ -145,12 +145,17 @@ const Editor: React.FC = () => {
   const timelineDuration = useTimelineStore((s) => s.duration);
 
   // 素材来源（WO5-03）：真实模式只消费真实数据（空态由 MediaPanel 呈现引导，不再回退假素材），
-  // mock 模式按项目过滤演示素材
-  const displayAssets = !isMockMode
-    ? assetsLoading
-      ? []
-      : assets
-    : mockAssets.filter((a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId));
+  // mock 模式按项目过滤演示素材。useMemo 稳定数组标识：mock 分支每次渲染的新数组
+  // 会让注入 assetsStore 的 effect 空转（工单 WO8-09）
+  const displayAssets = useMemo(
+    () =>
+      !isMockMode
+        ? assetsLoading
+          ? []
+          : assets
+        : mockAssets.filter((a) => a.projectId === (projectId === 'proj_new' ? 'proj_1' : projectId)),
+    [assets, assetsLoading, projectId]
+  );
 
   // 素材注入全局 store：Clip/MediaPanel 由此读取真实素材信息
   useEffect(() => {

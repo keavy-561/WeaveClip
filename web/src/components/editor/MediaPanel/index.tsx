@@ -201,7 +201,13 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
 
   /** 素材删除（工单 WO2-05）：真实模式先调 API，失败 Toast 并中止；mock 模式仅本地移除 */
   const handleRemoveAsset = async (asset: Asset) => {
-    if (!isMockMode) {
+    // 本地 blob 对象 URL 一并释放，避免录制/导入反复操作后泄漏（工单 WO8-06）
+    if (asset.playbackUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(asset.playbackUrl);
+    }
+    // 本地录制素材（local_ 前缀，WO6-07）无后端记录：真实模式下调 API 会 404，
+    // 导致素材永远删不掉，直接本地移除（工单 WO8-06）
+    if (!isMockMode && !asset.id.startsWith('local_')) {
       try {
         await assetService.remove(asset.id);
       } catch {

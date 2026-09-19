@@ -536,6 +536,43 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 
 ---
 
+## 13. 第七轮工单（2026-09-19 代码逻辑与健壮性专项审查，WO8 系列）
+
+> 审查方式：后端全量路径代理审查（jobs/ai/render/ws/media/storage/service/repository/cmd，
+> 排除生产就绪度评审已登记项）+ 前端核心逻辑自查（store 操作正确性/异步竞态/资源泄漏/错误路径）。
+
+### 本次已修复
+
+| 编号 | 严重度 | 标题 | 状态 |
+|---|---|---|---|
+| WO8-01 | P0 | WS Hub `cancel` 非幂等：读泵断开与 handler defer 各调一次，普通断连即 double-close panic；写失败路径下第二次 panic 落在无 recover 的裸 goroutine 可崩掉整个进程。改为仅在通道仍在订阅集时关闭 | ✅ 本次 |
+| WO8-02 | P1 | DSL→ffmpeg 编译器 `xfade transition` 未白名单直接拼入 filter_complex（PUT/chat/LLM 均可携带任意字符串）可打碎/注入滤镜链。加 44 项白名单，非法值回退 fade | P1 | ✅ 本次 |
+| WO8-03 | P1 | task_results.task_id 有 UNIQUE 约束：Enqueue 失败路径把零值 "" 永久留表，之后所有 analyze 创建撞唯一索引 500（毒丸）。入队前落唯一占位值 | P1 | ✅ 本次 |
+| WO8-04 | P1 | 单步资产登记 IDOR：客户端可提交他人项目的 storagePath 并借播放地址装饰拿到 24h 预签名 GET。projects/ 前缀路径强制匹配本项目（/mock/ 调试路径放行），违规 400 | P1 | ✅ 本次 |
+| WO8-05 | P2 | 访问日志原样记录 RawQuery，WS 鉴权 JWT 泄入日志（72h 有效可复用）。token 参数脱敏 | P2 | ✅ 本次 |
+| WO8-06 | P1 | 前端：真实模式删除本地录制素材（local_ 前缀）调后端 API 404，素材永远删不掉；blob 对象 URL 从不释放。改为本地直接移除并 revokeObjectURL | P1 | ✅ 本次 |
+| WO8-07 | P2 | 前端：ExportDialog mock 进度 setInterval 在对话框关闭/卸载后不清理，对已卸载组件 setState。补 ref+清理 | P2 | ✅ 本次 |
+| WO8-08 | P2 | 前端：timelineStore 的 updateClip/splitClip 对不存在的片段也压撤销历史（空操作污染撤销栈）。补存在性/范围守卫 | P2 | ✅ 本次 |
+| WO8-09 | P2 | 前端：Editor displayAssets 在 mock 分支每次渲染产生新数组，注入 assetsStore 的 effect 空转。useMemo 稳定标识 | P2 | ✅ 本次 |
+
+### 已登记待排期（审查新发现，未在本轮修复）
+
+| 编号 | 严重度 | 标题 |
+|---|---|---|
+| WO8-10 | P1 | repo 层全员 `db.Save` 整行覆盖丢更新：processAsset 持副本最长 2 分钟后回写会清空期间写入的 analysis/transcript；渲染进度 goroutine 与主流程并发读写同一 renderRow（数据竞争）。需改 Select/Updates 局部更新 + 进度单 goroutine 拥有状态 |
+| WO8-11 | P1 | timeline 版本号 check-then-act 竞态（max+1 后 Create，无唯一索引）：并发 PUT/chat/generate 产生重复版本号。需 (project_id, version) 唯一索引 + 冲突重试 |
+| WO8-12 | P1 | prod 30s 请求超时 vs chat 同步 LLM 最长 3 分钟：504 返回后 handler 继续执行完，副作用已发生，客户端重试导致重复版本/重复调用。chat 异步化或按路由豁免超时 |
+| WO8-13 | P1 | DSL Validate 缺同轨重叠校验，且 PUT /timeline、chat、render 全部绕过 Validate——重叠/负 trim/非法 transition 一路进 ffmpeg。统一入口 + 补校验（注意同步修订 smoke/测试夹具） |
+| WO8-14 | P2 | 上传链路：presign 后失败留 uploading 孤儿行（无清理）；confirm 非幂等；不校验对象实际内容；PUT 后对象仍可在有效期内被改写 |
+| WO8-15 | P2 | WS：无写超时/ping-pong，死连接滞留；Hub 非阻塞丢弃对 completed/error 终态消息也生效，缓冲满时客户端收不到完成事件 |
+| WO8-16 | P2 | 存储：MinIO 失败静默回落本地盘（prod 应 fail-fast）；mock-storage PUT 整读内存（600MB 峰值）应流式写盘；上限 600MB 与 500MB 不一致 |
+| WO8-17 | P2 | LLM：max_tokens 4096 不检查 stop_reason，长时间线 DSL 截断必然解析失败；generate 失败仅打日志永久 processing，无 stale 中间态对账 |
+| WO8-18 | P2 | worker/队列：analyze handler 无 panic recover 且重试耗尽后 task_results 卡 running；mock 队列 nextID 无锁；Asynq 15min 超时一刀切；入队用无超时 context；迁移重试只匹配 23505（应 advisory lock） |
+| WO8-19 | P2 | 错误映射：repo 错误统一伪装 404；字符串匹配代替 errors.Is；Register 并发同邮箱 500 应映射 409；ffprobe duration 解析失败静默置 0 |
+| WO8-20 | P2 | 杂项边界：渲染产物 24h 预签名过期后 403（改 GET 现签）；SRT 未滤 \r、负 start 破坏时间轴；media LimitReader 静默截断应报错；DetectScenes CombinedOutput 无上限；http.Get 不查状态码；cmd/migrate 硬编码 dev 配置；RequestTimeout 作用于已 hijack 的 WS 连接 |
+
+---
+
 ## 变更记录
 
 | 日期 | 版本 | 变更内容 |
@@ -551,4 +588,5 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 | 2026-09-19 | v1.7 | 第四轮（WO5，§10）：用户实测反馈三问题（AI 聊天无发送按钮/右侧栏不可收起/编辑器中部大块空白）+ 全量体验走查 40+ 项立项；WO5-01~13 本次实现（发送按钮、播放器空态说明化、面板可收起、编辑器内导入素材、顶栏撤销重做接线、假控件清理、时间轴空态、Projects 键盘可达、ErrorBoundary i18n、分析完成手动继续），WO5-14~20 登记待排期（含 WO5-18 死代码待人类删除）。 |
 | 2026-09-19 | v1.8 | 第五轮（WO6，§11）：用户指令"所有开发中占位全部实现"——模板中心 SideSheet+AI 预填、分享系统分享/复制链接、社区/教程/定价三页+路由、升级套餐接定价、录制面板（MediaRecorder→素材库）、文本面板（字幕轨片段）、品牌面板（水印+字幕默认色），全部"开发中"Toast/占位入口清零；i18n 约 70 键补齐。 |
 | 2026-09-19 | v1.9 | 第六轮（WO7，§12）：用户复核"占位要有真实实现"——字幕预览真实渲染（按样式叠加）、调色/滤镜/效果 CSS filter 实时作用于预览、模板中心补「用模板新建」走 Describe→Generate 生成链；并复核确认 WO6 主体真实性与数据层限制申报。 |
+| 2026-09-19 | v2.0 | 第七轮（WO8，§13）：代码逻辑与健壮性专项审查（后端代理全量+前端自查）。修复 9 项：WS Hub cancel 幂等（P0 崩进程）、xfade 白名单防滤镜注入、task_id 零值毒丸、资产 IDOR、日志 token 脱敏、前端 local_ 素材删除/blob 释放/mock 定时器清理/撤销栈防污染/displayAssets 稳定化；新登记 P1×4、P2×7 待排期（§13）。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |

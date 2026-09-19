@@ -99,6 +99,11 @@ export const useTimelineStore = create<TimelineState>((set) => ({
 
   updateClip: (clipId, updates, options) =>
     set((state) => {
+      // 目标片段不存在时保持原状态且不压历史，避免空操作污染撤销栈（工单 WO8-08）
+      const exists = state.tracks.some((track) =>
+        track.clips.some((c) => c.id === clipId)
+      );
+      if (!exists) return state;
       // 连续拖拽场景由调用方在开始时手动 pushHistory，这里按需跳过
       const past = options?.skipHistory
         ? state.past
@@ -170,6 +175,17 @@ export const useTimelineStore = create<TimelineState>((set) => ({
 
   splitClip: (clipId, splitPoint) =>
     set((state) => {
+      // 片段不存在或切分点不在片段范围内时保持原状态，不压无效历史（工单 WO8-08）
+      const existing = state.tracks
+        .flatMap((track) => track.clips)
+        .find((c) => c.id === clipId);
+      if (
+        !existing ||
+        splitPoint <= existing.start ||
+        splitPoint >= existing.start + existing.duration
+      ) {
+        return state;
+      }
       const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
       const newTracks = state.tracks.map((track) => {
         const targetClip = track.clips.find((c) => c.id === clipId);

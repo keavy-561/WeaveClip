@@ -29,14 +29,23 @@ func (h *Hub) Subscribe(renderID string) (<-chan []byte, func()) {
 	h.mu.Unlock()
 	cancel := func() {
 		h.mu.Lock()
+		// 仅当通道仍在订阅集时才删除并关闭，保证 cancel 幂等（工单 WO8-01）：
+		// 读泵断开与 handler 的 defer 各调一次，无条件 close 会 double-close panic，
+		// 且写失败路径下第二次调用发生在无 recover 的裸 goroutine，可直接崩掉进程
+		shouldClose := false
 		if set, ok := h.conns[renderID]; ok {
-			delete(set, ch)
-			if len(set) == 0 {
-				delete(h.conns, renderID)
+			if _, subscribed := set[ch]; subscribed {
+				delete(set, ch)
+				shouldClose = true
+				if len(set) == 0 {
+					delete(h.conns, renderID)
+				}
 			}
 		}
 		h.mu.Unlock()
-		close(ch)
+		if shouldClose {
+			close(ch)
+		}
 	}
 	return ch, cancel
 }

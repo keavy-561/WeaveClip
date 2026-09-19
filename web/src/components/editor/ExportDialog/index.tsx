@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Button, Select, InputNumber, Progress, Toast } from '@douyinfe/semi-ui';
 import { useRenderProgress } from '@/hooks/useRenderProgress';
 
@@ -24,22 +24,37 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ projectId, visible, onClose
   // mock 模式：后端渲染链路不可达，用本地定时器模拟进度（真实模式走 WS/轮询）
   const [mockPhase, setMockPhase] = useState<'idle' | 'rendering' | 'completed'>('idle');
   const [mockProgress, setMockProgress] = useState(0);
+  // mock 进度定时器句柄：对话框关闭/卸载时清理，避免对已卸载组件 setState（工单 WO8-07）
+  const mockTimerRef = useRef<number | null>(null);
+  useEffect(() => {
+    return () => {
+      if (mockTimerRef.current !== null) {
+        window.clearInterval(mockTimerRef.current);
+        mockTimerRef.current = null;
+      }
+    };
+  }, []);
   const { phase, progress, downloadUrl, error } = useRenderProgress(renderId);
 
   const handleStart = async () => {
     if (isMockMode) {
       setMockPhase('rendering');
       setMockProgress(0);
+      if (mockTimerRef.current !== null) {
+        window.clearInterval(mockTimerRef.current);
+      }
       const timer = window.setInterval(() => {
         setMockProgress((prev) => {
           const next = Math.min(prev + 8, 100);
           if (next >= 100) {
             window.clearInterval(timer);
+            mockTimerRef.current = null;
             setMockPhase('completed');
           }
           return next;
         });
       }, 250);
+      mockTimerRef.current = timer;
       return;
     }
     setStarting(true);
