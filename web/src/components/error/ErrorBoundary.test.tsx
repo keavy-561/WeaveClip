@@ -28,10 +28,11 @@ describe('ErrorBoundary', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Something went wrong|页面出错了/i)).toBeInTheDocument();
+      // 锚定正则：testing-library 的正则是包含式匹配，未锚定会连祖先容器一起命中
+      expect(screen.getByText(/^(Something went wrong|页面出错了)$/)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Try Again|重试/)).toBeInTheDocument();
+    expect(screen.getByText(/^(Try Again|重试)$/)).toBeInTheDocument();
   });
 
   it('calls onReset when Try Again is clicked', async () => {
@@ -46,10 +47,10 @@ describe('ErrorBoundary', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Something went wrong|页面出错了/i)).toBeInTheDocument();
+      expect(screen.getByText(/^(Something went wrong|页面出错了)$/)).toBeInTheDocument();
     });
 
-    const button = screen.getByText(/Try Again|重试/);
+    const button = screen.getByText(/^(Try Again|重试)$/);
     button.click();
 
     expect(onReset).toHaveBeenCalled();
