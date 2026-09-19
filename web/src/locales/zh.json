@@ -101,7 +101,16 @@
     "deleteSuccess": "项目已删除",
     "deleteError": "删除项目失败",
     "loadError": "加载项目失败",
-    "deleteConfirmTitle": "确定删除该项目吗？删除后不可恢复。"
+    "deleteConfirmTitle": "确定删除该项目吗？删除后不可恢复。",
+    "rename": "重命名",
+    "duplicate": "复制项目",
+    "renameTitle": "重命名项目",
+    "renamePlaceholder": "输入新名称",
+    "renameSuccess": "已重命名",
+    "renameError": "重命名失败",
+    "duplicateSuccess": "已创建项目副本",
+    "duplicateError": "复制项目失败",
+    "copySuffixName": "{{name}} 副本"
   },
   "editor": {
     "header": {
@@ -191,7 +200,8 @@
       "effectSubtitle": "H: 20% R: 05%",
       "captionSubtitle": "把握机会",
       "hiddenClips": "还有 {{count}} 个片段未显示",
-      "emptyHint": "时间轴还是空的：从左侧素材库拖入素材，或点击素材卡片快速添加"
+      "emptyHint": "时间轴还是空的：从左侧素材库拖入素材，或点击素材卡片快速添加",
+      "playhead": "播放头"
     },
     "videoPlayer": {
       "preview": "预览",
@@ -203,7 +213,9 @@
       "volume": "音量",
       "speed": "倍速",
       "noPreviewTitle": "暂无可播放预览",
-      "noPreviewHint": "把素材拖入下方时间轴后，这里将播放成片画面；演示模式不加载真实视频。"
+      "noPreviewHint": "把素材拖入下方时间轴后，这里将播放成片画面；演示模式不加载真实视频。",
+      "frameBack": "上一帧",
+      "frameForward": "下一帧"
     },
     "sidebar": {
       "filters": "滤镜",
@@ -324,7 +336,8 @@
       "bRoll": "空镜片段",
       "duplicateScenes": "重复场景",
       "ready": "素材已就绪",
-      "continue": "继续"
+      "continue": "继续",
+      "demoNote": "以上统计数字为演示数据"
     },
     "analyze": {
       "degradedTip": "分析服务暂时不可用，已切换为本地模拟",
@@ -344,7 +357,12 @@
       "exceedsSize": "超过 500MB",
       "error": "创建项目失败",
       "uploadFailed": "上传失败：{{reason}}",
-      "uploadingProgress": "正在上传 {{done}}/{{total}} 个文件（{{pct}}%）"
+      "uploadingProgress": "正在上传 {{done}}/{{total}} 个文件（{{pct}}%）",
+      "cancel": "取消上传",
+      "cancelled": "已取消上传，已上传的文件会保留",
+      "partialFailed": "{{count}} 个文件上传失败，可点击重试",
+      "retry": "重试失败文件",
+      "failedList": "失败文件：{{names}}"
     },
     "describe": {
       "step": "描述",

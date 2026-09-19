@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Skeleton, Empty, Button, Dropdown, Input, Toast, Avatar } from '@douyinfe/semi-ui';
-import { IconSearch } from '@douyinfe/semi-icons';
+import { IconSearch, IconChevronRight } from '@douyinfe/semi-icons';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -22,6 +22,8 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ProjectFilter>('all');
+  // 侧栏折叠（工单 WO9-04）：收起后内容区占满宽度
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['projects'],
@@ -113,24 +115,44 @@ const Home: React.FC = () => {
         <TemplateGrid templates={mockTemplates} />
 
         <div className={styles.content}>
-          <SidebarNav
-            active={filter}
-            onSelect={setFilter}
-            usedGB={mockStorage.usedGB}
-            totalGB={mockStorage.totalGB}
-          />
+          {sidebarCollapsed ? (
+            <Button
+              className={styles.sidebarRail}
+              icon={<IconChevronRight />}
+              onClick={() => setSidebarCollapsed(false)}
+              aria-label={t('common.expand')}
+            />
+          ) : (
+            <SidebarNav
+              active={filter}
+              onSelect={setFilter}
+              usedGB={mockStorage.usedGB}
+              totalGB={mockStorage.totalGB}
+            />
+          )}
 
           <section className={styles.recent}>
             <div className={styles.recentHeader}>
               <h2 className={styles.sectionTitle}>{t('home.recentProjects')}</h2>
-              <Button
-                theme="borderless"
-                size="small"
-                className={styles.seeAll}
-                onClick={() => navigate('/projects')}
-              >
-                {t('common.seeAll')}
-              </Button>
+              <div className={styles.recentHeaderActions}>
+                <Button
+                  theme="borderless"
+                  size="small"
+                  className={styles.seeAll}
+                  onClick={() => setSidebarCollapsed((v) => !v)}
+                  aria-label={sidebarCollapsed ? t('common.expand') : t('common.collapse')}
+                >
+                  {sidebarCollapsed ? t('common.expand') : t('common.collapse')}
+                </Button>
+                <Button
+                  theme="borderless"
+                  size="small"
+                  className={styles.seeAll}
+                  onClick={() => navigate('/projects')}
+                >
+                  {t('common.seeAll')}
+                </Button>
+              </div>
             </div>
 
             {isLoading ? (

@@ -96,3 +96,17 @@
     width: 100%;
   }
 }
+
+// 上传中禁点步骤区：保留文件列表可见（WO9-02）
+.stepDisabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+// 失败文件清单（WO9-02）
+.failedList {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--semi-color-danger);
+  word-break: break-all;
+}

@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import { projectService } from '@/services/projectService';
 import DescribeForm from '@/components/create/DescribeForm';
 import type { DescribeFormValues } from '@/components/create/DescribeForm';
-import { updateMockProject } from '@/utils/mockData';
+import { updateMockProject, addMockProject } from '@/utils/mockData';
 import styles from './index.module.scss';
 
 const isMockMode = import.meta.env.VITE_API_MODE === 'mock';
@@ -49,13 +49,21 @@ const Describe: React.FC = () => {
     },
   });
 
-  const handleGenerate = () => {
-    // 直进描述页（如从模板卡片进入）但未上传素材时，提示并引导回上传步骤（走查 P1-4）
-    if (!projectId) {
-      Toast.warning(t('create.describe.needUpload', 'Please upload your footage first'));
-      return;
-    }
+  // 无 projectId（模板直入）时先创建项目再继续生成（工单 WO9-03）
+  const createMutation = useMutation({
+    mutationFn: (payload: ProjectPayload) => projectService.create(payload),
+    onError: () => {
+      Toast.error(t('create.describe.error', 'Failed to create project'));
+      setIsGenerating(false);
+    },
+  });
 
+  const handleReset = () => {
+    setValues({ prompt: '', duration: 45, format: '9:16', style: 'energetic' });
+    setErrors({});
+  };
+
+  const handleGenerate = () => {
     const newErrors: { prompt?: string } = {};
     if (!values.prompt.trim()) {
       newErrors.prompt = t('create.describe.validation.required', 'Please describe what you want');
@@ -72,6 +80,37 @@ const Describe: React.FC = () => {
       aspectRatio: values.format,
       style: values.style,
     };
+
+    // 无 projectId（模板直入，工单 WO9-03）：先创建项目再走完整生成链路。
+    // 真实模式下项目尚无素材时 Generate API 会明确报错提示先上传素材——失败是诚实的
+    if (!projectId) {
+      if (isMockMode) {
+        const id = `proj_${Date.now()}`;
+        const now = new Date().toISOString();
+        addMockProject({
+          id,
+          name: payload.name,
+          status: 'generating',
+          duration: payload.duration ?? null,
+          aspectRatio: payload.aspectRatio,
+          style: payload.style,
+          createdAt: now,
+          updatedAt: now,
+        });
+        navigate(`/projects/new/generate?projectId=${id}`, {
+          state: { draft: { prompt: values.prompt } },
+        });
+        return;
+      }
+      createMutation.mutate(payload, {
+        onSuccess: (project) => {
+          navigate(`/projects/new/generate?projectId=${project.id}`, {
+            state: { draft: { prompt: values.prompt } },
+          });
+        },
+      });
+      return;
+    }
 
     // mock 模式：直接更新本地项目并进入编辑器
     if (isMockMode) {
@@ -91,6 +130,14 @@ const Describe: React.FC = () => {
         state: { draft: { prompt: values.prompt } },
       }),
     });
+  };
+
+  // Ctrl/Cmd+Enter 快捷生成（工单 WO9-03）
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      handleGenerate();
+    }
   };
 
   return (
@@ -115,8 +162,13 @@ const Describe: React.FC = () => {
         <div className={styles.navRight} />
       </header>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>{t('create.describe.title', 'What should we make?')}</h1>
+      <main className={styles.main} onKeyDown={handleKeyDown}>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>{t('create.describe.title', 'What should we make?')}</h1>
+          <Button theme="borderless" size="small" className={styles.resetBtn} onClick={handleReset}>
+            {t('common.reset')}
+          </Button>
+        </div>
         {!projectId && (
           <div className={styles.uploadGuide}>
             <span className={styles.uploadGuideText}>

@@ -39,7 +39,10 @@
 .search {
   max-width: 320px;
   width: 100%;
-  display: none;
+  min-width: 120px;
+  flex-shrink: 1;
+  // 全尺寸可见：小屏收窄而不是隐藏，过滤能力不再凭空消失（工单 WO9-04）
+  display: inline-flex;
 
   :global(.semi-input-wrapper) {
     border-radius: 9999px;
@@ -63,7 +66,7 @@
 
 @media (min-width: 1024px) {
   .search {
-    display: inline-flex;
+    flex: 0 1 320px;
   }
 }
 
@@ -215,4 +218,18 @@
   font-weight: 600;
   padding: 0 28px;
   height: 40px;
+}
+// 近期项目标题右侧按钮组（折叠侧栏 + 查看全部，WO9-04）
+.recentHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// 侧栏折叠后的窄条展开按钮（WO9-04）
+.sidebarRail {
+  align-self: flex-start;
+  width: 28px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
 }

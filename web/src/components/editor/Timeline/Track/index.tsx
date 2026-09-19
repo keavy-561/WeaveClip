@@ -1,19 +1,19 @@
 import React from 'react';
 import type { Track as TrackType } from '@/types/timeline';
 import { useTimelineStore } from '@/stores/timelineStore';
-import { useAppTranslation } from '@/hooks/useAppTranslation';
 import Clip from '../Clip';
 import styles from './index.module.scss';
 
-/** 单轨直接渲染的片段数上限：超出部分折叠为汇总占位条，
- * 避免 DOM 数量失控导致整页卡死（完整虚拟滚动留待后续，工单 WO4-09） */
-const MAX_VISIBLE_CLIPS = 200;
+/** 视口窗口缓冲（秒）：窗口两侧多渲染 10s，滚动时不露白（工单 WO9-08） */
+const WINDOW_BUFFER_SEC = 10;
 
 interface TrackProps {
   track: TrackType;
   pxPerSec: number;
   selectedClipId: string | null;
   onSelectClip: (clipId: string | null) => void;
+  /** 可见窗口（秒）：窗口外片段不渲染，滚动时动态换入换出（工单 WO9-08） */
+  visibleRange: { start: number; end: number };
 }
 
 const Track: React.FC<TrackProps> = ({
@@ -21,13 +21,17 @@ const Track: React.FC<TrackProps> = ({
   pxPerSec,
   selectedClipId,
   onSelectClip,
+  visibleRange,
 }) => {
   const addClip = useTimelineStore((s) => s.addClip);
   const reorderClips = useTimelineStore((s) => s.reorderClips);
-  const { t } = useAppTranslation();
-  // 折叠渲染：只渲染前 MAX_VISIBLE_CLIPS 个片段，其余以汇总条呈现（不可交互）
-  const visibleClips = track.clips.slice(0, MAX_VISIBLE_CLIPS);
-  const hiddenCount = track.clips.length - visibleClips.length;
+  // 视口窗口渲染：替代旧的 200 条硬截断——所有片段滚到即可见可交互，
+  // DOM 数量始终与可见范围成正比（工单 WO9-08）
+  const visibleClips = track.clips.filter(
+    (c) =>
+      c.start + c.duration >= visibleRange.start - WINDOW_BUFFER_SEC &&
+      c.start <= visibleRange.end + WINDOW_BUFFER_SEC
+  );
 
   /** 根据放下位置计算轨道内时间点（秒） */
   const getDropTime = (e: React.DragEvent<HTMLDivElement>): number => {
@@ -102,14 +106,6 @@ const Track: React.FC<TrackProps> = ({
           onSelect={() => onSelectClip(clip.id)}
         />
       ))}
-      {hiddenCount > 0 && (
-        <div
-          className={styles.overflowBadge}
-          title={t('editor.timeline.hiddenClips', { count: hiddenCount })}
-        >
-          {t('editor.timeline.hiddenClips', { count: hiddenCount })}
-        </div>
-      )}
     </div>
   );
 };

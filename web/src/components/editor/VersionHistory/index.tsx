@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Empty, SideSheet, Skeleton, Toast } from '@douyinfe/semi-ui';
 import { IconHistory } from '@douyinfe/semi-icons';
 import { timelineService } from '@/services/timelineService';
@@ -19,6 +19,7 @@ interface VersionHistoryProps {
 const VersionHistory: React.FC<VersionHistoryProps> = ({ projectId, visible, onClose }) => {
   const { t, i18n } = useAppTranslation();
   const setDSL = useTimelineStore((s) => s.setDSL);
+  const queryClient = useQueryClient();
 
   const versionsQuery = useQuery({
     queryKey: ['timeline-versions', projectId],
@@ -32,6 +33,8 @@ const VersionHistory: React.FC<VersionHistoryProps> = ({ projectId, visible, onC
       if (timeline?.timelineJson) {
         setDSL(backendToFront(timeline.timelineJson as unknown as Parameters<typeof backendToFront>[0]));
         Toast.success(t('editor.versionHistory.restoreDone', { version }));
+        // 回滚即产生新版本：刷新版本列表（工单 WO9-05）
+        void queryClient.invalidateQueries({ queryKey: ['timeline-versions', projectId] });
         onClose();
       }
     } catch {
@@ -57,7 +60,8 @@ const VersionHistory: React.FC<VersionHistoryProps> = ({ projectId, visible, onC
       }
       visible={visible}
       onCancel={onClose}
-      width={380}
+      // 小屏自适应：不超过视口宽度（工单 WO9-05）
+      width={Math.min(380, Math.max(280, window.innerWidth * 0.9))}
     >
       {versionsQuery.isLoading ? (
         <Skeleton loading active placeholder={<Skeleton.Paragraph rows={4} />} />

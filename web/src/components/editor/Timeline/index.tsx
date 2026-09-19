@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   IconUndo,
   IconRedo,
@@ -43,6 +43,22 @@ const Timeline: React.FC = () => {
   const totalWidth = Math.max(duration * pxPerSec + 120, 600);
   // 空时间轴判定：所有轨道片段数为 0 时渲染引导空态（WO5-08）
   const totalClips = tracks.reduce((sum, track) => sum + track.clips.length, 0);
+
+  // 视口窗口（秒）：Track 只渲染与窗口相交的片段，滚动动态换入换出（工单 WO9-08）
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
+  const updateVisibleRange = useCallback(() => {
+    const el = scrollAreaRef.current;
+    if (!el) return;
+    setVisibleRange({
+      start: el.scrollLeft / pxPerSec,
+      end: (el.scrollLeft + el.clientWidth) / pxPerSec,
+    });
+  }, [pxPerSec]);
+  useEffect(() => {
+    updateVisibleRange();
+  }, [updateVisibleRange]);
 
   const handleDelete = () => {
     if (selectedClipId) deleteClip(selectedClipId);
@@ -175,11 +191,13 @@ const Timeline: React.FC = () => {
       {/* 右侧时间轴滚动区域 */}
       <div
         className={styles.scrollArea}
+        ref={scrollAreaRef}
+        onScroll={updateVisibleRange}
         onClick={(e) => {
           if (e.target === e.currentTarget) selectClip(null);
         }}
       >
-        <div className={styles.canvas} style={{ width: totalWidth }}>
+        <div ref={canvasRef} className={styles.canvas} style={{ width: totalWidth }}>
           <Ruler duration={duration} pxPerSec={pxPerSec} onSeek={setCurrentTime} />
 
           {tracks.map((track) => (
@@ -189,10 +207,11 @@ const Timeline: React.FC = () => {
               pxPerSec={pxPerSec}
               selectedClipId={selectedClipId}
               onSelectClip={selectClip}
+              visibleRange={visibleRange}
             />
           ))}
 
-          <Playhead pxPerSec={pxPerSec} />
+          <Playhead pxPerSec={pxPerSec} canvasRef={canvasRef} />
 
           {/* 空时间轴引导：pointer-events:none，不拦截素材拖入（WO5-08） */}
           {totalClips === 0 && (

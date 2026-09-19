@@ -101,7 +101,16 @@
     "deleteSuccess": "Project deleted",
     "deleteError": "Failed to delete project",
     "loadError": "Failed to load projects",
-    "deleteConfirmTitle": "Delete this project? This cannot be undone."
+    "deleteConfirmTitle": "Delete this project? This cannot be undone.",
+    "rename": "Rename",
+    "duplicate": "Duplicate",
+    "renameTitle": "Rename project",
+    "renamePlaceholder": "Enter a new name",
+    "renameSuccess": "Project renamed",
+    "renameError": "Failed to rename",
+    "duplicateSuccess": "Project duplicated",
+    "duplicateError": "Failed to duplicate project",
+    "copySuffixName": "{{name}} copy"
   },
   "editor": {
     "header": {
@@ -191,7 +200,8 @@
       "effectSubtitle": "H: 20% R: 05%",
       "captionSubtitle": "Take the opportunity",
       "hiddenClips": "{{count}} more clips hidden",
-      "emptyHint": "Timeline is empty: drag assets from the media panel, or click an asset card to add it"
+      "emptyHint": "Timeline is empty: drag assets from the media panel, or click an asset card to add it",
+      "playhead": "Playhead"
     },
     "videoPlayer": {
       "preview": "Preview",
@@ -203,7 +213,9 @@
       "volume": "Volume",
       "speed": "Speed",
       "noPreviewTitle": "No playable preview yet",
-      "noPreviewHint": "Drag assets to the timeline below and the edited result will play here. Demo mode doesn't load real video."
+      "noPreviewHint": "Drag assets to the timeline below and the edited result will play here. Demo mode doesn't load real video.",
+      "frameBack": "Previous frame",
+      "frameForward": "Next frame"
     },
     "sidebar": {
       "filters": "Filters",
@@ -324,7 +336,8 @@
       "bRoll": "B-roll clips",
       "duplicateScenes": "duplicate scenes",
       "ready": "Your footage is ready.",
-      "continue": "Continue"
+      "continue": "Continue",
+      "demoNote": "Summary figures are demo data"
     },
     "analyze": {
       "degradedTip": "Analysis service unavailable, using local preview",
@@ -344,7 +357,12 @@
       "exceedsSize": "exceeds 500MB",
       "error": "Failed to create project",
       "uploadFailed": "Upload failed: {{reason}}",
-      "uploadingProgress": "Uploading {{done}}/{{total}} files ({{pct}}%)"
+      "uploadingProgress": "Uploading {{done}}/{{total}} files ({{pct}}%)",
+      "cancel": "Cancel upload",
+      "cancelled": "Upload cancelled. Uploaded files are kept.",
+      "partialFailed": "{{count}} file(s) failed to upload. Retry available.",
+      "retry": "Retry failed files",
+      "failedList": "Failed: {{names}}"
     },
     "describe": {
       "step": "Describe",

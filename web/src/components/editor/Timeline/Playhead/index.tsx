@@ -1,22 +1,26 @@
 import React, { useCallback } from 'react';
 import { useTimelineStore } from '@/stores/timelineStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import styles from './index.module.scss';
 
 interface PlayheadProps {
   pxPerSec: number;
+  /** Timeline 传入的画布引用：替代类名字符串匹配的脆弱定位（工单 WO9-06） */
+  canvasRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-const Playhead: React.FC<PlayheadProps> = ({ pxPerSec }) => {
+const Playhead: React.FC<PlayheadProps> = ({ pxPerSec, canvasRef }) => {
   const currentTime = useTimelineStore((s) => s.currentTime);
   const setCurrentTime = useTimelineStore((s) => s.setCurrentTime);
+  const { t } = useAppTranslation();
 
   const startDrag = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
-      // 先捕获 canvas 元素，避免事件回调中 currentTarget 失效
-      const canvas = (e.currentTarget as HTMLElement).closest(
-        'div[class*=canvas]'
-      ) as HTMLElement | null;
+      // 优先使用画布 ref，事件回调中也可安全取用
+      const canvas =
+        canvasRef?.current ??
+        ((e.currentTarget as HTMLElement).closest('div[class*=canvas]') as HTMLElement | null);
       if (!canvas) return;
 
       const seek = (clientX: number) => {
@@ -32,7 +36,7 @@ const Playhead: React.FC<PlayheadProps> = ({ pxPerSec }) => {
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
     },
-    [pxPerSec, setCurrentTime]
+    [canvasRef, pxPerSec, setCurrentTime]
   );
 
   return (
@@ -41,6 +45,20 @@ const Playhead: React.FC<PlayheadProps> = ({ pxPerSec }) => {
       style={{ left: currentTime * pxPerSec }}
       onMouseDown={startDrag}
       onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        // 键盘微调：←/→ ±0.5s，Shift 加速 ±1s（工单 WO9-06）
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          e.stopPropagation();
+          const step = e.shiftKey ? 1 : 0.5;
+          setCurrentTime(Math.max(0, currentTime + (e.key === 'ArrowLeft' ? -step : step)));
+        }
+      }}
+      role="slider"
+      aria-label={t('editor.timeline.playhead')}
+      aria-valuemin={0}
+      aria-valuenow={Math.round(currentTime * 10) / 10}
+      tabIndex={0}
     >
       <span className={styles.head} />
       <span className={styles.line} />

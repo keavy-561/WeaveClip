@@ -131,3 +131,15 @@
   padding: 0 24px;
   height: 40px;
 }
+
+// 标题行：标题 + 重置按钮（WO9-03）
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.resetBtn {
+  flex-shrink: 0;
+}

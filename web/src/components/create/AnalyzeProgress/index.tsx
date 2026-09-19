@@ -92,6 +92,8 @@ const AnalyzeProgress: React.FC<AnalyzeProgressProps> = ({ onComplete, controlle
               <span className={styles.summaryLabel}>{t('create.analyzeProgress.duplicateScenes')}</span>
             </div>
           </div>
+          {/* 摘要数字来自演示数据；真实分析的聚合统计由后端任务产出（工单 WO9-09） */}
+          <p className={styles.demoNote}>{t('create.analyzeProgress.demoNote')}</p>
           {onComplete && (
             <Button theme="solid" size="large" className={styles.continueBtn} onClick={onComplete}>
               {t('create.analyzeProgress.continue')}

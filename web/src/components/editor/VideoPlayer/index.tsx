@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Select, Slider } from '@douyinfe/semi-ui';
-import { IconPlay, IconPause, IconMute, IconVolume2, IconVideo } from '@douyinfe/semi-icons';
+import { IconPlay, IconPause, IconMute, IconVolume2, IconVideo, IconChevronLeft, IconChevronRight } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAssetsStore } from '@/stores/assetsStore';
 import { useBrandStore } from '@/stores/brandStore';
@@ -281,6 +281,16 @@ const VideoPlayer: React.FC = () => {
 
         <div className={styles.overlay}>
           <div className={styles.controls}>
+            {/* 逐帧步进（工单 WO9-07）：±1/30s */}
+            <Button
+              icon={<IconChevronLeft />}
+              theme="borderless"
+              size="small"
+              onClick={() => setCurrentTime(Math.max(0, currentTime - 1 / 30))}
+              disabled={!hasPlayableSource}
+              aria-label={t('editor.videoPlayer.frameBack')}
+              className={styles.controlBtn}
+            />
             <Button
               icon={isPlaying ? <IconPause /> : <IconPlay />}
               theme="borderless"
@@ -288,6 +298,15 @@ const VideoPlayer: React.FC = () => {
               onClick={togglePlay}
               disabled={!hasPlayableSource}
               aria-label={isPlaying ? t('editor.videoPlayer.pause') : t('editor.videoPlayer.play')}
+              className={styles.controlBtn}
+            />
+            <Button
+              icon={<IconChevronRight />}
+              theme="borderless"
+              size="small"
+              onClick={() => setCurrentTime(Math.min(duration, currentTime + 1 / 30))}
+              disabled={!hasPlayableSource}
+              aria-label={t('editor.videoPlayer.frameForward')}
               className={styles.controlBtn}
             />
             <span className={styles.timeDisplay}>
