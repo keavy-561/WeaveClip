@@ -367,6 +367,32 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 
 依赖主线：B05→B06/B07→（F02/F05）；B01→B08/B09→（F06/B12/B13/B17）；B10→B11→B12/B13；B14→B15/B16/B18；B17→B18→B19。
 
+
+
+---
+
+## 8. 第二轮工单（2026-09-19 复查产出）
+
+> 复查方式：对照第一轮工单与 development-plan.md 验收标准逐项核查代码；豆包同期进行真机测试。
+> 结论：第一轮 39 条的实现主体全部落地；以下为残留缺口与新发现的收尾项。
+
+| 编号 | 标题 | 优先级 | 现状证据 |
+|---|---|---|---|
+| WO2-01 | VideoPlayer 真 `<video>` 播放器：替换外链图+interval 假播放，播放头与 timelineStore 双向同步，音量/倍速/静音真实生效 | P0 | `VideoPlayer/index.tsx:17,34` 仍为假播放 |
+| WO2-02 | Transcript 面板（Phase 4.10）：转录文本+时间戳展示，点击跳播 | P1 | 全仓无 transcript UI |
+| WO2-03 | Version History UI（Phase 6.1）：SideSheet 版本列表 + 一键回滚（后端 `/timeline/versions` 已就绪） | P1 | 前端无消费方 |
+| WO2-04 | `/settings` 路由与页面（F14 残留）：主题/语言/账号信息 | P1 | router.tsx 无 settings |
+| WO2-05 | 素材删除 UI 入口：MediaPanel 卡片删除按钮接 `assetService.remove`（后端已就绪） | P1 | MediaPanel 无删除 |
+| WO2-06 | 登录/注册客户端校验：邮箱格式 + 密码长度，错误文案本地化 | P1 | Login 页无校验 |
+| WO2-07 | RequireAuth 真实模式接 `GET /auth/me` 校验 token 有效性（失效即清 token 跳登录） | P1 | `RequireAuth.tsx` 仅查 token 存在 |
+| WO2-08 | 后端 repository 层 GORM 集成测试（CI postgres 真实路径）+ 迁移引擎 up/down 测试（B20 残留） | P1 | 现有测试仍以 mock 路径为主 |
+| WO2-09 | Vision 分析接入：分析 Worker 在多模态 LLM key 存在时产出 strongMoments 等结果，无 key 降级（B16 残留） | P2 | analysis.visionStatus = "not configured" |
+| WO2-10 | 前端关键路径测试补齐：dslAdapter 往返、ExportDialog 交互、Generate 页 need_input、UploadStep 校验（F15 残留） | P1 | 新组件零测试 |
+| WO2-11 | Timeline 大量 clip 性能（Phase 6.9：虚拟滚动/按需渲染）与最小 1280px 响应式核查 | P2 | 未做 |
+| WO2-12 | T03 落地：npm audit + govulncheck 进 CI（独立 job，不阻塞主链路） | P2 | 未做 |
+
+执行顺序建议：WO2-01 → WO2-05/06/07（小件并行）→ WO2-02/03/04 → WO2-08/10 → WO2-09/11/12。
+
 ---
 
 ## 变更记录
@@ -376,3 +402,4 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 | 2026-09-18 | v1.0 | 初始版本：基于全量代码审查产出后端 21 / 前端 15 / 治理 3 共 39 条工单，附 7 项待裁定决策与执行批次建议 |
 | 2026-09-19 | v1.1 | 并入走查工单（audit/工单清单.md WC-P0/P1/P2 与 WC-NI 系列）；B08（项目更新）已由 main 分支 PATCH /api/projects/:id 实现；D1–D7 裁定落地。 |
 | 2026-09-19 | v1.2 | 全量工单实现完成并推送：后端新增存储/上传/时间轴/AI/分析/渲染/WebSocket 服务与迁移 002，前端接入真实上传、持久化、聊天、生成页与导出；smoke 扩至 7 个脚本；本机零验证，待 CI 裁决。 |
+| 2026-09-19 | v1.3 | 复查产出第二轮工单 12 条（§8）：VideoPlayer 真播放器、Transcript/版本历史 UI、settings、素材删除、登录校验、GORM 集成测试、Vision 接入、性能与安全扫描等。 |
