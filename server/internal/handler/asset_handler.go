@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -213,43 +214,28 @@ func (h *AssetHandler) Delete(c *gin.Context) {
 
 // MockAssets returns the initial mock asset list for mock mode.
 // 每个 seed 项目都配 2~3 条视频素材（Web 媒体面板按项目展示，缺了会显示空态）
+// 缩略图地址指向同目录下的 *_thumb.jpg，由 DecorateThumbnail 自动转为可访问 URL
 func MockAssets() []model.Asset {
 	now := time.Now()
+	video := func(id uint, projectID uint, file string, dur float64, w, h int, size int64, ago time.Duration) model.Asset {
+		base := strings.TrimSuffix(file, ".mp4")
+		return model.Asset{
+			ID: id, ProjectID: projectID, Type: "video", StoragePath: "/mock/" + file, FileName: file,
+			FileSize: size, Duration: dur, Width: w, Height: h, CreatedAt: now.Add(-ago),
+			ThumbnailURL: "mock/" + base + "_thumb.jpg",
+		}
+	}
 	return []model.Asset{
 		// 项目 1：NYC Travel Vlog
-		{
-			ID: 1, ProjectID: 1, Type: "video", StoragePath: "/mock/nyc_bridge.mp4", FileName: "nyc_bridge.mp4",
-			FileSize: 52428800, Duration: 15.2, Width: 1920, Height: 1080, CreatedAt: now.Add(-10 * time.Minute),
-		},
-		{
-			ID: 2, ProjectID: 1, Type: "video", StoragePath: "/mock/times_square.mp4", FileName: "times_square.mp4",
-			FileSize: 73400000, Duration: 22.5, Width: 1920, Height: 1080, CreatedAt: now.Add(-9 * time.Minute),
-		},
-		{
-			ID: 3, ProjectID: 1, Type: "video", StoragePath: "/mock/central_park.mp4", FileName: "central_park.mp4",
-			FileSize: 41943000, Duration: 12.8, Width: 1920, Height: 1080, CreatedAt: now.Add(-8 * time.Minute),
-		},
+		video(1, 1, "nyc_bridge.mp4", 15.2, 1920, 1080, 52428800, 10*time.Minute),
+		video(2, 1, "times_square.mp4", 22.5, 1920, 1080, 73400000, 9*time.Minute),
+		video(3, 1, "central_park.mp4", 12.8, 1920, 1080, 41943000, 8*time.Minute),
 		// 项目 2：Product Teaser
-		{
-			ID: 4, ProjectID: 2, Type: "video", StoragePath: "/mock/product_closeup.mp4", FileName: "product_closeup.mp4",
-			FileSize: 36700160, Duration: 10.4, Width: 1920, Height: 1080, CreatedAt: now.Add(-7 * time.Minute),
-		},
-		{
-			ID: 5, ProjectID: 2, Type: "video", StoragePath: "/mock/product_lifestyle.mp4", FileName: "product_lifestyle.mp4",
-			FileSize: 49283072, Duration: 16.8, Width: 1920, Height: 1080, CreatedAt: now.Add(-6 * time.Minute),
-		},
+		video(4, 2, "product_closeup.mp4", 10.4, 1920, 1080, 36700160, 7*time.Minute),
+		video(5, 2, "product_lifestyle.mp4", 16.8, 1920, 1080, 49283072, 6*time.Minute),
 		// 项目 3：Beach Day Reel（竖屏）
-		{
-			ID: 6, ProjectID: 3, Type: "video", StoragePath: "/mock/beach_waves.mp4", FileName: "beach_waves.mp4",
-			FileSize: 31457280, Duration: 14.6, Width: 1080, Height: 1920, CreatedAt: now.Add(-5 * time.Minute),
-		},
-		{
-			ID: 7, ProjectID: 3, Type: "video", StoragePath: "/mock/sunset_shore.mp4", FileName: "sunset_shore.mp4",
-			FileSize: 48235520, Duration: 20.2, Width: 1080, Height: 1920, CreatedAt: now.Add(-4 * time.Minute),
-		},
-		{
-			ID: 8, ProjectID: 3, Type: "video", StoragePath: "/mock/beach_crowd.mp4", FileName: "beach_crowd.mp4",
-			FileSize: 42949673, Duration: 11.9, Width: 1080, Height: 1920, CreatedAt: now.Add(-3 * time.Minute),
-		},
+		video(6, 3, "beach_waves.mp4", 14.6, 1080, 1920, 31457280, 5*time.Minute),
+		video(7, 3, "sunset_shore.mp4", 20.2, 1080, 1920, 48235520, 4*time.Minute),
+		video(8, 3, "beach_crowd.mp4", 11.9, 1080, 1920, 42949673, 3*time.Minute),
 	}
 }

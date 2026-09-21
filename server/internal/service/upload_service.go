@@ -242,11 +242,18 @@ func (s *UploadService) DecoratePlayback(asset *model.Asset) {
 	if s == nil || asset == nil || asset.StoragePath == "" || s.store == nil {
 		return
 	}
-	if strings.HasPrefix(asset.StoragePath, "http://") || strings.HasPrefix(asset.StoragePath, "/mock/") {
+	if strings.HasPrefix(asset.StoragePath, "http://") || strings.HasPrefix(asset.StoragePath, "https://") {
+		asset.PlaybackURL = asset.StoragePath
 		return
 	}
-	if strings.HasPrefix(asset.StoragePath, "http") {
-		asset.PlaybackURL = asset.StoragePath
+	// mock 本地磁盘存储：通过 mock-storage 回环端点提供可访问地址
+	if strings.HasPrefix(asset.StoragePath, "/mock/") || strings.HasPrefix(asset.StoragePath, "mock/") {
+		key := strings.TrimPrefix(asset.StoragePath, "/")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if u, err := s.store.PresignGet(ctx, key, 24*time.Hour); err == nil {
+			asset.PlaybackURL = u
+		}
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
