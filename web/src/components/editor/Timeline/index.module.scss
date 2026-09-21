@@ -2,10 +2,18 @@
 
 .timeline {
   display: flex;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
   background: var(--semi-color-bg-0);
   border-top: 1px solid var(--color-editor-border);
+}
+
+// 轨道标签列 + 滚动区所在的行：占满工具头以下的剩余高度
+.bodyRow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
 }
 
 .toolHeader {

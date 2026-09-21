@@ -32,3 +32,6 @@ temp_*.png
 # TypeScript build info
 *.tsbuildinfo
 
+
+# Mock storage runtime artifacts
+server/.mock-storage/

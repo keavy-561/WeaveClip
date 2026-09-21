@@ -167,58 +167,60 @@ const Timeline: React.FC = () => {
         </div>
       </div>
 
-      {/* 左侧轨道标签列 */}
-      <div className={styles.trackLabels}>
-        <div className={styles.rulerSpacer} />
-        {tracks.map((track) => (
-          <div key={track.id} className={styles.trackLabel}>
-            {track.type === 'video' && <span className={`${styles.trackLabelCode} ${styles.video}`}>V1</span>}
-            {track.type === 'audio' && <span className={`${styles.trackLabelCode} ${styles.audio}`}>A1</span>}
-            <span className={styles.trackDot} />
-            <span className={styles.trackLabelText}>
-              {track.type === 'video'
-                ? t('editor.timeline.videoTrack')
-                : track.type === 'caption'
-                  ? t('editor.timeline.captionTrack')
-                  : track.type === 'audio'
-                    ? t('editor.timeline.audioTrack')
-                    : t('editor.timeline.effectTrack')}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* 右侧时间轴滚动区域 */}
-      <div
-        className={styles.scrollArea}
-        ref={scrollAreaRef}
-        onScroll={updateVisibleRange}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) selectClip(null);
-        }}
-      >
-        <div ref={canvasRef} className={styles.canvas} style={{ width: totalWidth }}>
-          <Ruler duration={duration} pxPerSec={pxPerSec} onSeek={setCurrentTime} />
-
+{/* 左侧轨道标签列 + 右侧时间轴滚动区域：同一行 */}
+      <div className={styles.bodyRow}>
+        <div className={styles.trackLabels}>
+          <div className={styles.rulerSpacer} />
           {tracks.map((track) => (
-            <Track
-              key={track.id}
-              track={track}
-              pxPerSec={pxPerSec}
-              selectedClipId={selectedClipId}
-              onSelectClip={selectClip}
-              visibleRange={visibleRange}
-            />
-          ))}
-
-          <Playhead pxPerSec={pxPerSec} canvasRef={canvasRef} />
-
-          {/* 空时间轴引导：pointer-events:none，不拦截素材拖入（WO5-08） */}
-          {totalClips === 0 && (
-            <div className={styles.emptyOverlay}>
-              <Empty description={t('editor.timeline.emptyHint')} />
+            <div key={track.id} className={styles.trackLabel}>
+              {track.type === 'video' && <span className={`${styles.trackLabelCode} ${styles.video}`}>V1</span>}
+              {track.type === 'audio' && <span className={`${styles.trackLabelCode} ${styles.audio}`}>A1</span>}
+              <span className={styles.trackDot} />
+              <span className={styles.trackLabelText}>
+                {track.type === 'video'
+                  ? t('editor.timeline.videoTrack')
+                  : track.type === 'caption'
+                    ? t('editor.timeline.captionTrack')
+                    : track.type === 'audio'
+                      ? t('editor.timeline.audioTrack')
+                      : t('editor.timeline.effectTrack')}
+              </span>
             </div>
-          )}
+          ))}
+        </div>
+
+        {/* 右侧时间轴滚动区域 */}
+        <div
+          className={styles.scrollArea}
+          ref={scrollAreaRef}
+          onScroll={updateVisibleRange}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) selectClip(null);
+          }}
+        >
+          <div ref={canvasRef} className={styles.canvas} style={{ width: totalWidth }}>
+            <Ruler duration={duration} pxPerSec={pxPerSec} onSeek={setCurrentTime} />
+
+            {tracks.map((track) => (
+              <Track
+                key={track.id}
+                track={track}
+                pxPerSec={pxPerSec}
+                selectedClipId={selectedClipId}
+                onSelectClip={selectClip}
+                visibleRange={visibleRange}
+              />
+            ))}
+
+            <Playhead pxPerSec={pxPerSec} canvasRef={canvasRef} />
+
+            {/* 空时间轴引导：pointer-events:none，不拦截素材拖入（WO5-08） */}
+            {totalClips === 0 && (
+              <div className={styles.emptyOverlay}>
+                <Empty description={t('editor.timeline.emptyHint')} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

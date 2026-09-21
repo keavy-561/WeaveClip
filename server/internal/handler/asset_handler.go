@@ -212,9 +212,11 @@ func (h *AssetHandler) Delete(c *gin.Context) {
 }
 
 // MockAssets returns the initial mock asset list for mock mode.
+// 每个 seed 项目都配 2~3 条视频素材（Web 媒体面板按项目展示，缺了会显示空态）
 func MockAssets() []model.Asset {
 	now := time.Now()
 	return []model.Asset{
+		// 项目 1：NYC Travel Vlog
 		{
 			ID: 1, ProjectID: 1, Type: "video", StoragePath: "/mock/nyc_bridge.mp4", FileName: "nyc_bridge.mp4",
 			FileSize: 52428800, Duration: 15.2, Width: 1920, Height: 1080, CreatedAt: now.Add(-10 * time.Minute),
@@ -226,6 +228,28 @@ func MockAssets() []model.Asset {
 		{
 			ID: 3, ProjectID: 1, Type: "video", StoragePath: "/mock/central_park.mp4", FileName: "central_park.mp4",
 			FileSize: 41943000, Duration: 12.8, Width: 1920, Height: 1080, CreatedAt: now.Add(-8 * time.Minute),
+		},
+		// 项目 2：Product Teaser
+		{
+			ID: 4, ProjectID: 2, Type: "video", StoragePath: "/mock/product_closeup.mp4", FileName: "product_closeup.mp4",
+			FileSize: 36700160, Duration: 10.4, Width: 1920, Height: 1080, CreatedAt: now.Add(-7 * time.Minute),
+		},
+		{
+			ID: 5, ProjectID: 2, Type: "video", StoragePath: "/mock/product_lifestyle.mp4", FileName: "product_lifestyle.mp4",
+			FileSize: 49283072, Duration: 16.8, Width: 1920, Height: 1080, CreatedAt: now.Add(-6 * time.Minute),
+		},
+		// 项目 3：Beach Day Reel（竖屏）
+		{
+			ID: 6, ProjectID: 3, Type: "video", StoragePath: "/mock/beach_waves.mp4", FileName: "beach_waves.mp4",
+			FileSize: 31457280, Duration: 14.6, Width: 1080, Height: 1920, CreatedAt: now.Add(-5 * time.Minute),
+		},
+		{
+			ID: 7, ProjectID: 3, Type: "video", StoragePath: "/mock/sunset_shore.mp4", FileName: "sunset_shore.mp4",
+			FileSize: 48235520, Duration: 20.2, Width: 1080, Height: 1920, CreatedAt: now.Add(-4 * time.Minute),
+		},
+		{
+			ID: 8, ProjectID: 3, Type: "video", StoragePath: "/mock/beach_crowd.mp4", FileName: "beach_crowd.mp4",
+			FileSize: 42949673, Duration: 11.9, Width: 1080, Height: 1920, CreatedAt: now.Add(-3 * time.Minute),
 		},
 	}
 }
