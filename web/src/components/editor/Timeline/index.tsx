@@ -19,6 +19,9 @@ import styles from './index.module.scss';
 // 每秒对应的像素数（zoom = 1 时）
 const PX_PER_SEC = 24;
 
+// 播放头跟随滚动时与视口边缘保持的像素距离：不贴边，留出可视余量
+const PLAYHEAD_EDGE_MARGIN = 48;
+
 const Timeline: React.FC = () => {
   const {
     tracks,
@@ -59,6 +62,21 @@ const Timeline: React.FC = () => {
   useEffect(() => {
     updateVisibleRange();
   }, [updateVisibleRange]);
+
+  // 播放头跟随：currentTime 变化（拖拽指针 / 键盘微调 / 转写跳转 / 播放推进）时，
+  // 播放头越出视口左缘或右缘则将滚动区滚动到使其保持可见。
+  // 只滚动越界的那一小段，拖拽出界后指针会持续贴在边缘滑动而非跳变。
+  // 手动滚轮 / 滚动条滚动不改变 currentTime，effect 不触发，两者不冲突。
+  useEffect(() => {
+    const el = scrollAreaRef.current;
+    if (!el) return;
+    const x = currentTime * pxPerSec;
+    if (x < el.scrollLeft + PLAYHEAD_EDGE_MARGIN) {
+      el.scrollLeft = Math.max(0, x - PLAYHEAD_EDGE_MARGIN);
+    } else if (x > el.scrollLeft + el.clientWidth - PLAYHEAD_EDGE_MARGIN) {
+      el.scrollLeft = x - el.clientWidth + PLAYHEAD_EDGE_MARGIN;
+    }
+  }, [currentTime, pxPerSec]);
 
   const handleDelete = () => {
     if (selectedClipId) deleteClip(selectedClipId);
