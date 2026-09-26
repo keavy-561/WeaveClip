@@ -206,7 +206,9 @@ func main() {
 	if database.IsMockMode() {
 		// mock 内联执行：Hub 本进程直推（终态用阻塞投递，工单 WO8-15）
 		renderNotifier = hub.Broadcast
-		renderNotifyFinal = hub.BroadcastBlocking
+		renderNotifyFinal = func(id string, payload any) {
+			hub.BroadcastBlocking(id, payload, 5*time.Second)
+		}
 	} else {
 		// worker 跨进程执行：Redis pub/sub → 桥接 → Hub
 		renderNotifier = ws.RedisNotifier(cfg.Redis.Addr)

@@ -285,7 +285,6 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 	}
 	notifyFinal(map[string]any{
 		"type": "completed", "renderId": p.RenderID, "progress": 100, "downloadUrl": downloadURL,
-		})
-	}
+	})
 	return nil
 }
