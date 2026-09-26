@@ -76,7 +76,10 @@ func Probe(ctx context.Context, tools Tools, localFile string) (*ProbeResult, er
 		return nil, fmt.Errorf("parse ffprobe output: %w", err)
 	}
 	res := &ProbeResult{}
-	_, _ = fmt.Sscanf(parsed.Format.Duration, "%f", &res.Duration)
+	// 解析失败显式报错：Duration=0 静默入库会让下游进度分母退化为魔法值（工单 WO8-20）
+	if _, err := fmt.Sscanf(parsed.Format.Duration, "%f", &res.Duration); err != nil {
+		return nil, fmt.Errorf("parse ffprobe duration %q: %w", parsed.Format.Duration, err)
+	}
 	for _, st := range parsed.Streams {
 		if st.CodecType == "video" && res.Width == 0 {
 			res.Width = st.Width

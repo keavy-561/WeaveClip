@@ -47,6 +47,9 @@ func (h *MockStorageHandler) Handle(c *gin.Context) {
 	}
 }
 
+// maxObjectSize 单对象上限，与 service.MaxUploadSize（500MB）对齐（工单 WO8-16）。
+const maxObjectSize int64 = 500 << 20
+
 func (h *MockStorageHandler) put(c *gin.Context, key string) {
 	p := h.resolve(key)
 	if p == "" {
@@ -57,12 +60,30 @@ func (h *MockStorageHandler) put(c *gin.Context, key string) {
 		InternalError(c, "failed to create directory")
 		return
 	}
-	data, readErr := io.ReadAll(io.LimitReader(c.Request.Body, 600<<20))
-	if readErr != nil {
+	// 流式写临时文件后 rename：不再把整个请求体（最大 600MB）缓冲进内存（工单 WO8-16）
+	tmp, err := os.CreateTemp(filepath.Dir(p), ".upload-*")
+	if err != nil {
+		InternalError(c, "failed to create temp file")
+		return
+	}
+	tmpName := tmp.Name()
+	written, copyErr := io.Copy(tmp, io.LimitReader(c.Request.Body, maxObjectSize+1))
+	closeErr := tmp.Close()
+	if copyErr != nil || closeErr != nil {
+		_ = os.Remove(tmpName)
 		InternalError(c, "failed to read request body")
 		return
 	}
-	if err := os.WriteFile(p, data, 0o644); err != nil {
+	if written > maxObjectSize {
+		_ = os.Remove(tmpName)
+		c.JSON(http.StatusRequestEntityTooLarge, gin.H{
+			"success": false, "code": "PAYLOAD_TOO_LARGE",
+			"message": "object exceeds size limit", "request_id": "",
+		})
+		return
+	}
+	if err := os.Rename(tmpName, p); err != nil {
+		_ = os.Remove(tmpName)
 		InternalError(c, "failed to write object")
 		return
 	}

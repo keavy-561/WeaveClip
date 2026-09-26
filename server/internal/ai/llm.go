@@ -82,7 +82,8 @@ func NewAnthropicClient(apiKey, model string) *AnthropicClient {
 	return &AnthropicClient{
 		apiKey:    apiKey,
 		model:     model,
-		maxTokens: 4096,
+		// 长时间线 DSL 很容易超过 4k tokens；max_tokens 截断的响应必然解析失败（工单 WO8-17）
+		maxTokens: 16384,
 		httpClient: &http.Client{
 			Timeout: 120 * time.Second,
 		},
@@ -101,6 +102,7 @@ type anthropicResponse struct {
 		Type string `json:"type"`
 		Text string `json:"text"`
 	} `json:"content"`
+	StopReason string `json:"stop_reason"`
 	Error *struct {
 		Message string `json:"message"`
 	} `json:"error"`
@@ -146,6 +148,11 @@ func (c *AnthropicClient) Complete(ctx context.Context, system string, messages 
 	}
 	if parsed.Error != nil {
 		return "", fmt.Errorf("llm api error: %s", parsed.Error.Message)
+	}
+	// 截断检测：stop_reason=max_tokens 的响应必然不完整，显式报错而不是把半截 JSON
+	// 丢给下游解析出莫名其妙的问题（工单 WO8-17）
+	if parsed.StopReason == "max_tokens" {
+		return "", fmt.Errorf("llm response truncated by max_tokens (%d)", c.maxTokens)
 	}
 	for _, part := range parsed.Content {
 		if part.Type == "text" {
@@ -207,6 +214,9 @@ func (c *AnthropicClient) CompleteVision(ctx context.Context, system, userText s
 	}
 	if parsed.Error != nil {
 		return "", fmt.Errorf("llm api error: %s", parsed.Error.Message)
+	}
+	if parsed.StopReason == "max_tokens" {
+		return "", fmt.Errorf("llm vision response truncated by max_tokens (%d)", c.maxTokens)
 	}
 	for _, part := range parsed.Content {
 		if part.Type == "text" {

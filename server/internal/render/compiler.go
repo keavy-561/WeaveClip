@@ -233,9 +233,17 @@ func SRT(captions []Caption) string {
 	var sb strings.Builder
 	for i, c := range captions {
 		sb.WriteString(fmt.Sprintf("%d\n%s --> %s\n%s\n\n",
-			i+1, srtTime(c.Start), srtTime(c.End), strings.ReplaceAll(c.Text, "\n", " ")))
+			i+1, srtTime(c.Start), srtTime(c.End), srtText(c.Text)))
 	}
 	return sb.String()
+}
+
+// srtText 字幕文本规整：\r\n 与孤立 \r 都视为换行转空格，
+// 避免 libass 把 \r 视作断行破坏字幕条（工单 WO8-20）。
+func srtText(text string) string {
+	text = strings.ReplaceAll(text, "\r\n", "\n")
+	text = strings.ReplaceAll(text, "\r", " ")
+	return strings.ReplaceAll(text, "\n", " ")
 }
 
 func srtTime(t float64) string {

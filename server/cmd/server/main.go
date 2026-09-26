@@ -202,20 +202,24 @@ func main() {
 		renderRepo = repository.NewMockRenderRepo()
 	}
 	var renderNotifier ws.RenderNotifier
+	var renderNotifyFinal ws.RenderNotifier
 	if database.IsMockMode() {
-		// mock 内联执行：Hub 本进程直推
+		// mock 内联执行：Hub 本进程直推（终态用阻塞投递，工单 WO8-15）
 		renderNotifier = hub.Broadcast
+		renderNotifyFinal = hub.BroadcastBlocking
 	} else {
 		// worker 跨进程执行：Redis pub/sub → 桥接 → Hub
 		renderNotifier = ws.RedisNotifier(cfg.Redis.Addr)
+		renderNotifyFinal = ws.RedisNotifier(cfg.Redis.Addr)
 		go ws.StartRedisBridge(cfg.Redis.Addr, hub)
 	}
 	jobs.HandleRender(taskQueue, jobs.RenderDeps{
-		Renders: renderRepo,
-		Store:   store,
-		Tools:   tools,
-		ToolsOK: toolsOK,
-		Notify:  renderNotifier,
+		Renders:     renderRepo,
+		Store:       store,
+		Tools:       tools,
+		ToolsOK:     toolsOK,
+		Notify:      renderNotifier,
+		NotifyFinal: renderNotifyFinal,
 		LoadTimeline: func(projectID uint, version int) ([]byte, error) {
 			t, err := timelineService.GetVersionInternal(projectID, version)
 			if err != nil {
@@ -225,7 +229,7 @@ func main() {
 		},
 	})
 	renderService := service.NewRenderService(renderRepo, projectService, timelineService, assetRepo, taskQueue)
-	renderHandler := handler.NewRenderHandler(renderService)
+	renderHandler := handler.NewRenderHandler(renderService, store)
 	wsHandler := handler.NewWSHandler(hub, renderRepo, projectService)
 
 	// 路由注册

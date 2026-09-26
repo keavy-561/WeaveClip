@@ -7,6 +7,7 @@ import (
 
 	"github.com/weaveclip/server/internal/model"
 	"github.com/weaveclip/server/internal/repository"
+	"gorm.io/gorm"
 )
 
 // ErrInvalidStoragePath 素材对象键声明了不属于目标项目的 projects/ 路径，
@@ -59,10 +60,14 @@ func (s *AssetService) CreateAsset(projectID, userID uint, asset *model.Asset) (
 func (s *AssetService) GetAsset(assetID, userID uint) (*model.Asset, error) {
 	asset, err := s.assets.Get(assetID)
 	if err != nil {
-		return nil, fmt.Errorf("asset not found")
+		// 保留原始错误：handler 用 errors.Is 区分 404 与数据库故障（工单 WO8-19）
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrAssetNotFound
+		}
+		return nil, err
 	}
 	if _, err := s.proj.GetProject(asset.ProjectID, userID); err != nil {
-		return nil, fmt.Errorf("asset not found")
+		return nil, ErrAssetNotFound
 	}
 	return asset, nil
 }
@@ -71,13 +76,16 @@ func (s *AssetService) GetAsset(assetID, userID uint) (*model.Asset, error) {
 func (s *AssetService) DeleteAsset(assetID, userID uint) error {
 	asset, err := s.assets.Get(assetID)
 	if err != nil {
-		return fmt.Errorf("asset not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrAssetNotFound
+		}
+		return err
 	}
 	if _, err := s.proj.GetProject(asset.ProjectID, userID); err != nil {
-		return fmt.Errorf("asset not found")
+		return ErrAssetNotFound
 	}
 	if err := s.assets.Delete(assetID); err != nil {
-		return fmt.Errorf("failed to delete asset")
+		return err
 	}
 	return nil
 }

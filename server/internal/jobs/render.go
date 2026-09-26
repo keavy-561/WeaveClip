@@ -62,6 +62,8 @@ type RenderDeps struct {
 	Tools   media.Tools
 	ToolsOK bool
 	Notify  RenderNotifier
+	// NotifyFinal 终态（completed/error）专用：阻塞投递不丢弃；nil 时回退 Notify（工单 WO8-15）
+	NotifyFinal  RenderNotifier
 	LoadTimeline func(projectID uint, version int) ([]byte, error)
 }
 
@@ -79,14 +81,27 @@ func HandleRender(q *queue.Queue, deps RenderDeps) {
 }
 
 func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
+	var p renderPayload
 	defer func() {
-		// 任何 panic 都转为可见的失败状态（否则任务静默重试，renders 行停在 queued）
+		// panic 转可见失败状态：renders 行永久卡 rendering 的兜底（工单 WO8-18）
 		if r := recover(); r != nil {
 			slog.Error("handleRender panic", "panic", r)
+			if p.RenderID > 0 {
+				if row, getErr := d.Renders.Get(p.RenderID); getErr == nil && row.Status != "completed" {
+					row.Status = "failed"
+					row.Error = fmt.Sprintf("render panic: %v", r)
+					_ = d.Renders.Update(row)
+					final := map[string]any{"type": "error", "renderId": p.RenderID, "error": row.Error}
+					if d.NotifyFinal != nil {
+						d.NotifyFinal(fmt.Sprintf("%d", p.RenderID), final)
+					} else if d.Notify != nil {
+						d.Notify(fmt.Sprintf("%d", p.RenderID), final)
+					}
+				}
+			}
 		}
 	}()
 	slog.Info("render task received", "payloadBytes", len(payload))
-	var p renderPayload
 	if err := json.Unmarshal(payload, &p); err != nil {
 		slog.Error("decode render payload failed", "error", err)
 		return fmt.Errorf("decode render payload: %w", err)
@@ -97,6 +112,16 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 		return fmt.Errorf("load render %d: %w", p.RenderID, err)
 	}
 
+	// notifyFinal 终态消息（completed/error）阻塞投递不丢弃；未配置时回退进度通知（工单 WO8-15）
+	notifyFinal := func(payload map[string]any) {
+		if d.NotifyFinal != nil {
+			d.NotifyFinal(fmt.Sprintf("%d", p.RenderID), payload)
+			return
+		}
+		if d.Notify != nil {
+			d.Notify(fmt.Sprintf("%d", p.RenderID), payload)
+		}
+	}
 	notify := func(progress int, status, errMsg string) {
 		if d.Notify != nil {
 			d.Notify(fmt.Sprintf("%d", p.RenderID), map[string]any{
@@ -108,11 +133,9 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 		renderRow.Status = "failed"
 		renderRow.Error = fmt.Sprintf(format, args...)
 		_ = d.Renders.Update(renderRow)
-		if d.Notify != nil {
-			d.Notify(fmt.Sprintf("%d", p.RenderID), map[string]any{
-				"type": "error", "renderId": p.RenderID, "error": renderRow.Error,
-			})
-		}
+		notifyFinal(map[string]any{
+			"type": "error", "renderId": p.RenderID, "error": renderRow.Error,
+		})
 		return fmt.Errorf("%s", renderRow.Error)
 	}
 
@@ -260,9 +283,8 @@ func (d RenderDeps) handleRender(ctx context.Context, payload []byte) error {
 	if err := d.Renders.Update(renderRow); err != nil {
 		return err
 	}
-	if d.Notify != nil {
-		d.Notify(fmt.Sprintf("%d", p.RenderID), map[string]any{
-			"type": "completed", "renderId": p.RenderID, "progress": 100, "downloadUrl": downloadURL,
+	notifyFinal(map[string]any{
+		"type": "completed", "renderId": p.RenderID, "progress": 100, "downloadUrl": downloadURL,
 		})
 	}
 	return nil

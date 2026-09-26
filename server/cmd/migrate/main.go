@@ -21,7 +21,12 @@ func main() {
 		target = os.Args[2]
 	}
 
-	cfg, err := config.Load("dev")
+	// 按 APP_ENV 选择配置（默认 dev）：此前硬编码 dev，对 prod 库执行迁移会用错库（工单 WO8-20）
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "dev"
+	}
+	cfg, err := config.Load(env)
 	if err != nil {
 		slog.Error("load config failed", "error", err)
 		os.Exit(1)

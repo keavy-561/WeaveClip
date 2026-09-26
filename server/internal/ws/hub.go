@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"sync"
+	"time"
 )
 
 // Hub 按 renderID 维护 WebSocket 连接组，广播渲染进度。
@@ -76,6 +77,28 @@ func (h *Hub) Broadcast(renderID string, payload any) {
 		case ch <- data:
 		default:
 			// 订阅者消费过慢则丢弃本条进度（进度消息可容忍丢失，有轮询兜底）
+		}
+	}
+}
+
+// BroadcastBlocking 推送终态消息（completed/error）：持锁阻塞发送直至超时，
+// 终态丢失会让客户端永远等不到完成事件（进度可丢、终态不可丢，工单 WO8-15）。
+// 持读锁阻塞是有界的（timeout 上限），且与 cancel 的写锁互斥保证不会 send on closed。
+func (h *Hub) BroadcastBlocking(renderID string, payload any, timeout time.Duration) {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		slog.Error("ws broadcast marshal", "renderId", renderID, "error", err)
+		return
+	}
+	deadline := time.After(timeout)
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	for ch := range h.conns[renderID] {
+		select {
+		case ch <- data:
+		case <-deadline:
+			// 超时放弃本条，客户端仍有轮询兜底
+			return
 		}
 	}
 }

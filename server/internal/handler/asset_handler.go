@@ -48,6 +48,10 @@ func (h *AssetHandler) List(c *gin.Context) {
 
 	assets, err := h.assetService.ListAssets(uint(projectID), uid)
 	if err != nil {
+		if errors.Is(err, service.ErrProjectNotFound) {
+			NotFound(c, "project not found")
+			return
+		}
 		InternalError(c, "failed to list assets")
 		return
 	}
@@ -92,7 +96,7 @@ func (h *AssetHandler) Create(c *gin.Context) {
 			BadRequest(c, "storage path does not belong to this project")
 			return
 		}
-		if err.Error() == "project not found" {
+		if errors.Is(err, service.ErrProjectNotFound) || err.Error() == "project not found" {
 			NotFound(c, "project not found")
 			return
 		}
@@ -114,7 +118,12 @@ func (h *AssetHandler) Get(c *gin.Context) {
 
 	asset, err := h.assetService.GetAsset(uint(id), uid)
 	if err != nil {
-		NotFound(c, "asset not found")
+		// 区分不存在与数据库故障：把 DB 错误伪装成 404 会掩盖真实故障（工单 WO8-19）
+		if errors.Is(err, service.ErrAssetNotFound) {
+			NotFound(c, "asset not found")
+			return
+		}
+		InternalError(c, "failed to get asset")
 		return
 	}
 	h.uploads.DecorateThumbnail(asset)
@@ -202,7 +211,7 @@ func (h *AssetHandler) Delete(c *gin.Context) {
 	uid, _ := userID.(uint)
 
 	if err := h.assetService.DeleteAsset(uint(id), uid); err != nil {
-		if err.Error() == "asset not found" {
+		if errors.Is(err, service.ErrAssetNotFound) {
 			NotFound(c, "asset not found")
 			return
 		}

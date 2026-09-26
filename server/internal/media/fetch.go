@@ -38,7 +38,8 @@ func FetchObject(ctx context.Context, store storage.Storage, key string, maxByte
 		return "", nil, fmt.Errorf("create temp file: %w", err)
 	}
 	cleanup := func() { os.Remove(tmp.Name()) }
-	_, copyErr := io.Copy(tmp, io.LimitReader(resp.Body, maxBytes))
+	// 读 maxBytes+1 检出超限：LimitReader 静默截断会把残缺文件喂给 ffmpeg/whisper（工单 WO8-20）
+	written, copyErr := io.Copy(tmp, io.LimitReader(resp.Body, maxBytes+1))
 	closeErr := tmp.Close()
 	if copyErr != nil {
 		cleanup()
@@ -47,6 +48,10 @@ func FetchObject(ctx context.Context, store storage.Storage, key string, maxByte
 	if closeErr != nil {
 		cleanup()
 		return "", nil, closeErr
+	}
+	if written > maxBytes {
+		cleanup()
+		return "", nil, fmt.Errorf("object %s exceeds size limit %d", key, maxBytes)
 	}
 	return tmp.Name(), cleanup, nil
 }

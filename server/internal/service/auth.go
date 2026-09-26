@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -70,9 +71,25 @@ func (s *AuthService) Register(email, password, name string) (*model.User, error
 		Name:         name,
 	}
 	if err := s.users.Create(user); err != nil {
+		// 并发同邮箱注册：唯一索引冲突映射为业务错误（前端"该邮箱已被注册"），
+		// 而不是 500（工单 WO8-19）
+		if isDuplicateKeyError(err) {
+			return nil, fmt.Errorf("email already registered")
+		}
 		return nil, err
 	}
 	return user, nil
+}
+
+// isDuplicateKeyError 判定唯一约束冲突（Postgres duplicate key / unique constraint，工单 WO8-19）。
+func isDuplicateKeyError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "duplicate key") ||
+		strings.Contains(msg, "unique constraint") ||
+		strings.Contains(msg, "uniqueness constraint")
 }
 
 // Login authenticates a user by email and password.

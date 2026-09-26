@@ -31,8 +31,8 @@ var (
 const (
 	// MaxUploadSize 单文件上限 500MB（与前端校验一致）。
 	MaxUploadSize int64 = 500 << 20
-	// presign 有效期。
-	presignExpiry = time.Hour
+	// presign 有效期：短时效直传 URL，压缩"确认前对象被改写"的窗口（工单 WO8-14）。
+	presignExpiry = 15 * time.Minute
 )
 
 var allowedAssetTypes = map[string]bool{"video": true, "audio": true, "image": true}
@@ -76,12 +76,20 @@ func (s *UploadService) Presign(projectID, userID uint, fileName string, fileSiz
 	}
 	asset.StoragePath = fmt.Sprintf("projects/%d/%d/%s", projectID, asset.ID, fileName)
 	if err := s.assets.Update(asset); err != nil {
+		// 孤儿清理：storagePath 都没落上的记录无人认领（工单 WO8-14）
+		if delErr := s.assets.Delete(asset.ID); delErr != nil {
+			slog.Error("cleanup orphan asset failed", "assetId", asset.ID, "error", delErr)
+		}
 		return nil, "", err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	uploadURL, err := s.store.PresignPut(ctx, asset.StoragePath, presignExpiry)
 	if err != nil {
+		// 孤儿清理：presign 失败的 uploading 记录无人认领（工单 WO8-14）
+		if delErr := s.assets.Delete(asset.ID); delErr != nil {
+			slog.Error("cleanup orphan asset failed", "assetId", asset.ID, "error", delErr)
+		}
 		return nil, "", fmt.Errorf("presign failed: %w", err)
 	}
 	return asset, uploadURL, nil
@@ -95,6 +103,10 @@ func (s *UploadService) Confirm(assetID, userID uint) (*model.Asset, error) {
 	}
 	if _, err := s.proj.GetProject(asset.ProjectID, userID); err != nil {
 		return nil, ErrAssetNotFound
+	}
+	if asset.Status == "ready" {
+		// 幂等：网络重试的 confirm 直接返回现有资产，而不是 409 卡死重试方（工单 WO8-14）
+		return asset, nil
 	}
 	if asset.Status != "uploading" {
 		return nil, ErrInvalidState
@@ -174,6 +186,13 @@ func (s *UploadService) processVideo(ctx context.Context, asset *model.Asset) er
 	if err != nil {
 		tmp.Close()
 		return fmt.Errorf("fetch object: %w", err)
+	}
+	// 非响应错误（403/404 的错误体）不能当视频落盘，否则 probe 失败信息误导排查（工单 WO8-20）
+	if resp.StatusCode != http.StatusOK {
+		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
+		resp.Body.Close()
+		tmp.Close()
+		return fmt.Errorf("fetch object: unexpected status %d", resp.StatusCode)
 	}
 	_, copyErr := io.Copy(tmp, io.LimitReader(resp.Body, MaxUploadSize+1))
 	closeErr := resp.Body.Close()

@@ -641,6 +641,20 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 
 ---
 
+### 健壮性 P2（WO8-14~20，2026-09-20 全部修复）
+
+| 编号 | 标题 | 状态 |
+|---|---|---|
+| WO8-14 | 上传链路：presign/Update 失败清理孤儿行；confirm 幂等（ready 直接返回）；PUT 有效期 1h→15min | ✅ 本次 |
+| WO8-15 | WS：写超时 10s + 30s 心跳 ping（死连接及时清理）；Hub 新增 BroadcastBlocking——completed/error 终态阻塞投递不丢弃 | ✅ 本次 |
+| WO8-16 | mock-storage 流式写盘（临时文件+rename，替代 600MB 整读内存）+ 上限对齐 500MB 超限 413；本地回落 prod fail-fast（WO11-06） | ✅ 本次 |
+| WO8-17 | LLM max_tokens 4096→16384 + stop_reason=max_tokens 显式报错（截断不再变成莫名解析失败） | ✅ 本次 |
+| WO8-18 | analyze/render 任务 panic recover→落 failed 终态并推送 error（不再卡 running/rendering）；analyze payload 损坏/行缺失不再无意义重试 | ✅ 本次 |
+| WO8-19 | 错误映射：asset_service 保留原始错误，asset handler errors.Is 区分 404/500；注册并发同邮箱唯一冲突映射 409 业务错误 | ✅ 本次 |
+| WO8-20 | 杂项：渲染下载 URL 改 GET 现签（1h）；SRT 过滤 \r；ffprobe duration 解析失败显式报错；fetch LimitReader 读 maxBytes+1 检出超限；processVideo 检查 HTTP 状态码；migrate 按 APP_ENV 选配置；RequestTimeout 豁免 WS（WO8-12 已做） | ✅ 本次 |
+
+**申报（本轮未做，随真实联调排期）**：Asynq 重试耗尽的统一终态钩子（panic/永久错误已显式落终态，仅瞬态错误×3 耗尽的极端路径仍需对账）；全仓错误映射 errors.Is 化（本轮覆盖 asset/auth/render 链路）；性能基准测试。
+
 ## 变更记录
 
 | 日期 | 版本 | 变更内容 |
@@ -662,4 +676,5 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 | 2026-09-19 | v2.3 | 第九轮（WO10，§15）：第三轮真机走查修复——addClip 空轨自动建视频轨+时长扩展（修"toast 撒谎"的编辑链路断裂 P1）、版本历史 SideSheet 开启 ESC/遮罩关闭（P1）、媒体搜索占位改"搜索素材"、项目卡片菜单 preventDefault 恢复入口。 |
 | 2026-09-19 | v2.4 | 账本回写：WO5-14~17/19~20 与 WO3 后续登记表条目已由 WO9 全部落地，状态更正。未完成盘点结论：功能类全部关闭；剩余=WO8-14~20 健壮性 P2、T01 前端 ESLint 真实接入、T03 性能基准、T02 文档 checklist（0/41）、B21+WO5-18 删除（待人类）、生产化缺口（部署/安全/数据可靠性/可观测，评估见对话记录，未立项）。 |
 | 2026-09-20 | v2.5 | 第十轮（WO11，§16）：生产化收口——Dockerfile×2/compose 应用服务/nginx（TLS 预置）/优雅停机/BodyLimit+RateLimit/JWT 占位符与 MOCK_MODE 生产 fail-fast/CORS 告警/备份脚本/验收 checklist 勾选 38 项。生产化 Tier A 阻断项全部关闭；T01 ESLint（锁文件限制）与 T03 性能基准申报未做。 |
+| 2026-09-20 | v2.6 | WO8-14~20 健壮性 P2 全部修复：上传孤儿清理+confirm 幂等+PUT 15min、WS 心跳/写超时/终态阻塞投递、mock-storage 流式写盘、LLM 截断检测+16k tokens、analyze/render panic 终态回写、错误映射 errors.Is 化（404/500/409）、渲染 URL 现签、SRT/ffprobe/fetch/http.Get/migrate 边界修正。账本功能+健壮性工单全部关闭。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |

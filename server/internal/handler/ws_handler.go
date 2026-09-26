@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -70,7 +71,7 @@ func (h *WSHandler) Render(c *gin.Context) {
 	messages, cancel := h.hub.Subscribe(fmt.Sprintf("%d", renderID))
 	defer cancel()
 
-	// 读泵：仅检测客户端断开
+	// 读泵：检测客户端断开（Hub cancel 已幂等，与 defer 的二次调用安全，工单 WO8-01）
 	go func() {
 		for {
 			if _, _, err := conn.ReadMessage(); err != nil {
@@ -80,9 +81,24 @@ func (h *WSHandler) Render(c *gin.Context) {
 		}
 	}()
 
-	for msg := range messages {
-		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-			return
+	// 心跳 + 写超时：死连接及时暴露并清理，订阅不再滞留（工单 WO8-15）
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case msg, ok := <-messages:
+			if !ok {
+				return
+			}
+			_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+				return
+			}
+		case <-ticker.C:
+			_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
 		}
 	}
 }

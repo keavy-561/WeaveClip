@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"github.com/weaveclip/server/internal/queue"
 	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/storage"
+	"gorm.io/gorm"
 )
 
 // Deps 任务处理器依赖。
@@ -45,13 +47,28 @@ type analyzePayload struct {
 
 // handleAnalyze 分析任务：对每个视频素材做场景检测（ffmpeg）+ ASR（whisper，可选）+ Vision（可选），
 // 结果聚合写入 assets.analysis 与 task_results。
-func (d Deps) handleAnalyze(ctx context.Context, payload []byte) error {
+func (d Deps) handleAnalyze(ctx context.Context, payload []byte) (err error) {
 	var p analyzePayload
+	// panic 转可见终态：否则 Asynq 重试耗尽后任务永久卡 running（工单 WO8-18）
+	defer func() {
+		if r := recover(); r != nil {
+			slog.Error("handleAnalyze panic", "panic", r)
+			d.markAnalyzeFailed(p.TaskResultID, fmt.Sprintf("analyze panic: %v", r))
+			err = nil // 已落终态，重试同一个 panic 没有意义
+		}
+	}()
 	if err := json.Unmarshal(payload, &p); err != nil {
-		return fmt.Errorf("decode analyze payload: %w", err)
+		// payload 损坏不可重试（且无从定位 task 行），记录后放弃（工单 WO8-18）
+		slog.Error("decode analyze payload failed", "error", err)
+		return nil
 	}
 	task, err := d.Tasks.Get(p.TaskResultID)
 	if err != nil {
+		// 行不存在（被删除）时重试无意义；其余错误视为可重试（工单 WO8-18）
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Error("analyze task row missing", "taskResultId", p.TaskResultID)
+			return nil
+		}
 		return fmt.Errorf("load task result %d: %w", p.TaskResultID, err)
 	}
 	task.Status = "running"
@@ -87,6 +104,24 @@ func (d Deps) handleAnalyze(ctx context.Context, payload []byte) error {
 	task.Progress = 100
 	task.Result = mustJSON(map[string]any{"assets": results})
 	return d.Tasks.Update(task)
+}
+
+// markAnalyzeFailed 把分析任务标记为 failed 终态（panic 兜底，工单 WO8-18）。
+func (d Deps) markAnalyzeFailed(taskResultID uint, msg string) {
+	if taskResultID == 0 {
+		return
+	}
+	task, err := d.Tasks.Get(taskResultID)
+	if err != nil {
+		slog.Error("mark analyze failed: load task", "taskResultId", taskResultID, "error", err)
+		return
+	}
+	if task.Status == "completed" || task.Status == "failed" {
+		return
+	}
+	task.Status = "failed"
+	task.Error = msg
+	_ = d.Tasks.Update(task)
 }
 
 // analyzeAsset 处理单个素材；失败记录在返回值中而不中断整个任务。
