@@ -373,6 +373,10 @@ Phase 6 后端无新增服务（Version History 直接消费 B09 的版本化 ti
 
 ### 后续登记（未实现功能，延续走查清单）
 
+> 2026-09-19 回写：下表全部落地——模板浏览 WO6-01/WO7-03、播放器倍速/逐帧 WO9-07、
+> /settings 收尾 WO2-04、登录校验 WO2-06、RequireAuth WO2-07、Timeline 虚拟滚动 WO9-08
+> （视口窗口化）、录制/内容/文本/品牌面板 WO6-07~09、项目重命名/复制 WO9-01。
+
 | 功能 | 优先级 | 归属 |
 |---|---|---|
 | 模板浏览页/面板 | P1 | 待排期 |
@@ -481,13 +485,13 @@ ExportDialog/Generate 组件测试）；6d32e8f 修复 WS 对不存在/越权渲
 | WO5-11 | Projects 项目卡 div+onClick 改 Link（键盘可达，AGENTS 规则 1） | P1 | ✅ 本次 |
 | WO5-12 | ErrorBoundary/App.tsx 硬编码英文清零（ErrorBoundary 经 i18n 单例本地化，测试同步改双语断言）；移除首帧 Loading 门控与内联样式 | P1 | ✅ 本次 |
 | WO5-13 | 分析完成 1.2s 强制跳转改手动「继续」按钮：AnalyzeProgress onComplete 改可选，Generate 不再传空回调 | P1 | ✅ 本次 |
-| WO5-14 | Home 侧边栏折叠能力 + 搜索框 <1024px 被隐藏后无替代入口 | P2 | 待排期 |
-| WO5-15 | 上传进行中 uploadingOverlay 整体替换 UploadStep：应保留文件列表/进度/取消重试 | P2 | 待排期 |
-| WO5-16 | Describe 无 projectId（模板入口）时表单可点但生成仅 Toast 的交互矛盾；表单重置与 Ctrl+Enter 提交 | P2 | 待排期 |
-| WO5-17 | VersionHistory 回滚成功后 invalidate 版本列表；SideSheet 宽度 min(380px, 90vw) | P2 | 待排期 |
+| WO5-14 | Home 侧边栏折叠能力 + 搜索框 <1024px 被隐藏后无替代入口 | P2 | ✅ WO9-04 |
+| WO5-15 | 上传进行中 uploadingOverlay 整体替换 UploadStep：应保留文件列表/进度/取消重试 | P2 | ✅ WO9-02 |
+| WO5-16 | Describe 无 projectId（模板入口）时表单可点但生成仅 Toast 的交互矛盾；表单重置与 Ctrl+Enter 提交 | P2 | ✅ WO9-03 |
+| WO5-17 | VersionHistory 回滚成功后 invalidate 版本列表；SideSheet 宽度 min(380px, 90vw) | P2 | ✅ WO9-05 |
 | WO5-18 | 死代码处置：components/editor/Assets/AssetPanel、Assets/AssetCard、components/test/TestI18n、VideoPlayer 死 CSS——属文件删除，**待人类按删除保护流程执行** | P2 | 待人类 |
-| WO5-19 | Playhead 仅 mouseDown 拖拽无键盘微调、Ruler 无 role；Playhead 用类名字符串匹配定位 canvas 的脆弱耦合 | P2 | 待排期 |
-| WO5-20 | 分析摘要数字仍取演示数据（真实模式受控完成也显示假统计）需标注或接真数据；上传失败文件无 error 态与重试 UI | P2 | 待排期 |
+| WO5-19 | Playhead 仅 mouseDown 拖拽无键盘微调、Ruler 无 role；Playhead 用类名字符串匹配定位 canvas 的脆弱耦合 | P2 | ✅ WO9-06 |
+| WO5-20 | 分析摘要数字仍取演示数据（真实模式受控完成也显示假统计）需标注或接真数据；上传失败文件无 error 态与重试 UI | P2 | ✅ WO9-09 + WO9-02 |
 
 **实施结果（2026-09-19）**：WO5-01~13 已实现并推送（编辑器体验批量修复），验证交远端 CI；
 WO5-14~20 登记待排期。i18n 新增键 zh/en 同步补齐（check-i18n 由 CI 裁决）。
@@ -633,4 +637,5 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 | 2026-09-19 | v2.1 | WO8-10~13 四个 P1 修复：repo 局部更新（UpdateAnalysis/UpdateMediaInfo/UpdateProgress GREATEST 单调）消除整行覆盖丢更新与渲染进度数据竞争；timeline CreateNextVersion（事务+pg_advisory_xact_lock）消除版本号竞态；RequestTimeout 豁免 chat 与 WS 路由；DSL 校验拆分 ValidateStructure/validateNoOverlap 并统一接线（PUT 结构校验、chat 与渲染入口全量校验）。测试假实现同步补齐新接口方法。 |
 | 2026-09-19 | v2.2 | 第八轮（WO9，§14）：「没写完的功能都写完」——项目重命名/复制、上传取消/重试/进度面板、Describe 模板入口生成闭环+重置+Ctrl+Enter、首页侧栏折叠+搜索响应式、版本历史 invalidate+宽度自适应、播放头键盘微调+canvas ref、播放器逐帧、Timeline 视口窗口化（替代 200 条截断）、分析摘要演示数据标注。功能类工单全部关闭。 |
 | 2026-09-19 | v2.3 | 第九轮（WO10，§15）：第三轮真机走查修复——addClip 空轨自动建视频轨+时长扩展（修"toast 撒谎"的编辑链路断裂 P1）、版本历史 SideSheet 开启 ESC/遮罩关闭（P1）、媒体搜索占位改"搜索素材"、项目卡片菜单 preventDefault 恢复入口。 |
+| 2026-09-19 | v2.4 | 账本回写：WO5-14~17/19~20 与 WO3 后续登记表条目已由 WO9 全部落地，状态更正。未完成盘点结论：功能类全部关闭；剩余=WO8-14~20 健壮性 P2、T01 前端 ESLint 真实接入、T03 性能基准、T02 文档 checklist（0/41）、B21+WO5-18 删除（待人类）、生产化缺口（部署/安全/数据可靠性/可观测，评估见对话记录，未立项）。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |
