@@ -11,6 +11,7 @@ import (
 	"github.com/weaveclip/server/internal/repository"
 	"github.com/weaveclip/server/internal/service"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 // fakeAssetRepo is an in-memory implementation for testing.
@@ -39,7 +40,8 @@ func (r *fakeAssetRepo) Get(id uint) (*model.Asset, error) {
 			return &cpy, nil
 		}
 	}
-	return nil, errNotFound
+	// 镜像真实 GORM 仓库契约：缺行返回 gorm.ErrRecordNotFound（工单 WO8-19）
+	return nil, gorm.ErrRecordNotFound
 }
 
 func (r *fakeAssetRepo) Create(asset *model.Asset) error {
@@ -114,7 +116,8 @@ func (r *fakeAssetRepo) Delete(id uint) error {
 			return nil
 		}
 	}
-	return errNotFound
+	// 镜像真实 GORM 仓库契约（工单 WO8-19）
+	return gorm.ErrRecordNotFound
 }
 
 // fakeProjectFinder implements service.ProjectFinder for testing.

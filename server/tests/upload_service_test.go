@@ -57,9 +57,11 @@ func TestUploadService_PresignConfirmFlow(t *testing.T) {
 	assert.Equal(t, "ready", confirmed.Status)
 	assert.Equal(t, int64(16), confirmed.FileSize)
 
-	// 4. 重复 confirm 应报状态错误
-	_, err = svc.Confirm(asset.ID, 1)
-	assert.ErrorIs(t, err, service.ErrInvalidState)
+	// 4. 重复 confirm 幂等（工单 WO8-14）：网络重试直接返回现有资产，不再报状态错误
+	confirmed2, err := svc.Confirm(asset.ID, 1)
+	require.NoError(t, err)
+	assert.Equal(t, "ready", confirmed2.Status)
+	assert.Equal(t, int64(16), confirmed2.FileSize)
 }
 
 func TestUploadService_Rejections(t *testing.T) {
