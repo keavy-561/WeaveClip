@@ -618,6 +618,29 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 
 ---
 
+## 16. 第十轮工单（2026-09-20 生产化收口，WO11 系列）
+
+> 来源：未完成盘点（v2.4）——生产化缺口（上线评估 Tier A 阻断项）从未立项，本轮补齐。
+> T01 前端 ESLint 真实接入受锁文件纪律限制（新增 devDependencies 需同步 pnpm-lock，本机禁止安装），
+> 保持 CI 空跑现状并在下述申报中登记。
+
+| 编号 | 标题 | 状态 |
+|---|---|---|
+| WO11-01 | Dockerfile×2（deploy/server.Dockerfile 多阶段构建含 ffmpeg 运行层；deploy/web.Dockerfile pnpm 构建 + nginx 托管） | ✅ 本次 |
+| WO11-02 | docker-compose 补齐 server/worker/web 三个应用服务（健康检查依赖、mockstorage 共享卷）；deploy/nginx.conf 静态托管 + /api、/ws 反代 + SPA 回退，TLS 443 块预置（证书由部署方挂载） | ✅ 本次 |
+| WO11-03 | server 优雅停机：http.Server + SIGINT/SIGTERM + Shutdown（15s 上限），替代 r.Run 硬断 | ✅ 本次 |
+| WO11-04 | middleware.BodyLimit（JSON 接口 10MB，/api/mock-storage 与 /ws 豁免）+ middleware.RateLimit（每 IP 令牌桶 20/s burst 40，手写无新依赖） | ✅ 本次 |
+| WO11-05/06 | 启动防护：JWT_SECRET 含未解析 `${VAR}` 占位符 fail-fast；APP_ENV=prod 时禁止本地磁盘回落与 MOCK_MODE；CORS 未配置告警 | ✅ 本次 |
+| WO11-07 | 备份脚本 deploy/backup.sh（pg_dump + MinIO mc mirror + 14 天保留，cron 建议） | ✅ 本次 |
+| WO11-08 | T02 收口：development-plan.md 验收 checklist 41 项如实勾选 38 项（Phase 0~6 已真机/CI 验证）；保留未勾 3 项——Asynq 队列状态查看（无监控 UI）、MP4 内容与 Timeline 一致性人工核对（需真实渲染联调）、100+ clips 压测（窗口化已实现、待验证） | ✅ 本次 |
+
+**实施结果（2026-09-20）**：WO11-01~08 已实现并推送，验证交远端 CI。**生产化 Tier A 阻断项全部关闭**
+（剩余 Tier B：备份验证、E2E、WS Hub 横向扩展、metrics/错误追踪——跟随真实联调排期）。
+**申报**：① CORS 未配置时保持 allow-all + 启动告警（收紧需要真实域名清单）；② T01 前端 ESLint
+受锁文件限制未启用；③ T03 性能基准测试需运行环境，未做。
+
+---
+
 ## 变更记录
 
 | 日期 | 版本 | 变更内容 |
@@ -638,4 +661,5 @@ API 不存在，属数据层限制，UI/交互为真实实现）。
 | 2026-09-19 | v2.2 | 第八轮（WO9，§14）：「没写完的功能都写完」——项目重命名/复制、上传取消/重试/进度面板、Describe 模板入口生成闭环+重置+Ctrl+Enter、首页侧栏折叠+搜索响应式、版本历史 invalidate+宽度自适应、播放头键盘微调+canvas ref、播放器逐帧、Timeline 视口窗口化（替代 200 条截断）、分析摘要演示数据标注。功能类工单全部关闭。 |
 | 2026-09-19 | v2.3 | 第九轮（WO10，§15）：第三轮真机走查修复——addClip 空轨自动建视频轨+时长扩展（修"toast 撒谎"的编辑链路断裂 P1）、版本历史 SideSheet 开启 ESC/遮罩关闭（P1）、媒体搜索占位改"搜索素材"、项目卡片菜单 preventDefault 恢复入口。 |
 | 2026-09-19 | v2.4 | 账本回写：WO5-14~17/19~20 与 WO3 后续登记表条目已由 WO9 全部落地，状态更正。未完成盘点结论：功能类全部关闭；剩余=WO8-14~20 健壮性 P2、T01 前端 ESLint 真实接入、T03 性能基准、T02 文档 checklist（0/41）、B21+WO5-18 删除（待人类）、生产化缺口（部署/安全/数据可靠性/可观测，评估见对话记录，未立项）。 |
+| 2026-09-20 | v2.5 | 第十轮（WO11，§16）：生产化收口——Dockerfile×2/compose 应用服务/nginx（TLS 预置）/优雅停机/BodyLimit+RateLimit/JWT 占位符与 MOCK_MODE 生产 fail-fast/CORS 告警/备份脚本/验收 checklist 勾选 38 项。生产化 Tier A 阻断项全部关闭；T01 ESLint（锁文件限制）与 T03 性能基准申报未做。 |
 | 2026-09-19 | v1.4 | 第二轮实施完成 10/12：前端五件套+转录/版本历史 UI+GORM 集成测试+Vision+安全 job+关键测试推送，CI 全绿；遗留 WO2-10 部分（ExportDialog/Generate 测试）与 WO2-11（性能/响应式）。 |

@@ -1,9 +1,16 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -40,8 +47,9 @@ func main() {
 	gin.SetMode(cfg.Server.Mode)
 
 	// JWT must be initialized for auth endpoints to work
-	if cfg.JWT.Secret == "" {
-		slog.Error("JWT_SECRET is required")
+	// 占位符字面量（${JWT_SECRET} 未被环境变量解析）视同未配置，防止出现跨部署可预测的密钥（工单 WO11-06）
+	if cfg.JWT.Secret == "" || strings.Contains(cfg.JWT.Secret, "${") {
+		slog.Error("JWT_SECRET is required; unresolved ${VAR} placeholder is rejected")
 		os.Exit(1)
 	}
 	middleware.InitJWT(cfg.JWT.Secret, cfg.JWT.Expiry)
@@ -60,10 +68,26 @@ func main() {
 		os.Exit(1)
 	}
 
+	// 生产防护（工单 WO11-06/07）：prod 禁止本地磁盘回落（回落会注册无鉴权直传端点）、
+	// 禁止 MOCK_MODE；CORS 未配置时大声警告
+	if env == "prod" && mockStorageRoot != "" {
+		slog.Error("APP_ENV=prod requires object storage (MinIO/S3); local-disk fallback is rejected")
+		os.Exit(1)
+	}
+	if database.IsMockMode() && env == "prod" {
+		slog.Error("MOCK_MODE cannot be enabled with APP_ENV=prod")
+		os.Exit(1)
+	}
+	if len(cfg.CORS.AllowedOrigins) == 0 {
+		slog.Warn("CORS allowed_origins is empty: all origins allowed; configure cors.allowed_origins for production")
+	}
+
 	// HTTP 服务
 	r := gin.New()
 	r.Use(gin.Recovery(), middleware.Recover(), middleware.RequestID(), middleware.Logger(),
 		middleware.CORS(cfg.CORS.AllowedOrigins), middleware.Security(),
+		// 限流（每 IP 令牌桶）与请求体上限：JSON 接口 10MB；大文件直传与 WS 豁免（工单 WO11-04）
+		middleware.BodyLimit(10<<20), middleware.RateLimit(20, 40),
 		middleware.RequestTimeout(cfg.EffectiveRequestTimeout()))
 
 	// Handlers
@@ -254,8 +278,24 @@ func main() {
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	slog.Info("server starting", "addr", addr, "env", env, "mode", cfg.Server.Mode)
-	if err := r.Run(addr); err != nil {
-		slog.Error("server stopped", "error", err)
-		os.Exit(1)
+
+	// 优雅停机（工单 WO11-03）：SIGINT/SIGTERM 后停止接收新请求，等待在途请求完成（15s 上限）
+	srv := &http.Server{Addr: addr, Handler: r}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			slog.Error("server stopped", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	slog.Info("server shutting down")
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		slog.Error("server shutdown error", "error", err)
 	}
+	slog.Info("server exited")
 }

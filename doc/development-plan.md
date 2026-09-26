@@ -457,13 +457,13 @@ WeaveClip/
 
 #### 验收标准
 
-- [ ] `docker-compose up` 一键启动 PostgreSQL + Redis + MinIO
-- [ ] `pnpm dev` 启动前端，`go run` 启动后端
-- [ ] 从首页点击 "New Video" 进入创建流程，全流程跑通到 Editor
-- [ ] Editor 三栏布局正确显示（左 Assets + 中 Preview/Timeline + 右 AI Chat）
-- [ ] 深色/浅色主题可切换，所有页面配色正确
-- [ ] 前端通过 TanStack Query 成功请求后端 Mock API
-- [ ] 无 console 报错
+- [x] `docker-compose up` 一键启动 PostgreSQL + Redis + MinIO
+- [x] `pnpm dev` 启动前端，`go run` 启动后端
+- [x] 从首页点击 "New Video" 进入创建流程，全流程跑通到 Editor
+- [x] Editor 三栏布局正确显示（左 Assets + 中 Preview/Timeline + 右 AI Chat）
+- [x] 深色/浅色主题可切换，所有页面配色正确
+- [x] 前端通过 TanStack Query 成功请求后端 Mock API
+- [x] 无 console 报错
 
 ---
 
@@ -499,14 +499,14 @@ WeaveClip/
 
 #### 验收标准
 
-- [ ] 上传真实视频文件到 S3，Assets 面板展示（含缩略图）
-- [ ] ffprobe 自动提取元数据并存入数据库
-- [ ] 将素材拖入 Timeline 创建 clip
-- [ ] Play/Pause 正常播放，播放头与视频同步
-- [ ] Trim、Delete、Reorder、Split 操作正常
-- [ ] Inspector 正确显示选中 clip 属性
-- [ ] 项目保存到数据库，刷新后可恢复
-- [ ] 不依赖任何 AI 能力
+- [x] 上传真实视频文件到 S3，Assets 面板展示（含缩略图）
+- [x] ffprobe 自动提取元数据并存入数据库
+- [x] 将素材拖入 Timeline 创建 clip
+- [x] Play/Pause 正常播放，播放头与视频同步
+- [x] Trim、Delete、Reorder、Split 操作正常
+- [x] Inspector 正确显示选中 clip 属性
+- [x] 项目保存到数据库，刷新后可恢复
+- [x] 不依赖任何 AI 能力
 
 ---
 
@@ -535,12 +535,12 @@ WeaveClip/
 
 #### 验收标准
 
-- [ ] 用户注册/登录流程正常，JWT 鉴权生效
-- [ ] 输入 "帮我剪一个 45 秒的旅行 vlog" → 后端 Agent Pipeline 完整执行
-- [ ] 返回有效的 Video DSL JSON，写入 timelines 表
-- [ ] 前端 Timeline 正确渲染 AI 生成的 clips
-- [ ] AI 主动追问在需求模糊时触发
-- [ ] DSL 校验不通过时有错误提示
+- [x] 用户注册/登录流程正常，JWT 鉴权生效
+- [x] 输入 "帮我剪一个 45 秒的旅行 vlog" → 后端 Agent Pipeline 完整执行
+- [x] 返回有效的 Video DSL JSON，写入 timelines 表
+- [x] 前端 Timeline 正确渲染 AI 生成的 clips
+- [x] AI 主动追问在需求模糊时触发
+- [x] DSL 校验不通过时有错误提示
 
 ---
 
@@ -570,11 +570,11 @@ WeaveClip/
 
 #### 验收标准
 
-- [ ] "把前 5 秒改得更有冲击力" → AI 替换开头 clip 并更新 Timeline
-- [ ] "把第二段缩短" → AI 返回 trim 操作并显示时间变化
-- [ ] 选中 clip 后说 "把这个换掉" → AI 只修改选中的 clip（上下文感知）
-- [ ] 每次编辑都记录到 edits 表
-- [ ] 快捷操作按钮可用，预填 prompt 到输入框
+- [x] "把前 5 秒改得更有冲击力" → AI 替换开头 clip 并更新 Timeline
+- [x] "把第二段缩短" → AI 返回 trim 操作并显示时间变化
+- [x] 选中 clip 后说 "把这个换掉" → AI 只修改选中的 clip（上下文感知）
+- [x] 每次编辑都记录到 edits 表
+- [x] 快捷操作按钮可用，预填 prompt 到输入框
 
 ---
 
@@ -601,10 +601,10 @@ WeaveClip/
 
 #### 验收标准
 
-- [ ] 上传视频后自动创建 Asynq 分析任务
-- [ ] Asynq Worker 执行：FFmpeg 场景检测 + Whisper ASR + Vision 分析
-- [ ] 分析结果存入数据库，前端可查看
-- [ ] AI Generate 能基于真实素材分析结果做更好的剪辑决策
+- [x] 上传视频后自动创建 Asynq 分析任务
+- [x] Asynq Worker 执行：FFmpeg 场景检测 + Whisper ASR + Vision 分析
+- [x] 分析结果存入数据库，前端可查看
+- [x] AI Generate 能基于真实素材分析结果做更好的剪辑决策
 - [ ] Redis 中可查看 Asynq 任务队列状态
 
 ---
@@ -634,10 +634,10 @@ WeaveClip/
 
 #### 验收标准
 
-- [ ] Editor 点击 Export → 后端创建 Asynq 渲染任务
-- [ ] WebSocket 实时推送渲染进度（0% ~ 100%）
-- [ ] FFmpeg 正确拼接视频片段 + 叠加字幕 + 混合音频
-- [ ] 渲染完成，MP4 上传到 S3，前端可下载
+- [x] Editor 点击 Export → 后端创建 Asynq 渲染任务
+- [x] WebSocket 实时推送渲染进度（0% ~ 100%）
+- [x] FFmpeg 正确拼接视频片段 + 叠加字幕 + 混合音频
+- [x] 渲染完成，MP4 上传到 S3，前端可下载
 - [ ] MP4 视频内容与 Editor Timeline 一致
 
 ---
@@ -665,10 +665,10 @@ WeaveClip/
 
 #### 验收标准
 
-- [ ] Undo/Redo 在所有编辑操作后可用
-- [ ] Version History 显示所有 AI 编辑版本
-- [ ] 所有 Loading/Error/Empty 状态有友好 UI
-- [ ] 键盘快捷键正常工作
+- [x] Undo/Redo 在所有编辑操作后可用
+- [x] Version History 显示所有 AI 编辑版本
+- [x] 所有 Loading/Error/Empty 状态有友好 UI
+- [x] 键盘快捷键正常工作
 - [ ] 100+ clips 时 Timeline 不卡顿
 
 ---

@@ -45,6 +45,76 @@ services:
       timeout: 5s
       retries: 5
 
+  # 应用服务（工单 WO11-02）。生产部署请配置 MinIO 的 STORAGE_* 环境变量
+  # （见 server/config/prod.yaml）并启用 nginx TLS；本地磁盘回落仅限开发。
+  server:
+    build:
+      context: .
+      dockerfile: deploy/server.Dockerfile
+    container_name: weaveclip-server
+    environment:
+      APP_ENV: dev
+      MOCK_MODE: "false"
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_USER: weaveclip
+      DATABASE_PASSWORD: weaveclip_dev
+      DATABASE_DBNAME: weaveclip
+      DATABASE_SSLMODE: disable
+      REDIS_ADDR: redis:6379
+      JWT_SECRET: change_me_in_production
+      MOCK_STORAGE_DIR: /data/mock-storage
+    volumes:
+      - mockstorage:/data/mock-storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  worker:
+    build:
+      context: .
+      dockerfile: deploy/server.Dockerfile
+    container_name: weaveclip-worker
+    entrypoint: ["/usr/local/bin/worker"]
+    environment:
+      APP_ENV: dev
+      MOCK_MODE: "false"
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_USER: weaveclip
+      DATABASE_PASSWORD: weaveclip_dev
+      DATABASE_DBNAME: weaveclip
+      DATABASE_SSLMODE: disable
+      REDIS_ADDR: redis:6379
+      JWT_SECRET: change_me_in_production
+      MOCK_STORAGE_DIR: /data/mock-storage
+    volumes:
+      - mockstorage:/data/mock-storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/web.Dockerfile
+    container_name: weaveclip-web
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+
 volumes:
   pgdata:
   miniodata:
+  mockstorage:
