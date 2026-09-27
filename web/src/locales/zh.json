@@ -216,7 +216,11 @@
       "noPreviewTitle": "暂无可播放预览",
       "noPreviewHint": "把素材拖入下方时间轴后，这里将播放成片画面；演示模式不加载真实视频。",
       "frameBack": "上一帧",
-      "frameForward": "下一帧"
+      "frameForward": "下一帧",
+      "fullscreen": "全屏预览",
+      "exitFullscreen": "退出全屏",
+      "fullscreenFailed": "全屏切换失败，请重试",
+      "fullscreenUnsupported": "当前浏览器不支持全屏"
     },
     "sidebar": {
       "filters": "滤镜",

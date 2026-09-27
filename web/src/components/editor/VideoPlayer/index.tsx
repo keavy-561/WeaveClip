@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Select, Slider } from '@douyinfe/semi-ui';
-import { IconPlay, IconPause, IconMute, IconVolume2, IconVideo, IconChevronLeft, IconChevronRight } from '@douyinfe/semi-icons';
+import { Button, Select, Slider, Toast } from '@douyinfe/semi-ui';
+import { IconPlay, IconPause, IconMute, IconVolume2, IconVideo, IconChevronLeft, IconChevronRight, IconFullScreenStroked } from '@douyinfe/semi-icons';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useAssetsStore } from '@/stores/assetsStore';
 import { useBrandStore } from '@/stores/brandStore';
@@ -26,9 +26,13 @@ const VideoPlayer: React.FC = () => {
   const tracks = useTimelineStore((s) => s.tracks);
   const assets = useAssetsStore((s) => s.assets);
   const brandName = useBrandStore((s) => s.brand.name);
+  // 品牌主色 = 字幕默认色（工单 WO6-09）：无显式 style.color 的字幕回退到它
+  const brandPrimary = useBrandStore((s) => s.brand.primaryColor);
   const { t } = useAppTranslation();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  // 全屏预览的目标容器（含视频/字幕/水印/控制栏的整体画面）
+  const screenRef = useRef<HTMLDivElement | null>(null);
   // 标志位：本次 store currentTime 更新来自 video 的 timeupdate（video → store），
   // 同步 effect 据此跳过回写，避免 video ↔ store 双向回环
   const isLocalUpdateRef = useRef(false);
@@ -38,6 +42,7 @@ const VideoPlayer: React.FC = () => {
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const videoTrackClips = useMemo(() => {
     const videoTrack = tracks.find((tr) => tr.type === 'video');
@@ -236,9 +241,38 @@ const VideoPlayer: React.FC = () => {
     video.playbackRate = playbackRate;
   }, [playbackRate]);
 
+  // 全屏预览：进入/退出由 Fullscreen API 驱动，ESC 退出为浏览器原生行为，
+  // 这里只同步按钮状态（部分环境 document.fullscreenElement 不实时，以事件为准）
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(document.fullscreenElement !== null);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    const el = screenRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        // 旧版 Safari 前缀回退
+        const req = el.requestFullscreen?.bind(el) ??
+          (el as HTMLDivElement & { webkitRequestFullscreen?: () => Promise<void> | void }).webkitRequestFullscreen?.bind(el);
+        if (!req) {
+          Toast.error(t('editor.videoPlayer.fullscreenUnsupported'));
+          return;
+        }
+        await req();
+      }
+    } catch {
+      Toast.error(t('editor.videoPlayer.fullscreenFailed'));
+    }
+  };
+
   return (
     <div className={styles.player}>
-      <div className={styles.screen}>
+      <div className={styles.screen} ref={screenRef}>
         {/* 媒体元素用原生 <video> 标签（非交互控件），交互控件一律为 Semi 组件 */}
         <video
           ref={videoRef}
@@ -271,7 +305,7 @@ const VideoPlayer: React.FC = () => {
               styles[`caption${activeCaption.style?.position ?? 'bottom'}`] ?? ''
             }`}
             style={{
-              color: activeCaption.style?.color ?? '#FFFFFF',
+              color: activeCaption.style?.color ?? brandPrimary,
               fontSize: `${activeCaption.style?.size ?? 24}px`,
             }}
           >
@@ -340,6 +374,15 @@ const VideoPlayer: React.FC = () => {
               }))}
               className={styles.speedSelect}
               aria-label={t('editor.videoPlayer.speed')}
+            />
+            {/* 全屏预览：对整个画面（视频/字幕/水印/控制栏）进入 Fullscreen */}
+            <Button
+              icon={<IconFullScreenStroked />}
+              theme="borderless"
+              size="small"
+              onClick={() => void toggleFullscreen()}
+              aria-label={isFullscreen ? t('editor.videoPlayer.exitFullscreen') : t('editor.videoPlayer.fullscreen')}
+              className={styles.controlBtn}
             />
           </div>
         </div>

@@ -216,7 +216,11 @@
       "noPreviewTitle": "No playable preview yet",
       "noPreviewHint": "Drag assets to the timeline below and the edited result will play here. Demo mode doesn't load real video.",
       "frameBack": "Previous frame",
-      "frameForward": "Next frame"
+      "frameForward": "Next frame",
+      "fullscreen": "Fullscreen preview",
+      "exitFullscreen": "Exit fullscreen",
+      "fullscreenFailed": "Failed to toggle fullscreen, please try again",
+      "fullscreenUnsupported": "Fullscreen is not supported in this browser"
     },
     "sidebar": {
       "filters": "Filters",
