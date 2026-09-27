@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, InputNumber, Select, TextArea, Toast } from '@douyinfe/semi-ui';
 import { useTimelineStore } from '@/stores/timelineStore';
 import { useBrandStore, BRAND_PALETTE } from '@/stores/brandStore';
@@ -24,8 +24,14 @@ const TextPanel: React.FC = () => {
 
   const [text, setText] = useState('');
   const [color, setColor] = useState(brandPrimary);
+  // 品牌主色变化时同步默认色；用户在本面板手动选过色后不再被覆盖
+  const [colorTouched, setColorTouched] = useState(false);
   const [position, setPosition] = useState<CaptionPosition>('bottom');
   const [duration, setDuration] = useState(3);
+
+  useEffect(() => {
+    if (!colorTouched) setColor(brandPrimary);
+  }, [brandPrimary, colorTouched]);
 
   const positionLabel = (value: CaptionPosition): string =>
     value === 'top'
@@ -70,7 +76,10 @@ const TextPanel: React.FC = () => {
               theme={color === swatch ? 'solid' : 'borderless'}
               className={`${styles.swatch} ${color === swatch ? styles.swatchActive : ''}`}
               style={{ background: swatch }}
-              onClick={() => setColor(swatch)}
+              onClick={() => {
+                setColor(swatch);
+                setColorTouched(true);
+              }}
               aria-label={swatch}
               aria-pressed={color === swatch}
             />
