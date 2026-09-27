@@ -45,15 +45,21 @@ type ChatResult struct {
 
 // Chat 处理一条对话编辑指令。
 func (s *ChatService) Chat(projectID, userID uint, message, selectedClipID string) (*ChatResult, error) {
-	if _, err := s.projects.GetProject(projectID, userID); err != nil {
+	project, err := s.projects.GetProject(projectID, userID)
+	if err != nil {
 		return nil, ErrProjectNotFound
 	}
 	latest, err := s.timelines.GetLatest(projectID, userID)
 	if err != nil {
-		if errors.Is(err, ErrTimelineNotFound) {
-			return nil, ErrTimelineNotFound
+		if !errors.Is(err, ErrTimelineNotFound) {
+			return nil, err
 		}
-		return nil, err
+		// 新项目尚未保存过时间线：自动初始化一条空时间线，让对话编辑开箱即用。
+		// 此前直接返回 ErrTimelineNotFound，编辑器 AI 面板对新项目完全不可用。
+		latest, err = s.initEmptyTimeline(projectID, project.Duration)
+		if err != nil {
+			return nil, err
+		}
 	}
 	assets, err := s.assets.ListByProject(projectID)
 	if err != nil {
@@ -111,6 +117,26 @@ func (s *ChatService) Chat(projectID, userID uint, message, selectedClipID strin
 	return result, nil
 }
 
+// initEmptyTimeline 为尚无持久化时间线的项目创建版本 1 空时间线。
+// 时长取项目目标时长，非法时回退 30s（DSL 校验要求 duration > 0）。
+func (s *ChatService) initEmptyTimeline(projectID uint, duration int) (*model.Timeline, error) {
+	if duration <= 0 {
+		duration = 30
+	}
+	empty := ai.DSLTimeline{
+		Version:  "1.0",
+		FPS:      30,
+		Duration: float64(duration),
+		Canvas:   ai.DSLCanvas{Width: 1080, Height: 1920},
+		Tracks:   []ai.DSLTrack{},
+	}
+	raw, err := empty.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	return s.timelines.SaveInternal(projectID, raw, "initial empty timeline")
+}
+
 func (s *ChatService) llmChat(dsl *ai.DSLTimeline, assets []model.Asset, message, selectedClipID string) (*ai.ChatAgentOutput, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
@@ -146,6 +172,13 @@ func heuristicChat(message, selectedClipID string, dsl *ai.DSLTimeline, assets [
 		}
 	}
 
+	// 空时间轴（新项目自动初始化为空）没有可操作的片段：clip 级指令直接给引导，
+	// 不产出找不到片段的 operation（ApplyOperations 会报错，整条对话 500）
+	if clipID == "" && targetsClipOp(msg) {
+		out.Message = "时间轴还是空的，先拖入素材再让我编辑片段。"
+		return out
+	}
+
 	switch {
 	case strings.Contains(msg, "删") || strings.Contains(msg, "delete"):
 		out.Operations = append(out.Operations, ai.Operation{Type: "delete", ClipID: clipID})
@@ -172,4 +205,14 @@ func heuristicChat(message, selectedClipID string, dsl *ai.DSLTimeline, assets [
 		out.Message = "收到！这是 mock 模式的回复，配置 ANTHROPIC_API_KEY 后可获得真实的 AI 编辑能力。"
 	}
 	return out
+}
+
+// targetsClipOp 判断消息是否指向片段级操作。删/修剪/替换/重排/加字幕五类
+// operation 都要求目标片段存在（ApplyOperations 对找不到的片段直接报错）。
+func targetsClipOp(msg string) bool {
+	return strings.Contains(msg, "删") || strings.Contains(msg, "delete") ||
+		strings.Contains(msg, "缩短") || strings.Contains(msg, "trim") ||
+		strings.Contains(msg, "换") || strings.Contains(msg, "replace") ||
+		strings.Contains(msg, "开头") || strings.Contains(msg, "reorder") ||
+		strings.Contains(msg, "字幕") || strings.Contains(msg, "caption")
 }
