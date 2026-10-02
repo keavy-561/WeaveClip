@@ -81,7 +81,9 @@ func NewPlanningAgent(llm LLMClient) *PlanningAgent {
 
 const planSystem = `你是视频剪辑规划器。根据意图和素材列表，挑选并排序素材片段，输出 JSON：
 segments:[{assetId(字符串), reason, keepIn(秒), keepOut(秒)}]，
-使总时长（keepOut-keepIn 之和）接近意图的 targetDuration。只输出 JSON。`
+使总时长（keepOut-keepIn 之和）接近意图的 targetDuration。
+素材类型说明：video 按其 duration 选取片段；image 无播放时长，按其摘要中的时长整段使用（keepIn=0）。
+只输出 JSON。`
 
 // Plan 生成剪辑计划。
 func (p *PlanningAgent) Plan(ctx context.Context, intent *Intent, assets []model.Asset) (*Plan, error) {
@@ -149,7 +151,8 @@ func NewEditingAgent(llm LLMClient) *EditingAgent {
 const editingSystem = `你是时间线编辑器。根据剪辑计划把素材片段排布到时间轴，输出 Video DSL JSON：
 {version:"1.0", fps:30, duration(number), canvas:{width,height},
  tracks:[{id, type:"video"|"audio"|"text", name, clips:[{id, assetId(与计划一致), type, start, end, trimIn, trimOut}]}]}。
-约束：video 轨 clip 的 start/end 连续无重叠；end-start == trimOut-trimIn；总时长=duration。只输出 JSON。`
+约束：video 轨 clip 的 start/end 连续无重叠；end-start == trimOut-trimIn；总时长=duration。
+素材类型说明：video 轨可同时承载视频与图片素材，图片片段 end-start 必须等于计划给的整段时长，trimIn=0。只输出 JSON。`
 
 // GenerateDSL 生成 DSL。
 func (e *EditingAgent) GenerateDSL(ctx context.Context, intent *Intent, plan *Plan, assets []model.Asset) (json.RawMessage, error) {

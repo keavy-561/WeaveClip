@@ -42,7 +42,7 @@ func (h *GenerateHandler) Start(c *gin.Context) {
 		case errors.Is(err, service.ErrProjectNotFound):
 			NotFound(c, "project not found")
 		case errors.Is(err, service.ErrNoAssets):
-			BadRequest(c, "no video assets in project, upload footage first")
+			BadRequest(c, "no video or image assets in project, upload footage first")
 		default:
 			InternalError(c, "failed to start generation")
 		}

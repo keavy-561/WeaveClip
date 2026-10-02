@@ -136,15 +136,24 @@ type AssetSummary struct {
 	Duration float64 `json:"duration"`
 }
 
+// NominalImageDuration 图片素材的名义时长（秒）：图片没有播放时长，规划时按
+// 该值整段使用，与前端图片片段的预期展示时长一致。
+const NominalImageDuration = 5.0
+
 // SummarizeAssets 把素材列表转成摘要。
 func SummarizeAssets(assets []model.Asset) []AssetSummary {
 	out := make([]AssetSummary, 0, len(assets))
 	for _, a := range assets {
+		duration := a.Duration
+		// 图片无播放时长，给名义时长让规划器产出可校验的片段范围
+		if a.Type == "image" && duration <= 0 {
+			duration = NominalImageDuration
+		}
 		out = append(out, AssetSummary{
 			ID:       fmt.Sprintf("%d", a.ID),
 			Type:     a.Type,
 			FileName: a.FileName,
-			Duration: a.Duration,
+			Duration: duration,
 		})
 	}
 	return out

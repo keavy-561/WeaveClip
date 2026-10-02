@@ -41,6 +41,11 @@ func NewGenerateService(generations repository.GenerationRepository, projects Pr
 	return &GenerateService{generations: generations, projects: projects, assets: assets, timelines: timelines, pipeline: pipeline}
 }
 
+// isGeneratableAsset 生成可用的素材类型：视频与图片（图片按名义时长整段使用）。
+func isGeneratableAsset(a model.Asset) bool {
+	return a.Type == "video" || a.Type == "image"
+}
+
 // StartGeneration 创建生成任务并异步执行管线；需求模糊时返回 need_input。
 func (s *GenerateService) StartGeneration(projectID, userID uint, prompt string, answers []Answer) (*model.Generation, error) {
 	if _, err := s.projects.GetProject(projectID, userID); err != nil {
@@ -50,13 +55,13 @@ func (s *GenerateService) StartGeneration(projectID, userID uint, prompt string,
 	if err != nil {
 		return nil, err
 	}
-	videoAssets := make([]model.Asset, 0, len(allAssets))
+	usableAssets := make([]model.Asset, 0, len(allAssets))
 	for _, a := range allAssets {
-		if a.Type == "video" {
-			videoAssets = append(videoAssets, a)
+		if isGeneratableAsset(a) {
+			usableAssets = append(usableAssets, a)
 		}
 	}
-	if len(videoAssets) == 0 {
+	if len(usableAssets) == 0 {
 		return nil, ErrNoAssets
 	}
 	if len(answers) > 0 {
@@ -76,7 +81,7 @@ func (s *GenerateService) StartGeneration(projectID, userID uint, prompt string,
 	if err := s.generations.Create(gen); err != nil {
 		return nil, err
 	}
-	go s.run(*gen, videoAssets)
+	go s.run(*gen, usableAssets)
 	return gen, nil
 }
 
