@@ -17,6 +17,10 @@ const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 /** 双向同步的容差（秒）：小于该差异视为播放中的正常增量，不触发程序化 seek */
 const SYNC_EPSILON = 0.01;
 
+/** 音频跟随主时钟的重寻址容差（秒）：音频自身进度与主时钟存在微漂移，
+ *  容差过小会逐 tick 重寻址造成声音卡顿 */
+const AUDIO_SYNC_EPSILON = 0.3;
+
 const VideoPlayer: React.FC = () => {
   const isPlaying = useTimelineStore((s) => s.isPlaying);
   const currentTime = useTimelineStore((s) => s.currentTime);
@@ -31,6 +35,8 @@ const VideoPlayer: React.FC = () => {
   const { t } = useAppTranslation();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  // 音频轨（背景音乐）播放元素：跟随主时钟，不驱动时钟
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   // 全屏预览的目标容器（含视频/字幕/水印/控制栏的整体画面）
   const screenRef = useRef<HTMLDivElement | null>(null);
   // 标志位：本次 store currentTime 更新来自 video 的 timeupdate（video → store），
@@ -79,6 +85,31 @@ const VideoPlayer: React.FC = () => {
       ) ?? null
     );
   }, [tracks, currentTime]);
+
+  // 音频轨（背景音乐）：取播放头命中的音频片段，由独立 <audio> 元素跟随主时钟播放
+  const activeAudioClip = useMemo(() => {
+    const audioTrack = tracks.find((tr) => tr.type === 'audio');
+    if (!audioTrack) return null;
+    return (
+      audioTrack.clips.find(
+        (c) => currentTime >= c.start && currentTime < c.start + c.duration
+      ) ?? null
+    );
+  }, [tracks, currentTime]);
+  const activeAudioClipId = activeAudioClip?.id ?? null;
+  const activeAudioAsset: Asset | null = useMemo(() => {
+    if (!activeAudioClip?.assetId) return null;
+    return (
+      assets.find((a) => a.id === activeAudioClip.assetId) ??
+      mockAssets.find((a) => a.id === activeAudioClip.assetId) ??
+      null
+    );
+  }, [activeAudioClip, assets]);
+  // 片段比素材长时循环播放（背景音乐铺满时间线的常见用法）
+  const audioLoop =
+    !!activeAudioClip &&
+    !!activeAudioAsset?.duration &&
+    activeAudioClip.duration > activeAudioAsset.duration + 0.5;
 
   // 调色/滤镜/效果预览（工单 WO7-02）：映射为 CSS filter 实时作用于 <video>，
   // 最终成片效果以后端渲染管线（B17）编译的 ffmpeg 滤镜为准
@@ -178,9 +209,16 @@ const VideoPlayer: React.FC = () => {
   // 上下文换算会把时钟写成 vT+start，瞬间跳过整个图片段
   const handleTimeUpdate = () => {
     const video = videoRef.current;
-    if (!video || activeAsset?.type !== 'video') return;
+    if (!video || activeAsset?.type !== 'video' || !activeClip) return;
     const { start, sourceStart } = clipCtxRef.current;
     const absolute = video.currentTime - sourceStart + start;
+    // 片段边界收束：视频素材比片段长时，播到片段末尾即跳下一段/暂停
+    //（否则视频会一路播到源末尾，时间轴时长与音画对齐全部失真）
+    const clipEnd = activeClip.start + (activeClip.duration ?? 0);
+    if (absolute >= clipEnd - SYNC_EPSILON) {
+      handleClipEnd(activeClip);
+      return;
+    }
     if (Math.abs(absolute - currentTime) < SYNC_EPSILON) return;
     isLocalUpdateRef.current = true;
     setCurrentTime(absolute);
@@ -272,20 +310,53 @@ const VideoPlayer: React.FC = () => {
     }
   }, [currentTime, hasPlayableSource]);
 
-  // 音量/静音真实作用于 video 元素
+  // 音量/静音真实作用于 video 与 audio（背景音乐随主音量）
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-    video.volume = volume;
-    video.muted = muted;
+    if (video) {
+      video.volume = volume;
+      video.muted = muted;
+    }
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = volume;
+      audio.muted = muted;
+    }
   }, [volume, muted]);
 
-  // 倍速真实作用于 video 元素
+  // 倍速真实作用于 video 与 audio 元素
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-    video.playbackRate = playbackRate;
+    if (video) video.playbackRate = playbackRate;
+    const audio = audioRef.current;
+    if (audio) audio.playbackRate = playbackRate;
   }, [playbackRate]);
+
+  // 音频轨跟随主时钟：播放/暂停由 isPlaying 驱动（时钟推进仍由视频/图片负责，音频只跟随）
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !activeAudioAsset) return;
+    if (isPlaying) {
+      audio.play().catch(() => {
+        // 自动播放策略等导致的失败：静默，主画面不受影响
+      });
+    } else {
+      audio.pause();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, activeAudioClipId, activeAudioAsset]);
+
+  // 音频素材内位置跟随主时钟（拖拽/跳转/跨段进入）。
+  // 容差放宽到 0.3s：audio 自身进度与主时钟天然微漂移，逐 tick 重寻址会造成声音卡顿
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !activeAudioClip) return;
+    const target = currentTime - activeAudioClip.start + (activeAudioClip.sourceStart ?? 0);
+    if (target >= 0 && Math.abs(audio.currentTime - target) > AUDIO_SYNC_EPSILON) {
+      audio.currentTime = target;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTime, activeAudioClipId]);
 
   // 全屏预览：进入/退出由 Fullscreen API 驱动，ESC 退出为浏览器原生行为，
   // 这里只同步按钮状态（部分环境 document.fullscreenElement 不实时，以事件为准）
@@ -345,6 +416,14 @@ const VideoPlayer: React.FC = () => {
             style={previewFilter ? { filter: previewFilter } : undefined}
           />
         )}
+        {/* 音频轨（背景音乐）：独立 <audio> 元素跟随主时钟，片段比素材长时循环 */}
+        <audio
+          ref={audioRef}
+          src={activeAudioAsset?.playbackUrl ?? undefined}
+          loop={audioLoop}
+          preload="auto"
+        />
+
         {/* 无可播素材且无缩略图时显示渐变占位（外链占位图已移除，WO4-05），
             附说明文案避免"一大块空白"的观感（WO5-02） */}
         {!canPlay && !activeAsset?.thumbnailUrl && (

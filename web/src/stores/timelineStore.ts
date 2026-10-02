@@ -240,12 +240,14 @@ export const useTimelineStore = create<TimelineState>((set) => ({
 
   addClip: (assetId, startTime) =>
     set((state) => {
-      // 优先从 assetsStore 查素材时长，查不到回退 mockAssets，最后给默认值
+      // 优先从 assetsStore 查素材时长，查不到回退 mockAssets，最后给默认值。
+      // duration 用 || 兜底：新上传素材在分析（ffprobe）前 duration=0，按 0 建出的
+      // 片段宽度为 0 且永不命中播放头（背景音乐因此无声），按 5s 默认值处理
       const storedAssets = useAssetsStore.getState().assets;
       const asset =
         storedAssets.find((a) => a.id === assetId) ??
         mockAssets.find((a) => a.id === assetId);
-      const duration = asset?.duration ?? 5;
+      const duration = asset?.duration || 5;
 
       const newClip: Clip = {
         id: `clip_${Date.now()}`,
@@ -255,20 +257,24 @@ export const useTimelineStore = create<TimelineState>((set) => ({
         sourceStart: 0,
         sourceDuration: duration,
       };
-      // 视频轨不存在时自动创建（空时间轴/新项目）：此前直接 return 导致
+      // 按素材类型落轨：audio 素材进音频轨（背景音乐），video/image 进视频轨；
+      // 目标轨道不存在时自动创建（空时间轴/新项目）：此前直接 return 导致
       // "已添加"toast 撒谎、点素材→时间轴→检查器的编辑链路断裂
       //（走查第三轮 P1-N1，工单 WO10-01）
-      const hasVideoTrack = state.tracks.some((track) => track.type === 'video');
+      const targetType = asset?.type === 'audio' ? 'audio' : 'video';
+      const hasTargetTrack = state.tracks.some((track) => track.type === targetType);
       const insertSorted = (clips: Clip[]) =>
         [...clips, newClip].sort((a, b) => a.start - b.start);
-      const newTracks = hasVideoTrack
+      const newTracks = hasTargetTrack
         ? state.tracks.map((track) =>
-            track.type === 'video' ? { ...track, clips: insertSorted(track.clips) } : track
+            track.type === targetType ? { ...track, clips: insertSorted(track.clips) } : track
           )
-        : [
-            { id: `video_${Date.now()}`, type: 'video' as const, clips: [newClip] },
-            ...state.tracks,
-          ];
+        : targetType === 'audio'
+          ? [...state.tracks, { id: `audio_${Date.now()}`, type: 'audio' as const, clips: [newClip] }]
+          : [
+              { id: `video_${Date.now()}`, type: 'video' as const, clips: [newClip] },
+              ...state.tracks,
+            ];
       const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
       return {
         past,

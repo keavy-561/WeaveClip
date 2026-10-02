@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Empty, Input, Popconfirm, Toast } from '@douyinfe/semi-ui';
-import { IconPlus, IconChevronLeft, IconDelete, IconSearch } from '@douyinfe/semi-icons';
+import { IconPlus, IconChevronLeft, IconDelete, IconSearch, IconMusic } from '@douyinfe/semi-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Asset } from '@/types/asset';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -138,9 +138,13 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
 
   // 素材来源（WO5-03）：真实模式只消费真实数据（为空时渲染空态引导，不再回退假素材），
   // mock 模式回退演示数据；过滤掉本地已删除的素材。
-  // 图片与视频一样展示（纯图片项目生成后，用户需要在面板里看到并复用图片素材）
+  // 图片/音频与视频一并展示（纯图片项目生成后需复用图片，背景音乐需在面板可见可添加）
   const sourceAssets = (isMockMode ? mockAssets : storedAssets.length > 0 ? storedAssets : assets)
-    .filter((a) => (a.type === 'video' || a.type === 'image') && !removedIds.has(a.id));
+    .filter(
+      (a) =>
+        (a.type === 'video' || a.type === 'image' || a.type === 'audio') &&
+        !removedIds.has(a.id)
+    );
   const filtered = sourceAssets.filter((a) =>
     a.fileName.toLowerCase().includes(query.toLowerCase())
   );
@@ -151,10 +155,15 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
     e.dataTransfer.effectAllowed = 'copy';
   };
 
-  /** 点击素材快速追加到视频轨末尾（WO5-07，拖拽之外的快捷路径） */
+  /** 点击素材快速追加到时间轴末尾（WO5-07，拖拽之外的快捷路径）：
+   *  音频素材落到音频轨（背景音乐），视频/图片落到视频轨 */
   const handleAddToTimeline = (asset: Asset) => {
-    const videoTrack = useTimelineStore.getState().tracks.find((tr) => tr.type === 'video');
-    const end = videoTrack?.clips.reduce((max, c) => Math.max(max, c.start + c.duration), 0) ?? 0;
+    const targetType = asset.type === 'audio' ? 'audio' : 'video';
+    const targetTrack = useTimelineStore
+      .getState()
+      .tracks.find((tr) => tr.type === targetType);
+    const end =
+      targetTrack?.clips.reduce((max, c) => Math.max(max, c.start + c.duration), 0) ?? 0;
     addClip(asset.id, end);
     Toast.success(t('editor.mediaPanel.addedToTimeline'));
   };
@@ -306,6 +315,10 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                           alt={asset.fileName}
                           loading="lazy"
                         />
+                      ) : asset.type === 'audio' ? (
+                        <div className={styles.assetPlaceholder} aria-hidden="true">
+                          <IconMusic className={styles.assetPlaceholderIcon} />
+                        </div>
                       ) : (
                         <div className={styles.assetPlaceholder} aria-hidden="true" />
                       )}
@@ -364,6 +377,10 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
                           alt={asset.fileName}
                           loading="lazy"
                         />
+                      ) : asset.type === 'audio' ? (
+                        <div className={styles.assetPlaceholder} aria-hidden="true">
+                          <IconMusic className={styles.assetPlaceholderIcon} />
+                        </div>
                       ) : (
                         <div className={styles.assetPlaceholder} aria-hidden="true" />
                       )}

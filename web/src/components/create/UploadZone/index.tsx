@@ -11,8 +11,18 @@ export interface UploadZoneProps {
   inputId: string;
 }
 
-const ACCEPTED_TYPES = ['video/mp4', 'video/quicktime', 'image/jpeg', 'image/png'];
-const ACCEPTED_EXTS = ['.mp4', '.mov', '.jpg', '.jpeg', '.png'];
+const ACCEPTED_TYPES = [
+  'video/mp4',
+  'video/quicktime',
+  'image/jpeg',
+  'image/png',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/mp4',
+  'audio/aac',
+];
+const ACCEPTED_EXTS = ['.mp4', '.mov', '.jpg', '.jpeg', '.png', '.mp3', '.wav', '.m4a', '.aac'];
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 
 const UploadZone: React.FC<UploadZoneProps> = ({
