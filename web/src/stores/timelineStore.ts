@@ -127,10 +127,28 @@ export const useTimelineStore = create<TimelineState>((set) => ({
   deleteClip: (clipId) =>
     set((state) => {
       const past = [...state.past, takeSnapshot(state.tracks, state.duration)].slice(-HISTORY_LIMIT);
-      const newTracks = state.tracks.map((track) => ({
-        ...track,
-        clips: track.clips.filter((c) => c.id !== clipId),
-      }));
+      let deletedOnVideoTrack = false;
+      let newTracks = state.tracks.map((track) => {
+        if (!track.clips.some((c) => c.id === clipId)) return track;
+        if (track.type === 'video') deletedOnVideoTrack = true;
+        return { ...track, clips: track.clips.filter((c) => c.id !== clipId) };
+      });
+      // 视频轨删除后自动补齐：剩余片段从 0 起连续压实（与 reorderClips 同一排布规则），
+      // 避免留下空隙；字幕/音频轨位置独立，不做联动移动
+      if (deletedOnVideoTrack) {
+        let cursor = 0;
+        newTracks = newTracks.map((track) => {
+          if (track.type !== 'video') return track;
+          const packed = [...track.clips]
+            .sort((a, b) => a.start - b.start)
+            .map((clip) => {
+              const next = { ...clip, start: cursor };
+              cursor += clip.duration;
+              return next;
+            });
+          return { ...track, clips: packed };
+        });
+      }
       return {
         past,
         future: [],
