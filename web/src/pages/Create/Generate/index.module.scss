@@ -88,3 +88,14 @@
 .retryBtn {
   align-self: center;
 }
+
+// 生成失败的具体原因（后端透传，如"项目里没有视频或图片素材"）
+.failedReason {
+  margin: 0;
+  align-self: center;
+  max-width: 60%;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--semi-color-danger);
+  text-align: center;
+}

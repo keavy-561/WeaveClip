@@ -25,9 +25,14 @@ const Generate: React.FC = () => {
   const [generationId, setGenerationId] = useState<string | null>(null);
   const [controlled, setControlled] = useState<AnalyzeControlledState>({ doneSteps: 0, completed: false });
   const [failed, setFailed] = useState(false);
+  const [failureReason, setFailureReason] = useState<string | null>(null);
   const [needInput, setNeedInput] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const startedRef = useRef(false);
+
+  // 提取后端返回的具体错误信息（axios 错误体 { message }），给用户可行动的提示
+  const extractReason = (err: unknown): string | null =>
+    (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? null;
 
   // 进入页面即启动生成（真实模式）
   useEffect(() => {
@@ -35,9 +40,11 @@ const Generate: React.FC = () => {
     startedRef.current = true;
     generateService.start(projectId, { prompt: draft })
       .then((resp) => setGenerationId(resp.generationId))
-      .catch(() => {
+      .catch((err) => {
         setFailed(true);
-        Toast.error(t('create.generate.startFailed', 'Failed to start generation'));
+        const reason = extractReason(err);
+        setFailureReason(reason);
+        Toast.error(reason ?? t('create.generate.startFailed', 'Failed to start generation'));
       });
   }, [projectId, draft, t]);
 
@@ -59,6 +66,7 @@ const Generate: React.FC = () => {
         }
         if (resp.status === 'failed') {
           setFailed(true);
+          setFailureReason(resp.error ?? null);
           Toast.error(resp.error ?? t('create.generate.failed', 'Generation failed'));
           return;
         }
@@ -86,7 +94,12 @@ const Generate: React.FC = () => {
       .then((resp) => {
         setGenerationId(resp.generationId);
       })
-      .catch(() => Toast.error(t('create.generate.startFailed', 'Failed to start generation')));
+      .catch((err) => {
+        const reason = extractReason(err);
+        setFailureReason(reason);
+        setFailed(true);
+        Toast.error(reason ?? t('create.generate.startFailed', 'Failed to start generation'));
+      });
   };
 
   const handleComplete = () => {
@@ -148,9 +161,14 @@ const Generate: React.FC = () => {
           <>
             <AnalyzeProgress controlled={controlled} />
             {failed && (
-              <Button theme="solid" className={styles.retryBtn} onClick={() => navigate(-1)}>
-                {t('common.back')}
-              </Button>
+              <>
+                <p className={styles.failedReason}>
+                  {failureReason ?? t('create.generate.startFailed', 'Failed to start generation')}
+                </p>
+                <Button theme="solid" className={styles.retryBtn} onClick={() => navigate(-1)}>
+                  {t('common.back')}
+                </Button>
+              </>
             )}
             {controlled.completed && (
               <Button theme="solid" size="large" className={styles.retryBtn} onClick={handleComplete}>

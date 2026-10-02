@@ -347,7 +347,8 @@
     "analyze": {
       "degradedTip": "Analysis service unavailable, using local preview",
       "failedTitle": "Analysis failed",
-      "retry": "Retry"
+      "retry": "Retry",
+      "noVideoSkipped": "No video assets detected — analysis skipped, moving to description…"
     },
     "upload": {
       "step": "Upload",
@@ -367,7 +368,8 @@
       "cancelled": "Upload cancelled. Uploaded files are kept.",
       "partialFailed": "{{count}} file(s) failed to upload. Retry available.",
       "retry": "Retry failed files",
-      "failedList": "Failed: {{names}}"
+      "failedList": "Failed: {{names}}",
+      "imageOnlyNotice": "Images only — you can still generate a video from them, though adding video clips gives better results."
     },
     "describe": {
       "step": "Describe",

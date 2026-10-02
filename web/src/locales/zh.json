@@ -347,7 +347,8 @@
     "analyze": {
       "degradedTip": "分析服务暂时不可用，已切换为本地模拟",
       "failedTitle": "分析失败",
-      "retry": "重试"
+      "retry": "重试",
+      "noVideoSkipped": "未检测到视频素材，已跳过素材分析，正在进入描述…"
     },
     "upload": {
       "step": "上传",
@@ -367,7 +368,8 @@
       "cancelled": "已取消上传，已上传的文件会保留",
       "partialFailed": "{{count}} 个文件上传失败，可点击重试",
       "retry": "重试失败文件",
-      "failedList": "失败文件：{{names}}"
+      "failedList": "失败文件：{{names}}",
+      "imageOnlyNotice": "当前仅包含图片素材：只用图片也能生成视频，搭配视频素材效果更佳"
     },
     "describe": {
       "step": "描述",

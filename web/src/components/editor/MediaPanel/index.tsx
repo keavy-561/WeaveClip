@@ -137,9 +137,10 @@ const MediaPanel: React.FC<MediaPanelProps> = ({ assets }) => {
   }
 
   // 素材来源（WO5-03）：真实模式只消费真实数据（为空时渲染空态引导，不再回退假素材），
-  // mock 模式回退演示数据；过滤掉本地已删除的素材
+  // mock 模式回退演示数据；过滤掉本地已删除的素材。
+  // 图片与视频一样展示（纯图片项目生成后，用户需要在面板里看到并复用图片素材）
   const sourceAssets = (isMockMode ? mockAssets : storedAssets.length > 0 ? storedAssets : assets)
-    .filter((a) => a.type === 'video' && !removedIds.has(a.id));
+    .filter((a) => (a.type === 'video' || a.type === 'image') && !removedIds.has(a.id));
   const filtered = sourceAssets.filter((a) =>
     a.fileName.toLowerCase().includes(query.toLowerCase())
   );

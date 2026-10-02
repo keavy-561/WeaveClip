@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { Button, Toast } from '@douyinfe/semi-ui';
+import { Banner, Button, Toast } from '@douyinfe/semi-ui';
 import UploadZone from '../UploadZone';
 import FileList from '../FileList';
 import type { FileItemData } from '../FileList';
@@ -119,6 +119,18 @@ const UploadStep: React.FC<UploadStepProps> = ({ onContinue, simulateProgress = 
       />
 
       <FileList files={files} onRemove={handleRemove} />
+
+      {/* 纯图片文件集：明确告知可生成，同时给出效果预期（仅图片也能生成视频） */}
+      {files.length > 0 && !files.some((f) => f.type === 'video') && (
+        <Banner
+          type="info"
+          closeIcon={null}
+          description={t(
+            'create.upload.imageOnlyNotice',
+            'Images only — you can still generate a video from them, though adding video clips gives better results.'
+          )}
+        />
+      )}
 
       {files.length > 0 && (
         <div className={styles.actions}>

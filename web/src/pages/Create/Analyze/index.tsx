@@ -4,7 +4,7 @@ import { Button } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
 import Logo from '@/components/ui/Logo';
 import AnalyzeProgress, { AnalyzeControlledState } from '@/components/create/AnalyzeProgress';
-import { analyzeService } from '@/services/assetService';
+import { analyzeService, assetService } from '@/services/assetService';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { useQuery } from '@tanstack/react-query';
 import styles from './index.module.scss';
@@ -27,25 +27,48 @@ const Analyze: React.FC = () => {
   const [started, setStarted] = useState(false);
   const [degraded, setDegraded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [noVideo, setNoVideo] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const [controlled, setControlled] = useState<AnalyzeControlledState>({
     doneSteps: 0,
     completed: false,
   });
 
-  // 真实模式：发起分析任务；后端未就绪（接口不可用）时降级为本地模拟
+  // 素材列表：判断项目里是否有视频（分析=转写/镜头元数据，纯图片项目无需分析）
+  const assetsQuery = useQuery({
+    queryKey: ['analyze-assets', projectId],
+    queryFn: () => assetService.list(projectId ?? ''),
+    enabled: !isMockMode && Boolean(projectId),
+  });
+
+  // 真实模式：有视频素材才发起分析任务；纯图片项目显式跳过；
+  // 后端未就绪（接口不可用）时降级为本地模拟
   useEffect(() => {
-    if (isMockMode || degraded || !projectId || started) return;
+    if (isMockMode || degraded || !projectId || started || !assetsQuery.isSuccess) return;
+    const assets = assetsQuery.data ?? [];
     setStarted(true);
+    if (!assets.some((a) => a.type === 'video')) {
+      setNoVideo(true);
+      return;
+    }
     analyzeService.start(projectId, []).catch(() => {
       setDegraded(true);
     });
-  }, [isMockMode, degraded, projectId, started]);
+  }, [assetsQuery.data, assetsQuery.isSuccess, degraded, projectId, started]);
+
+  // 纯图片项目：提示后自动进入描述页
+  useEffect(() => {
+    if (!noVideo || !projectId) return;
+    const timer = window.setTimeout(() => {
+      navigate(`/projects/new/describe?projectId=${projectId}`);
+    }, 1600);
+    return () => window.clearTimeout(timer);
+  }, [noVideo, projectId, navigate]);
 
   const statusQuery = useQuery({
     queryKey: ['analysis-status', projectId, retryKey],
     queryFn: () => analyzeService.status(projectId ?? ''),
-    enabled: !isMockMode && !degraded && started && !failed && Boolean(projectId),
+    enabled: !isMockMode && !degraded && !noVideo && started && !failed && Boolean(projectId),
     refetchInterval: 1200,
   });
 
@@ -64,12 +87,12 @@ const Analyze: React.FC = () => {
     setControlled({ doneSteps: stepFromProgress(st.progress), completed: false });
   }, [statusQuery.data]);
 
-  // 状态接口不可用 => 降级为本地模拟
+  // 状态接口不可用 => 降级为本地模拟（纯图片跳过场景除外，未发起过分析）
   useEffect(() => {
-    if (statusQuery.isError && !degraded) {
+    if (statusQuery.isError && !degraded && !noVideo) {
       setDegraded(true);
     }
-  }, [statusQuery.isError, degraded]);
+  }, [statusQuery.isError, degraded, noVideo]);
 
   const handleRetry = () => {
     setStarted(false);
@@ -119,7 +142,11 @@ const Analyze: React.FC = () => {
           <div className={styles.notice}>{t('create.analyze.degradedTip', 'Analysis service unavailable, using local preview')}</div>
         )}
 
-        {failed ? (
+        {noVideo && (
+          <div className={styles.notice}>{t('create.analyze.noVideoSkipped', 'No video assets detected — analysis skipped')}</div>
+        )}
+
+        {noVideo ? null : failed ? (
           <div className={styles.failedBox}>
             <p className={styles.failedText}>{t('create.analyze.failedTitle', 'Analysis failed')}</p>
             <Button
