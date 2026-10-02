@@ -10,11 +10,20 @@ import type { AnalyzeStatus } from '@/types/api';
 // 超时放宽到 5 分钟：视频文件直传耗时可能超过业务接口的 30s 预算。
 const presignClient = axios.create({ timeout: 300000 });
 
+// 后端资产 id/projectId 是数字，而 clip.assetId（后端 DSL 生成即字符串）与 mock
+// 素材 id 均为字符串——在服务边界统一为字符串，保证 `a.id === clip.assetId`
+// 严格相等查找成立（经后端保存再重载的时间线此前因此丢素材链接）
+const normalizeAsset = (asset: Asset): Asset => ({
+  ...asset,
+  id: String(asset.id),
+  projectId: String(asset.projectId),
+});
+
 export const assetService = {
   /** GET /api/projects/:id/assets */
   list: async (projectId: string): Promise<Asset[]> => {
     const { data } = await api.get<{ assets: Asset[] }>(`/projects/${projectId}/assets`);
-    return data.assets ?? [];
+    return (data.assets ?? []).map(normalizeAsset);
   },
 
   /** POST /api/projects/:id/assets/presign —— 获取直传 URL（工单 B06 契约） */
@@ -53,7 +62,7 @@ export const assetService = {
     const { data } = await api.post<{ asset: Asset }>(`/projects/${projectId}/assets/confirm`, {
       assetId,
     });
-    return data.asset;
+    return normalizeAsset(data.asset);
   },
 
   /** DELETE /api/assets/:id */
