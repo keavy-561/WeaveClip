@@ -296,8 +296,12 @@ const VideoPlayer: React.FC = () => {
           </div>
         )}
         <div className={styles.mockTime}>{formatTime(currentTime)}</div>
-        {/* 品牌水印（工单 WO6-09）：品牌面板填写名称后显示 */}
-        {brandName.trim() && <div className={styles.brandWatermark}>{brandName.trim()}</div>}
+        {/* 品牌水印（工单 WO6-09）：品牌面板填写名称后显示，颜色随品牌主色 */}
+        {brandName.trim() && (
+          <div className={styles.brandWatermark} style={{ color: brandPrimary }}>
+            {brandName.trim()}
+          </div>
+        )}
         {/* 字幕真实渲染（工单 WO7-01）：按片段的颜色/位置/字号叠加显示 */}
         {activeCaption?.text && (
           <div

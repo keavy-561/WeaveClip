@@ -80,7 +80,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-// 品牌水印（WO6-09）：品牌面板填写名称后显示在画面右下角
+// 品牌水印（WO6-09）：品牌面板填写名称后显示在画面右下角，
+// 颜色随品牌主色（组件内联 style 注入，此处不写死）
 .brandWatermark {
   position: absolute;
   right: 16px;
@@ -89,7 +90,6 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.4);
   pointer-events: none;
   white-space: nowrap;
   overflow: hidden;
