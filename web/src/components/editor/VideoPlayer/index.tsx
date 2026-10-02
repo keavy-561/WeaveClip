@@ -111,9 +111,12 @@ const VideoPlayer: React.FC = () => {
     return parts.length > 0 ? parts.join(' ') : undefined;
   }, [activeClip]);
 
-  // 可播放地址：后端预签名 playbackUrl 优先；mock 本地路径不可播，回退 CSS 渐变占位
-  const videoSrc = activeAsset?.playbackUrl ?? null;
+  // 可播放地址：仅视频素材交给 <video>；mock 本地路径不可播，回退 CSS 渐变占位。
+  // 图片素材由 <img> 渲染静态画面，播放头由时钟 effect 推进（见下方图片片段时钟）
+  const videoSrc = activeAsset?.type === 'video' ? activeAsset.playbackUrl ?? null : null;
   const hasPlayableSource = !!videoSrc;
+  // 播放/逐帧按钮的可用性：视频有源即可，图片素材天然可"播放"
+  const canPlay = !!activeAsset && (activeAsset.type === 'image' || hasPlayableSource);
 
   // 当前 clip 的素材内偏移与时间轴起点（timeupdate 换算绝对时间用，ref 防闭包过期）
   const clipCtxRef = useRef({ start: 0, sourceStart: 0 });
@@ -146,7 +149,8 @@ const VideoPlayer: React.FC = () => {
     }
   };
 
-  // isPlaying → video：驱动真实播放/暂停
+  // isPlaying → video：驱动真实播放/暂停；图片片段由时钟 effect 推进，<video> 必须停住
+  //（否则其 timeupdate 仍按新片段上下文写时钟，与图片时钟双驱动导致播放头飞穿）
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -154,21 +158,27 @@ const VideoPlayer: React.FC = () => {
       video.pause();
       return;
     }
-    if (!hasPlayableSource) {
+    if (!canPlay) {
       // 无可播放素材：立即回滚播放状态，保证 store 与真实能力一致（Space 快捷键同理）
       useTimelineStore.setState({ isPlaying: false });
+      return;
+    }
+    if (!hasPlayableSource) {
+      video.pause();
       return;
     }
     video.play().catch(() => {
       // 播放失败（如浏览器自动播放策略拦截）：回滚播放状态
       useTimelineStore.setState({ isPlaying: false });
     });
-  }, [isPlaying, hasPlayableSource]);
+  }, [isPlaying, canPlay, hasPlayableSource]);
 
-  // video → store：timeupdate 换算为时间轴绝对时间驱动播放头
+  // video → store：timeupdate 换算为时间轴绝对时间驱动播放头。
+  // 仅视频片段有效：切到图片片段后 video 已暂停，残留的 timeupdate 若按新片段
+  // 上下文换算会把时钟写成 vT+start，瞬间跳过整个图片段
   const handleTimeUpdate = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || activeAsset?.type !== 'video') return;
     const { start, sourceStart } = clipCtxRef.current;
     const absolute = video.currentTime - sourceStart + start;
     if (Math.abs(absolute - currentTime) < SYNC_EPSILON) return;
@@ -176,39 +186,75 @@ const VideoPlayer: React.FC = () => {
     setCurrentTime(absolute);
   };
 
-  // 播放到当前片段末尾：有下一片段则跳过去继续播，否则暂停
+  // 片段播完的统一跳转：视频 ended 与图片时钟共用；有下一片段则跳过去继续播，否则暂停
+  const handleClipEnd = (finished: Clip) => {
+    const idx = videoTrackClips.findIndex((c) => c.id === finished.id);
+    const next = videoTrackClips[idx + 1];
+    if (!next) {
+      useTimelineStore.setState({ isPlaying: false });
+      return;
+    }
+    isLocalUpdateRef.current = true;
+    setCurrentTime(next.start + 0.001);
+    // 素材源不变时不会触发 loadedmetadata，挂起的 seek 无人消费：
+    // 直接定位到下一片段的素材内位置并恢复播放，否则画面停在已播完的素材末尾（假死）。
+    // 素材源变化时 pendingSeek 由 activeClipId effect 挂起、loadedmetadata 消费
+    const nextAsset = next.assetId
+      ? assets.find((a) => a.id === next.assetId) ??
+        mockAssets.find((a) => a.id === next.assetId)
+      : null;
+    const video = videoRef.current;
+    if (nextAsset?.type === 'video' && nextAsset.id === activeAsset?.id && video) {
+      const target = (next.sourceStart ?? 0) + 0.001;
+      pendingSeekRef.current = null;
+      if (Math.abs(video.currentTime - target) > SYNC_EPSILON) {
+        video.currentTime = target;
+      }
+      if (video.paused) {
+        video.play().catch(() => {
+          useTimelineStore.setState({ isPlaying: false });
+        });
+      }
+    }
+    if (!isPlaying) {
+      useTimelineStore.setState({ isPlaying: true });
+    }
+  };
+
+  // 播放到当前片段末尾（video ended 事件入口）
   const handleEnded = () => {
     if (!activeClip) {
       useTimelineStore.setState({ isPlaying: false });
       return;
     }
-    const idx = videoTrackClips.findIndex((c) => c.id === activeClip.id);
-    const next = videoTrackClips[idx + 1];
-    if (next) {
-      isLocalUpdateRef.current = true;
-      setCurrentTime(next.start + 0.001);
-      // 素材源不变时不会触发 loadedmetadata，挂起的 seek 无人消费：
-      // 直接定位到下一片段的素材内位置并恢复播放，否则画面停在已播完的素材末尾（假死）
-      const video = videoRef.current;
-      if (video && hasPlayableSource) {
-        const target = (next.sourceStart ?? 0) + 0.001;
-        pendingSeekRef.current = null;
-        if (Math.abs(video.currentTime - target) > SYNC_EPSILON) {
-          video.currentTime = target;
-        }
-        if (video.paused) {
-          video.play().catch(() => {
-            useTimelineStore.setState({ isPlaying: false });
-          });
-        }
-      }
-      if (!isPlaying) {
-        useTimelineStore.setState({ isPlaying: true });
-      }
-    } else {
-      useTimelineStore.setState({ isPlaying: false });
-    }
+    handleClipEnd(activeClip);
   };
+
+  // 图片片段时钟：video 元素对图片没有 timeupdate，播放中用真实时钟推进播放头；
+  // 每 100ms 读取 store 最新时间再累加，外部 seek（拖拽播放头）在下一拍自然生效。
+  // 到片段末尾走与视频 ended 相同的跳转逻辑
+  const activeAssetType = activeAsset?.type;
+  useEffect(() => {
+    if (!isPlaying || !activeClip || activeAssetType !== 'image') return;
+    const end = activeClip.start + (activeClip.duration ?? 0);
+    let last = performance.now();
+    const timer = window.setInterval(() => {
+      const now = performance.now();
+      const delta = (now - last) / 1000;
+      last = now;
+      const current = useTimelineStore.getState().currentTime;
+      isLocalUpdateRef.current = true;
+      if (current + delta >= end) {
+        setCurrentTime(end);
+        handleClipEnd(activeClip);
+      } else {
+        setCurrentTime(current + delta);
+      }
+    }, 100);
+    return () => window.clearInterval(timer);
+    // handleClipEnd 依赖 activeAsset/videoTrackClips，随 activeClip 变化重建
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, activeClip, activeAssetType, setCurrentTime]);
 
   // store → video：外部 seek（如时间轴标尺点击）换算为素材内时间同步到 video；
   // 由 timeupdate 引发的更新通过标志位跳过，防止回环
@@ -273,12 +319,16 @@ const VideoPlayer: React.FC = () => {
   return (
     <div className={styles.player}>
       <div className={styles.screen} ref={screenRef}>
-        {/* 媒体元素用原生 <video> 标签（非交互控件），交互控件一律为 Semi 组件 */}
+        {/* 媒体元素用原生 <video>/<img> 标签（非交互控件），交互控件一律为 Semi 组件；
+            图片段时 video 隐藏（其残留海报帧会从图片的 letterbox 透出） */}
         <video
           ref={videoRef}
           className={styles.video}
-          style={previewFilter ? { filter: previewFilter } : undefined}
-          src={hasPlayableSource ? videoSrc ?? undefined : undefined}
+          style={{
+            ...(previewFilter ? { filter: previewFilter } : undefined),
+            ...(activeAsset?.type === 'image' ? { visibility: 'hidden' } : undefined),
+          }}
+          src={videoSrc ?? undefined}
           poster={activeAsset?.thumbnailUrl || undefined}
           preload="metadata"
           playsInline
@@ -286,9 +336,18 @@ const VideoPlayer: React.FC = () => {
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
         />
-        {/* 无可播源且无缩略图时显示渐变占位（外链占位图已移除，WO4-05），
+        {/* 图片素材片段：直接渲染图片画面，调色滤镜与视频一致 */}
+        {activeAsset?.type === 'image' && (
+          <img
+            className={styles.video}
+            src={activeAsset.playbackUrl ?? undefined}
+            alt={activeAsset.fileName}
+            style={previewFilter ? { filter: previewFilter } : undefined}
+          />
+        )}
+        {/* 无可播素材且无缩略图时显示渐变占位（外链占位图已移除，WO4-05），
             附说明文案避免"一大块空白"的观感（WO5-02） */}
-        {!hasPlayableSource && !activeAsset?.thumbnailUrl && (
+        {!canPlay && !activeAsset?.thumbnailUrl && (
           <div className={styles.screenPlaceholder}>
             <IconVideo className={styles.placeholderIcon} aria-hidden />
             <p className={styles.placeholderTitle}>{t('editor.videoPlayer.noPreviewTitle')}</p>
@@ -325,7 +384,7 @@ const VideoPlayer: React.FC = () => {
               theme="borderless"
               size="small"
               onClick={() => setCurrentTime(Math.max(0, currentTime - 1 / 30))}
-              disabled={!hasPlayableSource}
+              disabled={!canPlay}
               aria-label={t('editor.videoPlayer.frameBack')}
               className={styles.controlBtn}
             />
@@ -334,7 +393,7 @@ const VideoPlayer: React.FC = () => {
               theme="borderless"
               size="small"
               onClick={togglePlay}
-              disabled={!hasPlayableSource}
+              disabled={!canPlay}
               aria-label={isPlaying ? t('editor.videoPlayer.pause') : t('editor.videoPlayer.play')}
               className={styles.controlBtn}
             />
@@ -343,7 +402,7 @@ const VideoPlayer: React.FC = () => {
               theme="borderless"
               size="small"
               onClick={() => setCurrentTime(Math.min(duration, currentTime + 1 / 30))}
-              disabled={!hasPlayableSource}
+              disabled={!canPlay}
               aria-label={t('editor.videoPlayer.frameForward')}
               className={styles.controlBtn}
             />

@@ -46,8 +46,11 @@
   display: block;
 }
 
-// 真实 <video> 元素：与占位图同样铺满画面（保持 object-fit 不裁切）
+// 真实 <video> 元素与图片素材画面：绝对定位铺满画面互相堆叠（.screen 是 flex 容器，
+// 两个媒体元素若做 flex 子元素会并排分屏），object-fit 保持不裁切
 .video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
